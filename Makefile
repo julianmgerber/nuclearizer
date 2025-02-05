@@ -97,6 +97,7 @@ $(LB)/MGUIExpoStripPairingHits.o \
 $(LB)/MGUIExpoStripPairingStripHits.o \
 $(LB)/MModuleStripPairingGreedy.o \
 $(LB)/MGUIOptionsStripPairing.o \
+$(LB)/MModuleStripPairingGerber.o \
 $(LB)/MModuleStripPairingChiSquare.o \
 $(LB)/MGUIOptionsEventSaver.o \
 $(LB)/MModuleEventSaver.o \

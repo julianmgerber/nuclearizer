@@ -70,6 +70,7 @@ void MGUIOptionsStripPairing::Create()
   
   m_Mode = new MGUIERBList(m_OptionsFrame, "Please select a strip pairing mode:");
   m_Mode->Add("Andreas's algorithm");
+  m_Mode->Add("Strip pairing (Taylor's Version) (Extended)");
   m_Mode->Add("Daniel's 'greedy' algorithm");
   m_Mode->SetSelected(dynamic_cast<MModuleStripPairingGreedy*>(m_Module)->GetMode());
   m_Mode->Create();
