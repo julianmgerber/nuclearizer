@@ -74,7 +74,6 @@ class MAssembly
   static const uint64_t c_ResponseGeneration       = (1 << 23);
 
 
-
   // IMPORTANT:
   // If you add one analysis level, make sure you also handle it in:
   // -> ALL module constructors!

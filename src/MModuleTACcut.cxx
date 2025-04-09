@@ -55,7 +55,7 @@ MModuleTACcut::MModuleTACcut() : MModule()
   // Set all module relevant information
 
   // Set the module name --- has to be unique
-  m_Name = "TAC Cut";
+  m_Name = "TAC Calibration";
 
   // Set the XML tag --- has to be unique --- no spaces allowed
   m_XmlTag = "XmlTagTACcut";
@@ -64,7 +64,7 @@ MModuleTACcut::MModuleTACcut() : MModule()
   AddPreceedingModuleType(MAssembly::c_EventLoader);
   //AddPreceedingModuleType(MAssembly::c_DetectorEffectsEngine);
 
-  // AddPreceedingModuleType(MAssembly::c_EnergyCalibration);
+  AddPreceedingModuleType(MAssembly::c_EnergyCalibration);
   // AddPreceedingModuleType(MAssembly::c_ChargeSharingCorrection);
   // AddPreceedingModuleType(MAssembly::c_DepthCorrection);
   // AddPreceedingModuleType(MAssembly::c_StripPairing);
@@ -76,7 +76,7 @@ MModuleTACcut::MModuleTACcut() : MModule()
   // Set all modules, which can follow this module
   AddSucceedingModuleType(MAssembly::c_StripPairing);
   AddSucceedingModuleType(MAssembly::c_DepthCorrection);
-
+  // AddSucceedingModuleType(MAssembly::c_EnergyCalibration);
   // Set if this module has an options GUI
   // Overwrite ShowOptionsGUI() with the call to the GUI!
   m_HasOptionsGUI = true;
@@ -92,6 +92,11 @@ MModuleTACcut::MModuleTACcut() : MModule()
   //initialize a min and max TAC value 
   m_MinimumTAC = 0;
   m_MaximumTAC = 20000;
+
+  m_ShapingOffset = 2255;
+  m_DisableTime = 1396;
+  m_FlagToEnDelay = 104;
+  m_CoincidenceWindow = 500;
 }
 
 
@@ -111,12 +116,12 @@ bool MModuleTACcut::Initialize()
 {
   // Initialize the module 
 
-  if( LoadTACCalFile(m_TACCalFile) == false ){
+  if (LoadTACCalFile(m_TACCalFile) == false) {
     cout << "TAC Calibration file could not be loaded." << endl;
     return false;
   }
 
-  return true;
+  return MModule::Initialize();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -129,10 +134,10 @@ void MModuleTACcut::CreateExpos()
 
   // Set the histogram display
   m_ExpoTACcut = new MGUIExpoTACcut(this);
-  m_ExpoTACcut->SetTACHistogramArrangement(&m_DetectorIDs);
-  for(unsigned int i = 0; i < m_DetectorIDs.size(); ++i){
+  m_ExpoTACcut->SetTACHistogramArrangement(m_DetectorIDs);
+  for (unsigned int i = 0; i < m_DetectorIDs.size(); ++i) {
     unsigned int DetID = m_DetectorIDs[i];
-    m_ExpoTACcut->SetTACHistogramParameters(DetID, 120, 0, 20000);
+    m_ExpoTACcut->SetTACHistogramParameters(DetID, 120, 0, 7000);
   }
   m_Expos.push_back(m_ExpoTACcut);
 }
@@ -144,36 +149,52 @@ bool MModuleTACcut::AnalyzeEvent(MReadOutAssembly* Event)
 {
   // Main data analysis routine, which updates the event to a new level 
 
-  // Apply cuts to the TAC values:
-  for (unsigned int i = 0; i < Event->GetNStripHits(); ) {
-    MStripHit* SH = Event->GetStripHit(i);
+  // // Apply cuts to the TAC values:
+  // for (unsigned int i = 0; i < Event->GetNStripHits();) {
+  //   MStripHit* SH = Event->GetStripHit(i);
 
-    if ( HasExpos()==true ){
-      m_ExpoTACcut->AddTAC(SH->GetDetectorID(), SH->GetTiming());
-    }
-    // takes inputted min and max TAC values from the GUI module to make cuts 
-    if ( SH->GetTiming() < m_MinimumTAC || SH->GetTiming() > m_MaximumTAC) {
-      // cout<<"HACK: Removing strip ht due to TAC "<<SH->GetTiming()<<" cut or energy "<<SH->GetEnergy()<<endl;
-      Event->RemoveStripHit(i);
-      delete SH;
-    } else {
-      ++i;
-    }
-  }
-
-  for (unsigned int i = 0; i < Event->GetNStripHits(); ++i){
+  //   if (HasExpos()==true) {
+  //     m_ExpoTACcut->AddTAC(SH->GetDetectorID(), SH->GetTiming());
+  //   }
+  //   // takes inputted min and max TAC values from the GUI module to make cuts 
+  //   if (SH->GetTAC() < m_MinimumTAC || SH->GetTAC() > m_MaximumTAC) {
+  //     Event->RemoveStripHit(i);
+  //     delete SH;
+  //   } else {
+  //     ++i;
+  //   }
+  // }
+  double TotalOffset = m_ShapingOffset + m_DisableTime + m_FlagToEnDelay;
+  double MaxTAC = -numeric_limits<double>::max();
+  for (unsigned int i = 0; i < Event->GetNStripHits(); ++i) {
     MStripHit* SH = Event->GetStripHit(i);
-    double TAC_timing = SH->GetTiming();
+    double TAC_timing = SH->GetTAC();
     double ns_timing;
     int DetID = SH->GetDetectorID();
     int StripID = SH->GetStripID();
-    if ( SH->IsLowVoltageStrip() == true ){
-      ns_timing = (TAC_timing*m_LVTACCal[DetID][StripID][0] + m_LVTACCal[DetID][StripID][1]);
-    }
-    else{
+    if (SH->IsLowVoltageStrip() == true) {
+      ns_timing = TAC_timing*m_LVTACCal[DetID][StripID][0] + m_LVTACCal[DetID][StripID][1];
+    } else {
       ns_timing = TAC_timing*m_HVTACCal[DetID][StripID][0] + m_HVTACCal[DetID][StripID][1];
     }
     SH->SetTiming(ns_timing);
+    if (HasExpos()==true) {
+      m_ExpoTACcut->AddTAC(SH->GetDetectorID(), ns_timing);
+    }
+    if (ns_timing > MaxTAC) {
+      MaxTAC = ns_timing;
+    }
+  }
+
+  for (unsigned int i = 0; i < Event->GetNStripHits();) {
+    MStripHit* SH = Event->GetStripHit(i);
+    double SHTiming = SH->GetTiming();
+    if ((SHTiming < TotalOffset + m_CoincidenceWindow) && (SHTiming > TotalOffset) && (SHTiming > MaxTAC - m_CoincidenceWindow)){
+      ++i;
+    } else {
+      Event->RemoveStripHit(i);
+      delete SH;
+    }
   }
 
   Event->SetAnalysisProgress(MAssembly::c_TACcut);
@@ -211,12 +232,39 @@ bool MModuleTACcut::ReadXmlConfiguration(MXmlNode* Node)
 {
   //! Read the configuration data from an XML node
 
-  /*
-  MXmlNode* SomeTagNode = Node->GetNode("SomeTag");
-  if (SomeTagNode != 0) {
-    m_SomeTagValue = SomeTagNode->GetValue();
+  MXmlNode* TACCalFileNameNode = Node->GetNode("TACCalFileName");
+  if (TACCalFileNameNode != 0) {
+    SetTACCalFileName(TACCalFileNameNode->GetValue());
   }
-  */
+
+  MXmlNode* MinimumTACNode = Node->GetNode("MinimumTAC");
+  if (MinimumTACNode != 0) {
+    m_MinimumTAC = MinimumTACNode->GetValueAsInt();
+  }
+  MXmlNode* MaximumTACNode = Node->GetNode("MaximumTAC");
+  if (MaximumTACNode != 0) {
+    m_MaximumTAC = MaximumTACNode->GetValueAsInt();
+  }
+
+  MXmlNode* ShapingOffsetNode = Node->GetNode("ShapingOffset");
+  if (ShapingOffsetNode != 0) {
+    m_ShapingOffset = ShapingOffsetNode->GetValueAsDouble();
+  }
+
+  MXmlNode* DisableTimeNode = Node->GetNode("DisableTime");
+  if (DisableTimeNode != 0) {
+    m_DisableTime = DisableTimeNode->GetValueAsDouble();
+  }
+
+  MXmlNode* FlagToEnDelayNode = Node->GetNode("FlagToEnDelay");
+  if (FlagToEnDelayNode != 0) {
+    m_FlagToEnDelay = FlagToEnDelayNode->GetValueAsDouble();
+  }
+
+  MXmlNode* CoincidenceWindowNode = Node->GetNode("CoincidenceWindow");
+  if (CoincidenceWindowNode != 0) {
+    m_CoincidenceWindow = CoincidenceWindowNode->GetValueAsDouble();
+  }
 
   return true;
 }
@@ -231,9 +279,13 @@ MXmlNode* MModuleTACcut::CreateXmlConfiguration()
 
   MXmlNode* Node = new MXmlNode(0, m_XmlTag);
   
-  /*
-  MXmlNode* SomeTagNode = new MXmlNode(Node, "SomeTag", "SomeValue");
-  */
+  new MXmlNode(Node, "TACCalFileName", m_TACCalFile);
+  new MXmlNode(Node, "MinimumTAC", m_MinimumTAC);
+  new MXmlNode(Node, "MaximumTAC", m_MaximumTAC);
+  new MXmlNode(Node, "ShapingOffset", m_ShapingOffset);
+  new MXmlNode(Node, "DisableTime", m_DisableTime);
+  new MXmlNode(Node, "FlagToEnDelay", m_FlagToEnDelay);
+  new MXmlNode(Node, "CoincidenceWindow", m_CoincidenceWindow);
 
   return Node;
 }
@@ -248,10 +300,10 @@ bool MModuleTACcut::LoadTACCalFile(MString FName)
     return false;
   } else {
     MString Line;
-    while( F.ReadLine( Line ) ){
-      if( !Line.BeginsWith("#") ){
+    while (F.ReadLine(Line)) {
+      if (!Line.BeginsWith("#")) {
         std::vector<MString> Tokens = Line.Tokenize(",");
-        if( Tokens.size() == 7 ){
+        if (Tokens.size() == 7) {
           int DetID = Tokens[0].ToInt();
           int StripID = Tokens[2].ToInt();
           double taccal = Tokens[3].ToDouble();
@@ -269,10 +321,9 @@ bool MModuleTACcut::LoadTACCalFile(MString FName)
             m_DetectorIDs.push_back(DetID);
           }
           
-          if ( Tokens[1] == "l" ){
+          if (Tokens[1] == "l") {
             m_LVTACCal[DetID][StripID] = cal_vals;
-          }
-          else if ( Tokens[1] == "h" ){
+          } else if (Tokens[1] == "h") {
             m_HVTACCal[DetID][StripID] = cal_vals;
           }
         }

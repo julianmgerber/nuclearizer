@@ -86,7 +86,7 @@ void MGUIExpoTACcut::Reset()
 ////////////////////////////////////////////////////////////////////////////////
 
 
-void MGUIExpoTACcut::SetTACHistogramArrangement(vector<unsigned int>* DetIDs)
+void MGUIExpoTACcut::SetTACHistogramArrangement(const vector<unsigned int> DetIDs)
 {
   // Take in the list of detector IDs and determine the number in X and number in Y
   // Update the variable m_DetectorMap.
@@ -97,23 +97,23 @@ void MGUIExpoTACcut::SetTACHistogramArrangement(vector<unsigned int>* DetIDs)
 
   unsigned int max_columns = 4;
 
-  unsigned int NDetectors = DetIDs->size();
-  cout<<"MGUIExpoTACcut::SetTACHistogramArrangement: Number of detectors:" << NDetectors<<endl;
+  unsigned int NDetectors = DetIDs.size();
+  cout<<"MGUIExpoTACcut::SetTACHistogramArrangement: Number of detectors:"<< NDetectors<<endl;
 
-  for ( unsigned int i=0; i< NDetectors; ++i ){
+  for (unsigned int i=0; i < NDetectors; ++i) {
     // iterate over detector IDs, make the map from ID to plot position, and initialize the histograms
-    if ( (i % max_columns) == 0 ){
+    if ((i % max_columns) == 0) {
       ++row;
       vector<unsigned int> new_row;
       m_DetectorMap.push_back(new_row);
       column = 1;
     }
 
-    unsigned int DetID = DetIDs->at(i);
+    unsigned int DetID = DetIDs.at(i);
     m_DetectorMap[row-1].push_back(DetID);
 
     TH1D* TAC = new TH1D("", "TAC", m_NBins[DetID], m_Min[DetID], m_Max[DetID]);
-    TAC->SetXTitle("TAC [cm]");
+    TAC->SetXTitle("Calibrated TAC (ns)");
     TAC->SetYTitle("counts");
     TAC->SetFillColor(kAzure+7);
     
@@ -123,15 +123,13 @@ void MGUIExpoTACcut::SetTACHistogramArrangement(vector<unsigned int>* DetIDs)
     ++column;
   }
 
-  if ( NDetectors < max_columns ){
+  if (NDetectors < max_columns) {
     m_NColumns = NDetectors; 
-  }
-  else{
+  } else {
     m_NColumns=max_columns;
   }
 
   m_NRows = (NDetectors/max_columns) + 1; 
-  
   m_Mutex.UnLock();
 }
 
@@ -235,7 +233,7 @@ void MGUIExpoTACcut::Update()
 
   double Max = 0;
   // for (auto H : m_TACHistograms) {
-  for ( const auto dethistpair : m_TACHistograms ){
+  for (const auto dethistpair : m_TACHistograms) {
     TH1D* H = dethistpair.second;
     for (int bx = 2; bx < H->GetNbinsX(); ++bx) { // Skip first and last
       if (Max < H->GetBinContent(bx)) {
@@ -244,7 +242,7 @@ void MGUIExpoTACcut::Update()
     }
   }
   Max *= 1.1;
-  for ( const auto dethistpair : m_TACHistograms ){
+  for (const auto dethistpair : m_TACHistograms) {
     TH1D* H = dethistpair.second;
     H->SetMaximum(Max);
   }
