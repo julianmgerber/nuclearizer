@@ -453,8 +453,8 @@ double MModuleDepthCalibration2024::GetTimingNoiseFWHM(int pixel_code, double En
   // Should follow 1/E relation
   // TODO: Determine real energy dependence and implement it here.
   double noiseFWHM = 0.0;
-  if (m_CoeffsEnergy != 0) {
-    noiseFWHM = m_Coeffs[pixel_code][2] * m_CoeffsEnergy/Energy;
+  if (m_Coeffs_Energy != 0) {
+    noiseFWHM = m_Coeffs[pixel_code][2] * m_Coeffs_Energy/Energy;
     if ( noiseFWHM < 3.0*2.355 ){
       noiseFWHM = 3.0*2.355;
     }
@@ -480,8 +480,8 @@ bool MModuleDepthCalibration2024::LoadCoeffsFile(MString FName)
     while( F.ReadLine( Line ) ){
       if ( Line.BeginsWith('#') ){
         std::vector<MString> Tokens = Line.Tokenize(" ");
-        m_CoeffsEnergy = Tokens[5].ToDouble();
-        cout << "The stretch and offset were calculated for " << m_CoeffsEnergy << " keV." << endl;
+        m_Coeffs_Energy = Tokens[5].ToDouble();
+        cout << "The stretch and offset were calculated for " << m_Coeffs_Energy << " keV." << endl;
       }
       else {
         std::vector<MString> Tokens = Line.Tokenize(",");
