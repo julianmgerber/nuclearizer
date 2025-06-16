@@ -1,6 +1,7 @@
 /*
- * MModuleStripPairingChiSquare.cxx
+ * MModuleStripPairingTiming.cxx
  * Gerber Version (testing)
+ * This module will implement only the timing methods utilized in the Chi Square algorithm
  *
  * Copyright (C) by Andreas Zoglauer.
  * All rights reserved.
@@ -18,13 +19,13 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// MModuleStripPairingGerber
+// MModuleStripPairingTiming
 //
 ////////////////////////////////////////////////////////////////////////////////
 
 
 // Include the header:
-#include "MModuleStripPairingGerber.h"
+#include "MModuleStripPairingTiming.h"
 
 // Standard libs:
 
@@ -40,24 +41,24 @@
 
 
 #ifdef ___CLING___
-ClassImp(MModuleStripPairingGerber)
+ClassImp(MModuleStripPairingTiming)
 #endif
 
 
 ////////////////////////////////////////////////////////////////////////////////
 
 
-MModuleStripPairingGerber::MModuleStripPairingGerber() : MModule()
+MModuleStripPairingTiming::MModuleStripPairingTiming() : MModule()
 {
-  // Construct an instance of MModuleStripPairingGerber
+  // Construct an instance of MModuleStripPairingTiming
 
   // Set all module relevant information
 
   // Set the module name --- has to be unique
-  m_Name = "Strip pairing - Gerber Testing Version";
+  m_Name = "Strip pairing - Timing Testing Version";
 
   // Set the XML tag --- has to be unique --- no spaces allowed
-  m_XmlTag = "XmlTagStripPairingGerber";
+  m_XmlTag = "XmlTagStripPairingTiming";
 
   // Set all modules, which have to be done before this module
   AddPreceedingModuleType(MAssembly::c_EventLoader);
@@ -87,16 +88,16 @@ MModuleStripPairingGerber::MModuleStripPairingGerber() : MModule()
 ////////////////////////////////////////////////////////////////////////////////
 
 
-MModuleStripPairingGerber::~MModuleStripPairingGerber()
+MModuleStripPairingTiming::~MModuleStripPairingTiming()
 {
-  // Delete this instance of MModuleStripPairingGerber
+  // Delete this instance of MModuleStripPairingTiming
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////
 
 
-void MModuleStripPairingGerber::CreateExpos()
+void MModuleStripPairingTiming::CreateExpos()
 {
   // Create all expos
 
@@ -120,7 +121,7 @@ void MModuleStripPairingGerber::CreateExpos()
 ////////////////////////////////////////////////////////////////////////////////
 
 
-bool MModuleStripPairingGerber::Initialize()
+bool MModuleStripPairingTiming::Initialize()
 {
   // Initialize the module
 
@@ -131,7 +132,7 @@ bool MModuleStripPairingGerber::Initialize()
 ////////////////////////////////////////////////////////////////////////////////
 
 
-vector<vector<vector<unsigned int>>> MModuleStripPairingGerber::FindNewCombinations(vector<vector<vector<unsigned int>>> OldOnes, vector<MStripHit*> StripHits)
+vector<vector<vector<unsigned int>>> MModuleStripPairingTiming::FindNewCombinations(vector<vector<vector<unsigned int>>> OldOnes, vector<MStripHit*> StripHits)
 {
   vector<vector<vector<unsigned int>>> NewOnes; // <list> of <combinations> of <combined strips>
 
@@ -181,7 +182,7 @@ vector<vector<vector<unsigned int>>> MModuleStripPairingGerber::FindNewCombinati
 ////////////////////////////////////////////////////////////////////////////////
 
 
-bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
+bool MModuleStripPairingTiming::AnalyzeEvent(MReadOutAssembly* Event)
 {
   // Main data analysis routine, which updates the event to a new level
 
@@ -671,7 +672,7 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
 ////////////////////////////////////////////////////////////////////////////////
 
 
-vector<size_t> MModuleStripPairingGerber::Argsort(vector<double> &list)
+vector<size_t> MModuleStripPairingTiming::Argsort(vector<double> &list)
 {
   // Return the order of indices resulting from list sorting
   // initialize original index locations
@@ -692,7 +693,7 @@ vector<size_t> MModuleStripPairingGerber::Argsort(vector<double> &list)
 ////////////////////////////////////////////////////////////////////////////////
 
 
-void MModuleStripPairingGerber::Finalize()
+void MModuleStripPairingTiming::Finalize()
 {
   // Finalize the analysis - do all cleanup, i.e., undo Initialize()
 
@@ -703,7 +704,7 @@ void MModuleStripPairingGerber::Finalize()
 ////////////////////////////////////////////////////////////////////////////////
 
 
-void MModuleStripPairingGerber::ShowOptionsGUI()
+void MModuleStripPairingTiming::ShowOptionsGUI()
 {
   //! Show the options GUI --- has to be overwritten!
 
@@ -716,7 +717,7 @@ void MModuleStripPairingGerber::ShowOptionsGUI()
 ////////////////////////////////////////////////////////////////////////////////
 
 
-bool MModuleStripPairingGerber::ReadXmlConfiguration(MXmlNode* Node)
+bool MModuleStripPairingTiming::ReadXmlConfiguration(MXmlNode* Node)
 {
   //! Read the configuration data from an XML node
 
@@ -734,7 +735,7 @@ bool MModuleStripPairingGerber::ReadXmlConfiguration(MXmlNode* Node)
 ////////////////////////////////////////////////////////////////////////////////
 
 
-MXmlNode* MModuleStripPairingGerber::CreateXmlConfiguration()
+MXmlNode* MModuleStripPairingTiming::CreateXmlConfiguration()
 {
   //! Create an XML node tree from the configuration
 
@@ -748,5 +749,5 @@ MXmlNode* MModuleStripPairingGerber::CreateXmlConfiguration()
 }
 
 
-// MModuleStripPairingGerber.cxx: the end...
+// MModuleStripPairingTiming.cxx: the end...
 ////////////////////////////////////////////////////////////////////////////////
