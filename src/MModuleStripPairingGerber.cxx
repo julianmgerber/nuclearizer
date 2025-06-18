@@ -130,23 +130,28 @@ bool MModuleStripPairingGerber::Initialize()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-
+// following function returns a 3D vector of integers
+// Input is 3D vector of ints called "Old Ones" and a vector of "Strip Hits" (pointing to an object of type StripHit, defined in MStripHit.cxx)
+// StripHit is the literal readout in the .roa file
 vector<vector<vector<unsigned int>>> MModuleStripPairingGerber::FindNewCombinations(vector<vector<vector<unsigned int>>> OldOnes, vector<MStripHit*> StripHits)
 {
+    // define new vector of ints NewOnes
   vector<vector<vector<unsigned int>>> NewOnes; // <list> of <combinations> of <combined strips>
-
-  for (unsigned int listspot = 0; listspot < OldOnes.size(); ++listspot) {
+    
+  for (unsigned int listspot = 0; listspot < OldOnes.size(); ++listspot) { // iterate over set of combinations
     // New single merges
-    for (unsigned int combi1 = 0; combi1 < OldOnes[listspot].size(); ++combi1) {
-      for (unsigned int combi2 = combi1+1; combi2 < OldOnes[listspot].size(); ++combi2) {
+    for (unsigned int combi1 = 0; combi1 < OldOnes[listspot].size(); ++combi1) { //iterate over individual combos within set
+      for (unsigned int combi2 = combi1+1; combi2 < OldOnes[listspot].size(); ++combi2) { //iterate through all the combos AFTER combi1
         vector<unsigned int> NewCombinedStrips;
         NewCombinedStrips.insert(NewCombinedStrips.end(), OldOnes[listspot][combi1].begin(), OldOnes[listspot][combi1].end());
         NewCombinedStrips.insert(NewCombinedStrips.end(), OldOnes[listspot][combi2].begin(), OldOnes[listspot][combi2].end());
         sort(NewCombinedStrips.begin(), NewCombinedStrips.end());
+        
+        // the above combines each combination with all the subsequent combinations in order to produce new combinations of strips
 
         vector<unsigned int> NewCombinedAsIDs;
         for (unsigned int s = 0; s < NewCombinedStrips.size(); ++s) {
-          NewCombinedAsIDs.push_back(StripHits[NewCombinedStrips[s]]->GetStripID());
+          NewCombinedAsIDs.push_back(StripHits[NewCombinedStrips[s]]->GetStripID()); //translates the hit number to the actual strip ID
         }
         sort(NewCombinedAsIDs.begin(), NewCombinedAsIDs.end());
 
@@ -156,7 +161,7 @@ vector<vector<vector<unsigned int>>> MModuleStripPairingGerber::FindNewCombinati
             AllAdjacent = false;
             break;
           }
-        }
+        } //checks if the new combo is of adjacent strips
 
         if (AllAdjacent == true) {
           vector<vector<unsigned int>> NewCombo;
@@ -172,9 +177,10 @@ vector<vector<vector<unsigned int>>> MModuleStripPairingGerber::FindNewCombinati
         }
       }
     }
-  }
+  }//only keeps the new combos that contain all adjacent strips
+    // I don't believe there is any limit on the number of adjacent strips that can exist in a combination
 
-  return NewOnes;
+  return NewOnes; //return all the new combos containing series of adjacent strips
 }
 
 
@@ -187,9 +193,9 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
 
   mdebug<<"StripPairing started"<<endl;
 
-  unsigned int MaxCombinations = 5;
+  unsigned int MaxCombinations = 5; //sets limit on the number of strip combinations. why though?
 
-  if (Event->GetNStripHits() == 0) {
+  if (Event->GetNStripHits() == 0) { //check if there are actually any hits
     Event->SetStripPairingIncomplete(true, "No strip hits");
     Event->SetAnalysisProgress(MAssembly::c_StripPairing);
     return false;
@@ -226,7 +232,7 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
   }
 
   // Limit the strip hits
-  const unsigned int MaxStripHits = 6;
+  const unsigned int MaxStripHits = 6; //where does this limit come from? --> 6 hits on any one side
   for (unsigned int d = 0; d < StripHits.size(); ++d) { // Detector loop
     for (unsigned int side = 0; side <=1; ++side) { // side loop
       if (StripHits[d][side].size() > MaxStripHits) {
@@ -286,28 +292,31 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
   // (3) Find all possible combinations
   vector<vector<vector<vector<vector<unsigned int>>>>> Combinations;  // list of detector IDs, list of sides, list of combinations; combination with list of combined strips
   for (unsigned int d = 0; d < StripHits.size(); ++d) { // Detector loop
-    Combinations.push_back(vector<vector<vector<vector<unsigned int>>>>());
+    Combinations.push_back(vector<vector<vector<vector<unsigned int>>>>()); //create 4D vectors for each detector
     for (unsigned int s = 0; s <= 1 ; ++s) {
-      Combinations[d].push_back(vector<vector<vector<unsigned int>>>()); // X
+      Combinations[d].push_back(vector<vector<vector<unsigned int>>>()); // X create 3D vectors within each detector vector for each side
       Combinations[d].push_back(vector<vector<vector<unsigned int>>>()); // Y
     }
-    // Create the seed combinations
-    for (unsigned int s = 0; s < StripHits[d].size(); ++s) {
+    // Create the seed combinations --> the base case that will be used for the FindNewCombinations function (this is the start of the "OldOnes" vector
+    for (unsigned int s = 0; s < StripHits[d].size(); ++s) { //is s just the side??? I think so...
       vector<vector<unsigned int>> Combination;
       for (unsigned int h = 0; h < StripHits[d][s].size(); ++h) {
         vector<unsigned int> CombinedStrips = { h };
         sort(CombinedStrips.begin(), CombinedStrips.end());
         Combination.push_back(CombinedStrips);
       }
-      Combinations[d][s].push_back(Combination);
+      Combinations[d][s].push_back(Combination); //adds single strip "combinations" to a vector
+        // so if there are hits 1,2, and 3 on a single side, Combinations[d][s] will have [[1],[2],[3]] (for each side)
     }
   }
+    
+// so a full set of combinations might be [ [ [1], [2], [3] ] , [ [1,2], [3] ], etc ] hence why you need a 3D vector
 
   // Starting from this seed, find more new combinations
   for (unsigned int d = 0; d < StripHits.size(); ++d) { // Detector loop
-    for (unsigned int side = 0; side <=1; ++side) { // side loop
+    for (unsigned int side = 0; side <=1; ++side) { // side loop (LV and HV)
 
-      vector<vector<vector<unsigned int>>> NewCombinations;
+      vector<vector<vector<unsigned int>>> NewCombinations; 
 
       bool CombinationsAdded = true;
       while (CombinationsAdded == true) {
@@ -344,7 +353,7 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
           for (auto C: NewCombinations) {
             Combinations[d][side].push_back(C);
           }
-          CombinationsAdded = true;
+          CombinationsAdded = true; //keep going until no more combos added
         }
       } // combination search
     } // side loop
@@ -378,13 +387,15 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
     // (3) Evaluate all combinations
     // All strip combinations for one side have been found, now check for the best x-y combinations
     double BestChiSquare = numeric_limits<double>::max();
-    vector<vector<unsigned int>> BestXSideCombo;
+    vector<vector<unsigned int>> BestXSideCombo; //list of lists (ie. list of strip combos making up an event on either side)
     vector<vector<unsigned int>> BestYSideCombo;
 
     for (unsigned int xc = 0; xc < Combinations[d][0].size(); ++xc) { // Loop over combinations of x-strips (xc represents a list of sets of strips,  and each set is a proposed Hit)
-      for (unsigned int yc = 0; yc < Combinations[d][1].size(); ++yc) { // Loop over combinations of y-strips (xc represents a list of sets of strips,  and each set is a proposed Hit)
+      for (unsigned int yc = 0; yc < Combinations[d][1].size(); ++yc) { // Loop over combinations of y-strips (yc represents a list of sets of strips,  and each set is a proposed Hit)
 
         if (abs(long(Combinations[d][0][xc].size()) - long(Combinations[d][1][yc].size())) > 1) { // Skip this pair of combos if the x- and y-strip combos differ in size by more than one
+            // ie. if a certain set has 2 or more combos on one side than the other than it disregards the pair
+            // MARK: NOTE - I believe this would remove any possibility of more than 2 hits on a single strip
           continue;
         }
 
@@ -414,21 +425,23 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
 
           for (unsigned int en = 0; en < MinSize; ++en) {
             unsigned int ep = en;
+            // MARK: NOTE - The way this is written, doesn't this mean that if there are more sets of strips on one side than the other, they won't be counted in the chi^2? NO --> because of later if statement (line 535)
 
             double xEnergy = 0;
             double xResolution = 0;
             unsigned int dominantX;
             double MaxEnergy = -numeric_limits<double>::max();
-            for (unsigned int entry = 0; entry < Combinations[d][0][xc][en].size(); ++entry) { // Sum up energy on xstrips in the set of strips, en
+            for (unsigned int entry = 0; entry < Combinations[d][0][xc][en].size(); ++entry) { // Sum up energy on xstrips in the set of strips, en (entry is on the strip level itself)
               double tempEnergy = StripHits[d][0][Combinations[d][0][xc][en][entry]]->GetEnergy();
               if (tempEnergy > MaxEnergy){
                 dominantX = entry;
-                MaxEnergy = tempEnergy;
+                MaxEnergy = tempEnergy; //keeps track of max energy on a single strip
               }
               xEnergy += StripHits[d][0][Combinations[d][0][xc][en][entry]]->GetEnergy();
               xResolution += pow(StripHits[d][0][Combinations[d][0][xc][en][entry]]->GetEnergyResolution(), 2);
             }
-
+            
+            //repeats for y side
             double yEnergy = 0;
             double yResolution = 0;
             unsigned int dominantY;
@@ -442,7 +455,7 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
               yEnergy += tempEnergy;
               yResolution += pow(StripHits[d][1][Combinations[d][1][yc][ep][entry]]->GetEnergyResolution(), 2);
             }
-
+// Here begins the timing bit, skipping for now.
             double LVtau = StripHits[d][0][Combinations[d][0][xc][en][dominantX]]->GetTiming();
             double HVtau = StripHits[d][1][Combinations[d][1][yc][ep][dominantY]]->GetTiming();
 //            double CTDHVShift = LVtau - HVtau + 200;
@@ -467,6 +480,8 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
             //     << ep << " (" << yEnergy << "):" << endl;
             //cout<<xResolution<<":"<<yResolution<<endl;
             ChiSquare += (xEnergy - yEnergy)*(xEnergy - yEnergy) / (xResolution + yResolution); // Chi-squared is determined by how close the energies on either side match
+            // chi^2 is calculated for each individual pairing of x and y strip combos within each individual set of combos
+            // But the chi^2 is then added up over the total combination (ie. each xc/yc pair has a different chi^2)
           }
 
           HVtauMean /= MinSize;
@@ -483,7 +498,7 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
           //   }
           // }
 
-          // Calculate the distance between measurements and properly order lists of drift times
+          // Calculate the distance between measurements and properly order lists of drift times --> time ordering!!
           double HVTimeOrderDistance = 0;
           double LVTimeOrderDistance = 0;
           for (unsigned int i=0; i<HVTauArgsort.size(); ++i) {
@@ -506,16 +521,17 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
           // }
 
           ChiSquare /= MinSize; // Chi-squared is normalized by the number of sets of strips in the smaller of the two combos xc and yc
+          // But doesn't this favor large combo sets? YES because larger combo sets correspond to less charge sharing pairs of strips (ie a simpler configuration)!
           //cout<<"Chi square: "<<ChiSquare<<endl;
 
           if (ChiSquare < BestChiSquare) {
             BestChiSquare = ChiSquare;
-            BestXSideCombo = Combinations[d][0][xc];
+            BestXSideCombo = Combinations[d][0][xc]; //best combo is chosen. But then how are the strips paired within each combo set?
             BestYSideCombo = Combinations[d][1][yc];
           }
 
           //cout<<"ChiSquare: "<<ChiSquare<<endl;
-
+            // this takes into account the possibility of unequal combo sizes
           if (Combinations[d][1][yc].size() > Combinations[d][0][xc].size()) {
             MorePermutations = next_permutation(Combinations[d][1][yc].begin(), Combinations[d][1][yc].end());
           } else {
@@ -548,7 +564,7 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
     */
 
     // Now create hits:
-    if (BestChiSquare == numeric_limits<double>::max()) {
+    if (BestChiSquare == numeric_limits<double>::max()) { //check if chi^2 was actually updated at all
       Event->SetStripPairingIncomplete(true, "Pairing did not find a single match");
       Event->SetAnalysisProgress(MAssembly::c_StripPairing);
       return false;
@@ -573,7 +589,8 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
     // Create a list for plotting X and Y energies
     vector<double> XEnergies;
     vector<double> YEnergies;
-
+      
+    // MARK: NOTE - But how do you know that the XSide and YSide Combos are ordered in exactly the right way such that h=0 on either side corresponds to the right pairing???
     for (unsigned int h = 0; h < min(BestXSideCombo.size(), BestYSideCombo.size()); ++h) {
       XPos = 0;
       YPos = 0;
