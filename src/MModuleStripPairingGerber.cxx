@@ -178,7 +178,7 @@ vector<vector<vector<unsigned int>>> MModuleStripPairingGerber::FindNewCombinati
       }
     }
   }//only keeps the new combos that contain all adjacent strips
-    // I don't believe there is any limit on the number of adjacent strips that can exist in a combination
+    // I don't believe there is any limit on the number of adjacent strips that can exist in a combination (but there is a limit on the number of combos)
 
   return NewOnes; //return all the new combos containing series of adjacent strips
 }
@@ -192,7 +192,7 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
   // Main data analysis routine, which updates the event to a new level
 
   mdebug<<"StripPairing started"<<endl;
-
+  // MARK: NOTE - Limit on number of combos
   unsigned int MaxCombinations = 5; //sets limit on the number of strip combinations. why though?
 
   if (Event->GetNStripHits() == 0) { //check if there are actually any hits
@@ -591,6 +591,7 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
     vector<double> YEnergies;
       
     // MARK: NOTE - But how do you know that the XSide and YSide Combos are ordered in exactly the right way such that h=0 on either side corresponds to the right pairing???
+    // my guess is that this is done on the xc level: i.e. the set of combinations [ [1], [2] ] is not equal to [ [2], [1] ] which makes sure that the chi^2 picks out the correct pairing
     for (unsigned int h = 0; h < min(BestXSideCombo.size(), BestYSideCombo.size()); ++h) {
       XPos = 0;
       YPos = 0;
