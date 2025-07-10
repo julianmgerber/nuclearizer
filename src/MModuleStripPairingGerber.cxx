@@ -133,7 +133,7 @@ bool MModuleStripPairingGerber::Initialize()
 // following function returns a 3D vector of integers
 // Input is 3D vector of ints called "Old Ones" and a vector of "Strip Hits" (pointing to an object of type StripHit, defined in MStripHit.cxx)
 // StripHit is the literal readout in the .roa file
-vector<vector<vector<unsigned int>>> MModuleStripPairingGerber::FindNewCombinations(vector<vector<vector<unsigned int>>> OldOnes, vector<MStripHit*> StripHits)
+vector<vector<vector<unsigned int>>> MModuleStripPairingGerber::FindNewCombinations(vector<vector<vector<unsigned int>>> OldOnes, vector<MStripHit*> StripHits, bool RoundTwo)
 {
     // define new vector of ints NewOnes
   vector<vector<vector<unsigned int>>> NewOnes; // <list> of <combinations> of <combined strips>
@@ -154,26 +154,39 @@ vector<vector<vector<unsigned int>>> MModuleStripPairingGerber::FindNewCombinati
           NewCombinedAsIDs.push_back(StripHits[NewCombinedStrips[s]]->GetStripID()); //translates the hit number to the actual strip ID
         }
         sort(NewCombinedAsIDs.begin(), NewCombinedAsIDs.end());
+        
+        if (RoundTwo == false) {
+            bool AllAdjacent = true;
+            for (unsigned int c = 1; c < NewCombinedAsIDs.size(); ++c) {
+              if (NewCombinedAsIDs[c-1] + 1 != NewCombinedAsIDs[c]) {
+                AllAdjacent = false;
+                break;
+              }
+            } //checks if the new combo is of adjacent strips
 
-        bool AllAdjacent = true;
-        for (unsigned int c = 1; c < NewCombinedAsIDs.size(); ++c) {
-          if (NewCombinedAsIDs[c-1] + 1 != NewCombinedAsIDs[c]) {
-            AllAdjacent = false;
-            break;
-          }
-        } //checks if the new combo is of adjacent strips
-
-        if (AllAdjacent == true) {
-          vector<vector<unsigned int>> NewCombo;
-          for (unsigned int news = 0; news < OldOnes[listspot].size(); ++news) {
-            if (news != combi1 && news != combi2) {
-              NewCombo.push_back(OldOnes[listspot][news]);
+            if (AllAdjacent == true) {
+              vector<vector<unsigned int>> NewCombo;
+              for (unsigned int news = 0; news < OldOnes[listspot].size(); ++news) {
+                if (news != combi1 && news != combi2) {
+                  NewCombo.push_back(OldOnes[listspot][news]);
+                }
+                if (news == combi1) {
+                  NewCombo.push_back(NewCombinedStrips); //Should this be NewCombinedStripsAsIDs????
+                }
+              }
+              NewOnes.push_back(NewCombo);
             }
-            if (news == combi1) {
-              NewCombo.push_back(NewCombinedStrips);
+        } else {
+            vector<vector<unsigned int>> NewCombo;
+            for (unsigned int news = 0; news < OldOnes[listspot].size(); ++news) {
+              if (news != combi1 && news != combi2) {
+                NewCombo.push_back(OldOnes[listspot][news]);
+              }
+              if (news == combi1) {
+                NewCombo.push_back(NewCombinedStrips); //Should this be NewCombinedStripsAsIDs????
+              }
             }
-          }
-          NewOnes.push_back(NewCombo);
+            NewOnes.push_back(NewCombo);
         }
       }
     }
