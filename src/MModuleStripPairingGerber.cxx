@@ -630,6 +630,9 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
                     bool AllAdjacentX = true;
                     bool AllAdjacentY = true;
                     bool AllAdjacent = true;
+            
+                    cout<<"Best X Side Combo: "<<BestXSideCombo<<endl;
+                    cout<<"Best Y Side Combo: "<<BestYSideCombo<<endl;
     
                     for (unsigned int h = 0; h < min(BestXSideCombo.size(), BestYSideCombo.size()); ++h) {
                         XPos = 0;
@@ -700,11 +703,11 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
                             Event->AddHit(Hit);
                             for (unsigned int sh = 0; sh < BestXSideCombo[h].size(); ++sh) {
                                 Hit->AddStripHit(StripHits[d][0][BestXSideCombo[h][sh]]);
-                                cout<<"Paired Hit: "<<Hit<<endl;
+                                
                             }
                             for (unsigned int sh = 0; sh < BestYSideCombo[h].size(); ++sh) {
                                 Hit->AddStripHit(StripHits[d][1][BestYSideCombo[h][sh]]);
-                                cout<<"Paired Hit: "<<Hit<<endl;
+                                
                             }
                             
                         }
@@ -718,7 +721,7 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
                                 Hit->SetEnergyResolution(EnergyResolution);
                                 Event->AddHit(Hit);
                                 Hit->AddStripHit(StripHits[d][1][BestYSideCombo[h][sh]]);
-                                cout<<"Paired Hit: "<<Hit<<endl;
+                                
                                 }
                                 
                             }
@@ -732,7 +735,7 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
                                 Hit->SetEnergyResolution(EnergyResolution);
                                 Event->AddHit(Hit);
                                 Hit->AddStripHit(StripHits[d][0][BestXSideCombo[h][sh]]);
-                                cout<<"Paired Hit: "<<Hit<<endl;
+                                
                                 }
                         }
                         //If both HV and LV have multiple hits per strip, can't pair
