@@ -70,43 +70,21 @@ class MModuleTACcut : public MModule
 
   ///////////// Creating functions that will update and get the min/max TAC values //////////////////////////
 
- //! Set the minimum TAC value!
-  void SetMinimumTAC(unsigned int MinimumTAC) { m_MinimumTAC = MinimumTAC; }
-  //! Get the minimum TAC value!
-  unsigned int GetMinimumTAC() const { return m_MinimumTAC; }
-
-  //! Set the maximum TAC value!
-  void SetMaximumTAC(unsigned int MaximumTAC) { m_MaximumTAC = MaximumTAC; }
-  //! Get the maximum TAC value!
-  unsigned int GetMaximumTAC() const { return m_MaximumTAC; }
-
   //! Set filename for TAC Calibration
   void SetTACCalFileName( const MString& FileName) {m_TACCalFile = FileName;}
   //! Get filename for TAC Calibration
   MString GetTACCalFileName() const {return m_TACCalFile;}
 
-  //! Set the shaping offset
-  void SetShapingOffset(double ShapingOffset) { m_ShapingOffset = ShapingOffset; }
-  //! Get the shaping offset
-  unsigned int GetShapingOffset() const { return m_ShapingOffset; }
-
-  //! Set the disable time
-  void SetDisableTime(double DisableTime) { m_DisableTime = DisableTime; }
-  //! Get the disable time
-  unsigned int GetDisableTime() const { return m_DisableTime; }
-
-  //! Set the shaping flag_to_en_delay
-  void SetFlagToEnDelay(double FlagToEnDelay) { m_FlagToEnDelay = FlagToEnDelay; }
-  //! Get the shaping flag_to_en_delay
-  unsigned int GetFlagToEnDelay() const { return m_FlagToEnDelay; }
-
-  //! Set the shaping coincidence window
-  void SetCoincidenceWindow(double CoincidenceWindow) { m_CoincidenceWindow = CoincidenceWindow; }
-  //! Get the shaping coincidence window
-  unsigned int GetCoincidenceWindow() const { return m_CoincidenceWindow; }
+  //! Set filename for TAC Cut
+  void SetTACCutFileName( const MString& FileName) {m_TACCutFile = FileName;}
+  //! Get filename for TAC Cut
+  MString GetTACCutFileName() const {return m_TACCutFile;}
 
   //! Load the TAC calibration file
   bool LoadTACCalFile(MString FName);
+
+  //! Load the TAC cut file
+  bool LoadTACCutFile(MString FName);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
  
@@ -127,12 +105,16 @@ class MModuleTACcut : public MModule
   // private members:
  private:
 
-// declare min and max TAC variables here
-unsigned int m_MinimumTAC, m_MaximumTAC;
-double m_ShapingOffset, m_DisableTime, m_FlagToEnDelay, m_CoincidenceWindow;
+//! TAC cut and TAC calibration parameter files
 MString m_TACCalFile;
-unordered_map<int, unordered_map<int, vector<double>>> m_HVTACCal;
-unordered_map<int, unordered_map<int, vector<double>>> m_LVTACCal;
+MString m_TACCutFile;
+
+//! Map DetID -> Side (LV=0, HV=1) -> Strip ID -> TAC calibration/cut parameters
+unordered_map<int, vector<unordered_map<int, vector<double>>>> m_TACCal;
+unordered_map<int, vector<unordered_map<int, vector<double>>>> m_TACCut;
+
+//! Map characters representing sides of the detectors indices to avoid mistakes
+unordered_map<char, int> m_SideToIndex;
 
 vector<unsigned int> m_DetectorIDs;
 

@@ -56,10 +56,10 @@ using namespace std;
 #include "MModule.h"
 #include "MGUIExpoCombinedViewer.h"
 #include "MModuleTransmitterRealta.h"
-
 #include "MModuleLoaderSimulationsBalloon.h"
 #include "MModuleLoaderSimulationsSMEX.h"
 #include "MModuleLoaderMeasurementsROA.h"
+#include "MModuleLoaderMeasurementsHDF.h"
 #include "MModuleReceiverBalloon.h"
 #include "MModuleLoaderMeasurementsBinary.h"
 #include "MModuleEnergyCalibration.h"
@@ -75,9 +75,8 @@ using namespace std;
 #include "MModuleEventFilter.h"
 #include "MModuleEventSaver.h"
 #include "MModuleResponseGenerator.h"
-
 #include "MModuleTACcut.h"
-
+#include "MModuleNearestNeighbor.h"
 #include "MModuleDiagnostics.h"
 #include "MModuleDiagnosticsEnergyPerStrip.h"
 
@@ -117,6 +116,7 @@ MAssembly::MAssembly()
   m_Supervisor->AddAvailableModule(new MModuleLoaderSimulationsBalloon());
   m_Supervisor->AddAvailableModule(new MModuleLoaderSimulationsSMEX());
   m_Supervisor->AddAvailableModule(new MModuleLoaderMeasurementsROA());
+  m_Supervisor->AddAvailableModule(new MModuleLoaderMeasurementsHDF());
   m_Supervisor->AddAvailableModule(new MModuleReceiverBalloon());
   m_Supervisor->AddAvailableModule(new MModuleLoaderMeasurementsBinary());
   
@@ -137,6 +137,7 @@ MAssembly::MAssembly()
   m_Supervisor->AddAvailableModule(new MModuleTransmitterRealta());
   m_Supervisor->AddAvailableModule(new MModuleResponseGenerator());
   m_Supervisor->AddAvailableModule(new MModuleTACcut());
+  m_Supervisor->AddAvailableModule(new MModuleNearestNeighbor());
 
   m_Supervisor->AddAvailableModule(new MModuleDiagnostics());
   m_Supervisor->AddAvailableModule(new MModuleDiagnosticsEnergyPerStrip());
