@@ -331,6 +331,8 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
   // Starting from this seed, find more new combinations
         for (unsigned int d = 0; d < StripHits.size(); ++d) { // Detector loop
             bool RoundTwo = false;
+            //For loop allows for the possibility for a second round, but only if RoundTwo is set to true
+            // Which will happen if BestChiSquare is not below a certain threshold (defined above)
             for (unsigned int round = 1; round < 3; ++round) { // round loop
                 if (round == 1 or RoundTwo == true) {
                     for (unsigned int side = 0; side <=1; ++side) { // side loop (LV and HV)
@@ -631,6 +633,8 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
                         XEnergyRes = 0;
                         YEnergyRes = 0;
                         
+                        
+                        //Check if there are any non-adjacent strip groupings
                         for (unsigned int sh = 0; sh < BestXSideCombo[h].size() - 1; ++sh) {
                             if (BestXSideCombo[h][sh] + 1 != BestXSideCombo[h][sh+1]) {
                                 AllAdjacentX = false;
@@ -648,7 +652,7 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
                             }
                                 
                         }
-                        
+                        //If no non-adjacent strip groupings, continue pairing as normal
                         if (AllAdjacent) {
                             
                             for (unsigned int sh = 0; sh < BestXSideCombo[h].size(); ++sh) {
@@ -696,7 +700,7 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
                             }
                             
                         }
-                        
+                        //If there are non-adjacent strip groupings, then have to separate them out again to form multiple (physical) hits
                         if (AllAdjacentY == false and AllAdjacentX == true ) {
                             for (unsigned int sh = 0; sh < BestYSideCombo[h].size(); ++sh) {
                                 Energy = StripHits[d][1][BestYSideCombo[h][sh]]->GetEnergy();
@@ -709,7 +713,7 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
                                 }
                                 
                             }
-                        
+                        //And again for the other side...
                         else if (AllAdjacentX == false and AllAdjacentY == true) {
                             for (unsigned int sh = 0; sh < BestXSideCombo[h].size(); ++sh) {
                                 Energy = StripHits[d][0][BestXSideCombo[h][sh]]->GetEnergy();
@@ -721,7 +725,7 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
                                 Hit->AddStripHit(StripHits[d][0][BestYSideCombo[h][sh]]);
                                 }
                         }
-                        
+                        //If both HV and LV have multiple hits per strip, can't pair
                         else if (AllAdjacentX == false and AllAdjacentY == false) {
                             Event->SetStripPairingIncomplete(true, "Strips not pairable. Multiple hits per strip on LV and HV sides");
                             Event->SetAnalysisProgress(MAssembly::c_StripPairing);
@@ -747,6 +751,7 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
                     XEnergyResTotal = sqrt(XEnergyResTotal);
                     YEnergyResTotal = sqrt(YEnergyResTotal);
                     
+                    //Total energy check will only go through if there are not multiple hits per strip
                     if ( AllAdjacent == true and (EnergyTotal > max(XEnergyTotal, YEnergyTotal) + 2.5*max(XEnergyResTotal, YEnergyResTotal) || EnergyTotal < min(XEnergyTotal, YEnergyTotal) - 2.5*max(XEnergyResTotal, YEnergyResTotal))) {
                         Event->SetStripPairingIncomplete(true, "Strips not pairable wihin 2.5 sigma of measure denergy");
                         Event->SetAnalysisProgress(MAssembly::c_StripPairing);
