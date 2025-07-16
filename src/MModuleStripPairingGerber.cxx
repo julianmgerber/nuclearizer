@@ -630,7 +630,6 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
                     bool AllAdjacentX = true;
                     bool AllAdjacentY = true;
                     bool AllAdjacent = true;
-            
     
                     for (unsigned int h = 0; h < min(BestXSideCombo.size(), BestYSideCombo.size()); ++h) {
                         XPos = 0;
