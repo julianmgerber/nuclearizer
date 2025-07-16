@@ -334,6 +334,11 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
             //For loop allows for the possibility for a second round, but only if RoundTwo is set to true
             // Which will happen if BestChiSquare is not below a certain threshold (defined above)
             for (unsigned int round = 1; round < 3; ++round) { // round loop
+                
+                double BestChiSquare;
+                vector<vector<unsigned int>> BestXSideCombo; //list of lists (ie. list of strip combos making up an event on either side)
+                vector<vector<unsigned int>> BestYSideCombo;
+                
                 if (round == 1 or RoundTwo == true) {
                     for (unsigned int side = 0; side <=1; ++side) { // side loop (LV and HV)
                         
@@ -407,9 +412,9 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
                     
                     // (3) Evaluate all combinations
                     // All strip combinations for one side have been found, now check for the best x-y combinations
-                    double BestChiSquare = numeric_limits<double>::max();
-                    vector<vector<unsigned int>> BestXSideCombo; //list of lists (ie. list of strip combos making up an event on either side)
-                    vector<vector<unsigned int>> BestYSideCombo;
+                    BestChiSquare = numeric_limits<double>::max();
+                    //vector<vector<unsigned int>> BestXSideCombo; //list of lists (ie. list of strip combos making up an event on either side)
+                    //vector<vector<unsigned int>> BestYSideCombo;
                     
                     for (unsigned int xc = 0; xc < Combinations[d][0].size(); ++xc) { // Loop over combinations of x-strips (xc represents a list of sets of strips,  and each set is a proposed Hit)
                         for (unsigned int yc = 0; yc < Combinations[d][1].size(); ++yc) { // Loop over combinations of y-strips (yc represents a list of sets of strips,  and each set is a proposed Hit)
@@ -417,8 +422,8 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
                             //if (abs(long(Combinations[d][0][xc].size()) - long(Combinations[d][1][yc].size())) > 1) { // Skip this pair of combos if the x- and y-strip combos differ in size by more than one
                             // ie. if a certain set has 2 or more combos on one side than the other than it disregards the pair
                             // MARK: NOTE - I believe this would remove any possibility of more than 2 hits on a single strip
-                            continue;
-                        }
+                            //continue;
+                        //}
                         
                         unsigned int MinSize = min(Combinations[d][0][xc].size(), Combinations[d][1][yc].size());
                         
@@ -639,7 +644,7 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
                             if (BestXSideCombo[h][sh] + 1 != BestXSideCombo[h][sh+1]) {
                                 AllAdjacentX = false;
                                 AllAdjacent = false;
-                                break
+                                break;
                             }
                                 
                         }
