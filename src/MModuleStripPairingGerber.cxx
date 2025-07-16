@@ -330,14 +330,15 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
     
   // Starting from this seed, find more new combinations
         for (unsigned int d = 0; d < StripHits.size(); ++d) { // Detector loop
+            double BestChiSquare;
+            vector<vector<unsigned int>> BestXSideCombo; //list of lists (ie. list of strip combos making up an event on either side)
+            vector<vector<unsigned int>> BestYSideCombo;
+            
             bool RoundTwo = false;
             //For loop allows for the possibility for a second round, but only if RoundTwo is set to true
             // Which will happen if BestChiSquare is not below a certain threshold (defined above)
             for (unsigned int round = 1; round < 3; ++round) { // round loop
                 
-                double BestChiSquare;
-                vector<vector<unsigned int>> BestXSideCombo; //list of lists (ie. list of strip combos making up an event on either side)
-                vector<vector<unsigned int>> BestYSideCombo;
                 
                 if (round == 1 or RoundTwo == true) {
                     for (unsigned int side = 0; side <=1; ++side) { // side loop (LV and HV)
@@ -653,7 +654,7 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
                             if (BestYSideCombo[h][sh] + 1 != BestYSideCombo[h][sh+1]) {
                                 AllAdjacentY = false;
                                 AllAdjacent = false;
-                                break
+                                break;
                             }
                                 
                         }
@@ -709,7 +710,7 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
                         if (AllAdjacentY == false and AllAdjacentX == true ) {
                             for (unsigned int sh = 0; sh < BestYSideCombo[h].size(); ++sh) {
                                 Energy = StripHits[d][1][BestYSideCombo[h][sh]]->GetEnergy();
-                                EnergyResolution = StripHits[d][1][BestYSideCombo[h][sh]]->GetEnergyResolution()
+                                EnergyResolution = StripHits[d][1][BestYSideCombo[h][sh]]->GetEnergyResolution();
                                 MHit* Hit = new MHit();
                                 Hit->SetEnergy(Energy);
                                 Hit->SetEnergyResolution(EnergyResolution);
@@ -722,7 +723,7 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
                         else if (AllAdjacentX == false and AllAdjacentY == true) {
                             for (unsigned int sh = 0; sh < BestXSideCombo[h].size(); ++sh) {
                                 Energy = StripHits[d][0][BestXSideCombo[h][sh]]->GetEnergy();
-                                EnergyResolution = StripHits[d][0][BestYSideCombo[h][sh]]->GetEnergyResolution()
+                                EnergyResolution = StripHits[d][0][BestYSideCombo[h][sh]]->GetEnergyResolution();
                                 MHit* Hit = new MHit();
                                 Hit->SetEnergy(Energy);
                                 Hit->SetEnergyResolution(EnergyResolution);
