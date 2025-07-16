@@ -578,7 +578,7 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
                      for (unsigned h = 0; h < BestXSideCombo.size(); ++h) {
                      cout<<" (";
                      for (unsigned int sh = 0; sh < BestXSideCombo[h].size(); ++sh) {
-                     cout<<BestXSideCombo[h][sh]->GetStripID()<<" ";
+                     cout<<StripHits[d][0][BestXSideCombo[h][sh]]->GetStripID()<<" ";
                      }
                      cout<<")";
                      }
@@ -587,7 +587,7 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
                      for (unsigned h = 0; h < BestYSideCombo.size(); ++h) {
                      cout<<" (";
                      for (unsigned int sh = 0; sh < BestYSideCombo[h].size(); ++sh) {
-                     cout<<BestYSideCombo[h][sh]->GetStripID()<<" ";
+                     cout<<StripHits[d][1][BestYSideCombo[h][sh]]->GetStripID()<<" ";
                      }
                      cout<<")";
                      }
@@ -642,7 +642,7 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
                         
                         //Check if there are any non-adjacent strip groupings
                         for (unsigned int sh = 0; sh < BestXSideCombo[h].size() - 1; ++sh) {
-                            if (BestXSideCombo[h][sh]->GetStripID() + 1 != BestXSideCombo[h][sh+1]->GetStripID()) {
+                            if (StripHits[d][0][BestXSideCombo[h][sh]]->GetStripID() + 1 != StripHits[d][0][BestXSideCombo[h][sh]]->GetStripID()) {
                                 AllAdjacentX = false;
                                 AllAdjacent = false;
                                 break;
@@ -651,7 +651,7 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
                         }
                         
                         for (unsigned int sh = 0; sh < BestYSideCombo[h].size() - 1; ++sh) {
-                            if (BestYSideCombo[h][sh]->GetStripID() + 1 != BestYSideCombo[h][sh+1]->GetStripID()) {
+                            if (StripHits[d][1][BestYSideCombo[h][sh]]->GetStripID() + 1 != StripHits[d][1][BestYSideCombo[h][sh]]->GetStripID()) {
                                 AllAdjacentY = false;
                                 AllAdjacent = false;
                                 break;
