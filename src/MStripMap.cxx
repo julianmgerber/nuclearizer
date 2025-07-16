@@ -123,7 +123,7 @@ unsigned int MStripMap::GetReadOutIDIndex(unsigned int ROI) const
   if (Iter != m_StripMappings.end() && Iter->m_ReadOutID == ROI) {
     return distance(m_StripMappings.begin(), Iter);
   } else {
-    throw MExceptionValueNotFound(ROI, "vector of read-out IDs");
+    throw MExceptionValueOutOfBounds(ROI, "vector of read-out IDs");
   }
 }
 
