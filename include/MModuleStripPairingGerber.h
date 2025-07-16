@@ -76,7 +76,7 @@ class MModuleStripPairingGerber : public MModule
   // protected methods:
  protected:
   // Find a new set of combinations giving the existing gone
-    vector<vector<vector<unsigned int>>> FindNewCombinations(vector<vector<vector<unsigned int>>> OldOnes, vector<MStripHit*> StripHits);
+    vector<vector<vector<unsigned int>>> FindNewCombinations(vector<vector<vector<unsigned int>>> OldOnes, vector<MStripHit*> StripHits, bool RoundTwo);
     
     //! Return the order of indices resulting from sorting a vector
     vector<size_t> Argsort(vector<double> &list);
