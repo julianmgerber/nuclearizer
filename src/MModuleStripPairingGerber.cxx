@@ -723,12 +723,12 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
                         else if (AllAdjacentX == false and AllAdjacentY == true) {
                             for (unsigned int sh = 0; sh < BestXSideCombo[h].size(); ++sh) {
                                 Energy = StripHits[d][0][BestXSideCombo[h][sh]]->GetEnergy();
-                                EnergyResolution = StripHits[d][0][BestYSideCombo[h][sh]]->GetEnergyResolution();
+                                EnergyResolution = StripHits[d][0][BestXSideCombo[h][sh]]->GetEnergyResolution();
                                 MHit* Hit = new MHit();
                                 Hit->SetEnergy(Energy);
                                 Hit->SetEnergyResolution(EnergyResolution);
                                 Event->AddHit(Hit);
-                                Hit->AddStripHit(StripHits[d][0][BestYSideCombo[h][sh]]);
+                                Hit->AddStripHit(StripHits[d][0][BestXSideCombo[h][sh]]);
                                 }
                         }
                         //If both HV and LV have multiple hits per strip, can't pair
