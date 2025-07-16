@@ -631,8 +631,6 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
                     bool AllAdjacentY = true;
                     bool AllAdjacent = true;
             
-                    cout<<"Best X Side Combo: "<<BestXSideCombo<<endl;
-                    cout<<"Best Y Side Combo: "<<BestYSideCombo<<endl;
     
                     for (unsigned int h = 0; h < min(BestXSideCombo.size(), BestYSideCombo.size()); ++h) {
                         XPos = 0;
