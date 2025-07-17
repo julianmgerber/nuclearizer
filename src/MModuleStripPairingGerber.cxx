@@ -715,16 +715,22 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
                             //cout<<"Multiple hits on single LV strip"<<endl;
                             for (unsigned int sh = 0; sh < BestYSideCombo[h].size(); ++sh) {
                                 Energy = StripHits[d][1][BestYSideCombo[h][sh]]->GetEnergy();
+                                EnergyTotal += Energy;
                                 EnergyResolution = StripHits[d][1][BestYSideCombo[h][sh]]->GetEnergyResolution();
                                 MHit* Hit = new MHit();
                                 Hit->SetEnergy(Energy);
                                 Hit->SetEnergyResolution(EnergyResolution);
                                 Event->AddHit(Hit);
                                 Hit->AddStripHit(StripHits[d][1][BestYSideCombo[h][sh]]);
+                                YEnergy = Energy;
+                                YEnergyTotal += YEnergy
+                                YEnergies.push_back(YEnergy);
                                 for (unsigned int sh = 0; sh < BestXSideCombo[h].size(); ++sh) {
                                     Hit->AddStripHit(StripHits[d][0][BestXSideCombo[h][sh]]);
+                                    XEnergy += Energy;
                                     }
-                                
+                                XEnergyTotal += XEnergy;
+                                XEnergies.push_back(XEnergy);
                                 }
                                 
                             }
@@ -733,15 +739,20 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
                            // cout<<"Multiple hits on single HV strip"<<endl;
                             for (unsigned int sh = 0; sh < BestXSideCombo[h].size(); ++sh) {
                                 Energy = StripHits[d][0][BestXSideCombo[h][sh]]->GetEnergy();
+                                EnergyTotal += Energy;
                                 EnergyResolution = StripHits[d][0][BestXSideCombo[h][sh]]->GetEnergyResolution();
                                 MHit* Hit = new MHit();
                                 Hit->SetEnergy(Energy);
                                 Hit->SetEnergyResolution(EnergyResolution);
                                 Event->AddHit(Hit);
                                 Hit->AddStripHit(StripHits[d][0][BestXSideCombo[h][sh]]);
+                                XEnergy = Energy;
+                                XEnergies.push_back(XEnergy);
                                 for (unsigned int sh = 0; sh < BestYSideCombo[h].size(); ++sh) {
                                     Hit->AddStripHit(StripHits[d][1][BestYSideCombo[h][sh]]);
+                                    YEnergy += Energy;
                                     }
+                                YEnergies.push_back(YEnergy);
                                 }
                         }
                         //If both HV and LV have multiple hits per strip, can't pair
