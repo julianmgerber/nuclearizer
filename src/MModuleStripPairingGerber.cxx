@@ -805,8 +805,26 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
   //Print Strip Pairing Output
     
     for (unsigned int h = 0; h<Event->GetNHits(); h++){
-        cout<<"Strip Paired Hit"<<endl;
-        cout<<"
+        double PrintEnergy = Event->GetHit(h)->GetEnergy();
+        vector<int> LVStripsPrint;
+        vector<int> HVStripsPrint;
+        for (unsigned int sh=0; sh<Event->GetHit(h)->GetNStripHits(); sh++){
+            if (Event->GetHit(h)->GetStripHit(sh)->IsLowVoltageStrip()==true){
+                LVStripsPrint.push_back(Event->GetHit(h)->GetStripHit(sh)->GetStripID());
+            } else {
+                HVStripsPrint.push_back(Event->GetHit(h)->GetStripHit(sh)->GetStripID());
+            }
+        }
+        cout<<"Strip Paired Hit: "<<endl;
+        cout<<"Energy: "<<PrintEnergy<<endl;
+        cout<<"LV Strip(s): ";
+        for (unsigned int sh=0; sh<LVStripsPrint.size(); sh++){
+            cout<<LVStripsPrint[sh];
+        }
+        cout<<"HV Strip(s): ";
+        for (unsigned int sh=0; sh<HVStripsPrint.size(); sh++){
+            cout<<HVStripsPrint[sh];
+        }
     }
   return true;
 }
