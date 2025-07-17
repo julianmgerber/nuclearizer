@@ -815,16 +815,18 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
                 HVStripsPrint.push_back(Event->GetHit(h)->GetStripHit(sh)->GetStripID());
             }
         }
-        cout<<"Strip Paired Hit: "<<endl;
+        cout<<"Strip Paired Hit: "<<h<<endl;
         cout<<"Energy: "<<PrintEnergy<<endl;
         cout<<"LV Strip(s): ";
         for (unsigned int sh=0; sh<LVStripsPrint.size(); sh++){
             cout<<LVStripsPrint[sh];
         }
+        cout<<endl;
         cout<<"HV Strip(s): ";
         for (unsigned int sh=0; sh<HVStripsPrint.size(); sh++){
             cout<<HVStripsPrint[sh];
         }
+        cout<<endl;
     }
   return true;
 }
