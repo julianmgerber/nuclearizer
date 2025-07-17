@@ -572,7 +572,7 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
                     RoundTwo = true;
                 } }
             }
-                    
+                    /*
                      cout<<"Best combo:"<<endl;
                      cout<<"X: ";
                      for (unsigned h = 0; h < BestXSideCombo.size(); ++h) {
@@ -592,7 +592,7 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
                      cout<<")";
                      }
                      cout<<endl;
-                     
+                     */
                     
                     
                     
@@ -712,7 +712,7 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
                         }
                         //If there are non-adjacent strip groupings, then have to separate them out again to form multiple (physical) hits
                         if (AllAdjacentY == false && AllAdjacentX == true ) {
-                            cout<<"Multiple hits on single LV strip"<<endl;
+                            //cout<<"Multiple hits on single LV strip"<<endl;
                             for (unsigned int sh = 0; sh < BestYSideCombo[h].size(); ++sh) {
                                 Energy = StripHits[d][1][BestYSideCombo[h][sh]]->GetEnergy();
                                 EnergyResolution = StripHits[d][1][BestYSideCombo[h][sh]]->GetEnergyResolution();
@@ -730,7 +730,7 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
                             }
                         //And again for the other side...
                         else if (AllAdjacentX == false && AllAdjacentY == true) {
-                            cout<<"Multiple hits on single HV strip"<<endl;
+                           // cout<<"Multiple hits on single HV strip"<<endl;
                             for (unsigned int sh = 0; sh < BestXSideCombo[h].size(); ++sh) {
                                 Energy = StripHits[d][0][BestXSideCombo[h][sh]]->GetEnergy();
                                 EnergyResolution = StripHits[d][0][BestXSideCombo[h][sh]]->GetEnergyResolution();
@@ -803,7 +803,7 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
   Event->SetAnalysisProgress(MAssembly::c_StripPairing);
     
   //Print Strip Pairing Output
-    
+  /*
     for (unsigned int h = 0; h<Event->GetNHits(); h++){
         double PrintEnergy = Event->GetHit(h)->GetEnergy();
         vector<int> LVStripsPrint;
@@ -819,7 +819,7 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
         cout<<"Energy: "<<PrintEnergy<<endl;
         cout<<"LV Strip(s): ";
         for (unsigned int sh=0; sh<LVStripsPrint.size(); sh++){
-            cout<<LVStripsPrint[sh];
+            cout<<LVStripsPrint[sh]<<" ";
         }
         cout<<endl;
         cout<<"HV Strip(s): ";
@@ -828,6 +828,7 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
         }
         cout<<endl;
     }
+   */
   return true;
 }
 
