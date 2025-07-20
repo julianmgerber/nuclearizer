@@ -59,7 +59,7 @@ endif
 #
 
 CMD=""
-CXXFLAGS += -I$(IN) -I$(MEGALIB)/include -I/opt/local/include $(H5CXXFLAGS)
+CXXFLAGS += -g -O0 -I$(IN) -I$(MEGALIB)/include -I/opt/local/include $(H5CXXFLAGS)
 # Comment this line out if you want to accept warnings
 #CXXFLAGS += -Werror -Wno-unused-variable
 
