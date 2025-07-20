@@ -459,6 +459,26 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
                                 unsigned int dominantX;
                                 double MaxEnergy = -numeric_limits<double>::max();
                                 for (unsigned int entry = 0; entry < Combinations[d][0][xc][en].size(); ++entry) { // Sum up energy on xstrips in the set of strips, en (entry is on the strip level itself)
+                                    
+                                    //Debugging statement to see why nuclearizer keeps crashing
+                                    
+                                    unsigned int index = Combinations[d][0][xc][en][entry];
+
+                                    if (index >= StripHits[d][0].size() || StripHits[d][0][index] == nullptr) {
+                                        std::cerr << "CRASH WARNING:\n"
+                                                  << "  d: " << d
+                                                  << ", yc: " << yc
+                                                  << ", ep: " << ep
+                                                  << ", entry: " << entry
+                                                  << ", index: " << index
+                                                  << ", StripHits size: " << StripHits[d][0].size() << "\n";
+                                        if (index < StripHits[d][0].size())
+                                            std::cerr << "  But StripHits[d][0][index] is nullptr.\n";
+                                        else
+                                            std::cerr << "  Index is out of bounds.\n";
+                                    }
+
+                                    
                                     double tempEnergy = StripHits[d][0][Combinations[d][0][xc][en][entry]]->GetEnergy();
                                     if (tempEnergy > MaxEnergy){
                                         dominantX = entry;
@@ -474,6 +494,26 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
                                 unsigned int dominantY;
                                 MaxEnergy = -numeric_limits<double>::max();
                                 for (unsigned int entry = 0; entry < Combinations[d][1][yc][ep].size(); ++entry) { // Sum up energy on ystrips in the set of strips, ep
+                                    
+                                    //Debugging statement to see why nuclearizer keeps crashing
+                                    
+                                    unsigned int index = Combinations[d][1][yc][ep][entry];
+
+                                    if (index >= StripHits[d][1].size() || StripHits[d][1][index] == nullptr) {
+                                        std::cerr << "CRASH WARNING:\n"
+                                                  << "  d: " << d
+                                                  << ", yc: " << yc
+                                                  << ", ep: " << ep
+                                                  << ", entry: " << entry
+                                                  << ", index: " << index
+                                                  << ", StripHits size: " << StripHits[d][1].size() << "\n";
+                                        if (index < StripHits[d][1].size())
+                                            std::cerr << "  But StripHits[d][1][index] is nullptr.\n";
+                                        else
+                                            std::cerr << "  Index is out of bounds.\n";
+                                    }
+
+                                    
                                     double tempEnergy = StripHits[d][1][Combinations[d][1][yc][ep][entry]]->GetEnergy();
                                     if (tempEnergy > MaxEnergy){
                                         dominantY = entry;
@@ -790,10 +830,13 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
                         return false;
                     }
                     else if (HasExpos() == true){
+                        std::ofstream outFile("/Users/juliangerber/Desktop/Research/StripPairing/ChiSquareTesting/XYEnergiesData.txt", std::ios::app);
                         m_ExpoStripPairingHits->AddHits(Event->GetNHits());
                         for (unsigned int i = 0; i < XEnergies.size(); ++i){
                             m_ExpoStripPairing->AddEnergies(XEnergies[i], YEnergies[i]);
+                            outFile << Event->GetID() << " "<<XEnergies[i]<<" "<<YEnergies[i] <<endl;
                         }
+                        outFile.close();
                         for (unsigned int h = 0; h<Event->GetNHits(); h++){
                             double HVStrips = 0;
                             double LVStrips = 0;
