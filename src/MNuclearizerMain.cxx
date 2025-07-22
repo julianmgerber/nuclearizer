@@ -77,6 +77,8 @@ int main(int argc, char** argv)
 
   // Initialize global MEGALIB variables, especially mgui, etc.
   MGlobal::Initialize();
+  //Initialize output file for XY Energies TEMPORARY
+  std::ofstream outFile("/Users/juliangerber/Desktop/Research/StripPairing/ChiSquareTesting/XYEnergiesControl.txt", std::ios::app);
 
   TApplication* AppNuclearizer = new TApplication("Nuclearizer", 0, 0);
 
