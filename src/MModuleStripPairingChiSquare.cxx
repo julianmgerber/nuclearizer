@@ -623,6 +623,8 @@ bool MModuleStripPairingChiSquare::AnalyzeEvent(MReadOutAssembly* Event)
 
       MHit* Hit = new MHit();
       Hit->SetEnergy(Energy);
+      Hit->SetXEnergy(XEnergy);
+      Hit->SetYEnergy(YEnergy);
       Hit->SetEnergyResolution(EnergyResolution);
       Event->AddHit(Hit);
       for (unsigned int sh = 0; sh < BestXSideCombo[h].size(); ++sh) {
@@ -660,10 +662,10 @@ bool MModuleStripPairingChiSquare::AnalyzeEvent(MReadOutAssembly* Event)
         m_ExpoStripPairingStripHits->AddStripHits(LVStrips, HVStrips);
       }
     }
-std::ofstream outFile("/Users/juliangerber/Desktop/Research/StripPairing/ChiSquareTesting/XYEnergiesControl.txt", std::ios::app);
-for (unsigned int i = 0; i < XEnergies.size(); ++i){
-    outFile << Event->GetID() << " "<<XEnergies[i]<<" "<<YEnergies[i] << '\n';
-      }
+//std::ofstream outFile("/Users/juliangerber/Desktop/Research/StripPairing/ChiSquareTesting/XYEnergiesControl.txt", std::ios::app);
+//for (unsigned int i = 0; i < XEnergies.size(); ++i){
+//    outFile << Event->GetID() << " "<<XEnergies[i]<<" "<<YEnergies[i] << '\n';
+//      }
     //
 
   } // detector loop

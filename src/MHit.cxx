@@ -73,6 +73,10 @@ void MHit::Clear()
 
   m_Position = g_VectorNotDefined;
   m_Energy = g_DoubleNotDefined;
+    
+  m_XEnergy = g_DoubleNotDefined;
+  m_YEnergy = g_DoubleNotDefined;
+    
   m_PositionResolution = g_VectorNotDefined;
   m_EnergyResolution = g_DoubleNotDefined;
 
@@ -131,11 +135,11 @@ bool MHit::StreamDat(ostream& S, int Version)
   //! Stream the content to an ASCII file 
   
   if( Version == 1 ){
-     S<<"HT "<<m_Position.GetX()<<" "<<m_Position.GetY()<<" "<<m_Position.GetZ()<<" "<<m_Energy<<endl;
+     S<<"HT "<<m_Position.GetX()<<" "<<m_Position.GetY()<<" "<<m_Position.GetZ()<<" "<<m_Energy<<" "<<m_XEnergy<<" "<<m_YEnergy<<endl;
   } else if( Version == 2 ){
 	  //stream the hit information, then stream the strip hit info for this hit so that 
 	  //we will know which strip hits were associated with which hits
-     S<<"HT "<<m_Position.GetX()<<" "<<m_Position.GetY()<<" "<<m_Position.GetZ()<<" "<<m_Energy<<endl;
+     S<<"HT "<<m_Position.GetX()<<" "<<m_Position.GetY()<<" "<<m_Position.GetZ()<<" "<<m_Energy<<" "<<m_XEnergy<<" "<<m_YEnergy<<endl;
 	  for( auto SH : m_StripHits ){
 		  SH->StreamDat(S,0);
 	  }

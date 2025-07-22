@@ -57,6 +57,16 @@ class MHit
   void SetEnergy(double Energy) { m_Energy = Energy; }
   //! Return the energy
   double GetEnergy() const { return m_Energy; }
+    
+    //! Set the Xenergy
+    void SetXEnergy(double XEnergy) { m_XEnergy = XEnergy; }
+    //! Return the Xenergy
+    double GetXEnergy() const { return m_XEnergy; }
+
+    //! Set the Yenergy
+    void SetYEnergy(double YEnergy) { m_YEnergy = YEnergy; }
+    //! Return the Yenergy
+    double GetYEnergy() const { return m_YEnergy; }
 
   //! Set the energy resolution
   void SetEnergyResolution(double EnergyResolution) { m_EnergyResolution = EnergyResolution; }
@@ -148,6 +158,13 @@ class MHit
 
   //! Energy of the hit
   double m_Energy;
+    
+  //! X Energy of the hit
+  double m_XEnergy;
+    
+  //! YEnergy of the hit
+  double m_Yenergy;
+    
   //! Energy resolution of the hit
   double m_EnergyResolution;
 

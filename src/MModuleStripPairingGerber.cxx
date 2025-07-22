@@ -738,6 +738,8 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
                             
                             MHit* Hit = new MHit();
                             Hit->SetEnergy(Energy);
+                            Hit->SetXEnergy(XEnergy);
+                            Hit->SetYEnergy(YEnergy);
                             Hit->SetEnergyResolution(EnergyResolution);
                             Event->AddHit(Hit);
                             for (unsigned int sh = 0; sh < BestXSideCombo[h].size(); ++sh) {
@@ -766,6 +768,8 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
                                 Hit->AddStripHit(StripHits[d][1][BestYSideCombo[h][sh]]);
                                 YEnergy = Energy;
                                 XEnergy = Energy;
+                                Hit->SetXEnergy(XEnergy);
+                                Hit->SetYEnergy(YEnergy);
                                 YEnergyTotal += YEnergy;
                                 XEnergyTotal += XEnergy;
                                 XEnergies.push_back(XEnergy);
@@ -790,6 +794,8 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
                                 Hit->AddStripHit(StripHits[d][0][BestXSideCombo[h][sh]]);
                                 YEnergy = Energy;
                                 XEnergy = Energy;
+                                Hit->SetXEnergy(XEnergy);
+                                Hit->SetYEnergy(YEnergy);
                                 YEnergyTotal += YEnergy;
                                 XEnergyTotal += XEnergy;
                                 XEnergies.push_back(XEnergy);
@@ -851,11 +857,11 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
                             m_ExpoStripPairingStripHits->AddStripHits(LVStrips, HVStrips);
                         }
                     }
-std::ofstream outFile("/Users/juliangerber/Desktop/Research/StripPairing/ChiSquareTesting/XYEnergiesData.txt", std::ios::app);
-for (unsigned int i = 0; i < XEnergies.size(); ++i){
-    outFile << Event->GetID() << " "<<XEnergies[i]<<" "<<YEnergies[i] <<endl;
-      }
-outFile.close();
+//std::ofstream outFile("/Users/juliangerber/Desktop/Research/StripPairing/ChiSquareTesting/XYEnergiesData.txt", std::ios::app);
+//for (unsigned int i = 0; i < XEnergies.size(); ++i){
+//    outFile << Event->GetID() << " "<<XEnergies[i]<<" "<<YEnergies[i] <<endl;
+//      }
+//outFile.close();
 
                     //
   
