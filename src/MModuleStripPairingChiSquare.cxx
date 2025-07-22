@@ -186,8 +186,6 @@ bool MModuleStripPairingChiSquare::AnalyzeEvent(MReadOutAssembly* Event)
 {
   // Main data analysis routine, which updates the event to a new level 
 
-  //Initialize file where I'm reading out X/Y Energies
-  extern std::ofstream outFile;
     
   mdebug<<"StripPairing started"<<endl;
 
@@ -662,7 +660,7 @@ bool MModuleStripPairingChiSquare::AnalyzeEvent(MReadOutAssembly* Event)
         m_ExpoStripPairingStripHits->AddStripHits(LVStrips, HVStrips);
       }
     }
-
+std::ofstream outFile("/Users/juliangerber/Desktop/Research/StripPairing/ChiSquareTesting/XYEnergiesControl.txt", std::ios::app);
 for (unsigned int i = 0; i < XEnergies.size(); ++i){
     outFile << Event->GetID() << " "<<XEnergies[i]<<" "<<YEnergies[i] << '\n';
       }
