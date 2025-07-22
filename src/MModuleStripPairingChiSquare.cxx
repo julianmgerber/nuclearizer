@@ -27,6 +27,8 @@
 #include "MModuleStripPairingChiSquare.h"
 
 // Standard libs:
+#include <fstream>
+#include <iostream>
 
 // ROOT libs:
 #include "TGClient.h"
@@ -639,13 +641,11 @@ bool MModuleStripPairingChiSquare::AnalyzeEvent(MReadOutAssembly* Event)
       return false;
     }
     else if (HasExpos() == true){
-      std::ofstream outFile("/Users/juliangerber/Desktop/Research/StripPairing/ChiSquareTesting/XYEnergiesControl.txt", std::ios::app);
+      
       m_ExpoStripPairingHits->AddHits(Event->GetNHits());
       for (unsigned int i = 0; i < XEnergies.size(); ++i){
         m_ExpoStripPairing->AddEnergies(XEnergies[i], YEnergies[i]);
-        outFile << Event->GetID() << " "<<XEnergies[i]<<" "<<YEnergies[i] <<endl;
       }
-      outFile.close();
       for (unsigned int h = 0; h<Event->GetNHits(); h++){
         double HVStrips = 0;
         double LVStrips = 0;
@@ -660,7 +660,11 @@ bool MModuleStripPairingChiSquare::AnalyzeEvent(MReadOutAssembly* Event)
         m_ExpoStripPairingStripHits->AddStripHits(LVStrips, HVStrips);
       }
     }
-
+std::ofstream outFile("/Users/juliangerber/Desktop/Research/StripPairing/ChiSquareTesting/XYEnergiesControl.txt", std::ios::app);
+for (unsigned int i = 0; i < XEnergies.size(); ++i){
+    outFile << Event->GetID() << " "<<XEnergies[i]<<" "<<YEnergies[i] <<endl;
+      }
+outFile.close();
     //
 
   } // detector loop
