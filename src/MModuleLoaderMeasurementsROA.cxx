@@ -91,6 +91,8 @@ bool MModuleLoaderMeasurementsROA::Initialize()
   // Initialize the module 
   
   // Clean:
+  //Define file where I will be reading out XYEnergies vector
+  std::ofstream outFile("/Users/juliangerber/Desktop/Research/StripPairing/ChiSquareTesting/XYEnergiesControl.txt", std::ios::app);
   m_FileType = "Unknown";
   m_Detector = "Unknown";
   m_Version = -1;
