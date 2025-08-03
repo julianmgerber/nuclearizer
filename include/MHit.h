@@ -167,9 +167,6 @@ class MHit
     
   //! Energy resolution of the hit
   double m_EnergyResolution;
-    
-  //! Reduced Chi^2 of the Strip Paired Event
-  double m_RedChiSquare;
 
   //! Quality of the Hit
   double m_HitQuality; 
