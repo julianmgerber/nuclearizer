@@ -395,7 +395,7 @@ class MReadOutAssembly : public MReadOutSequence
   
   // Flags for multiple hits on a single strip
   bool m_MultipleHitsOnXStrip;
-  bool m_multipleHitsOnYStrip;
+  bool m_MultipleHitsOnYStrip;
 
 
 
