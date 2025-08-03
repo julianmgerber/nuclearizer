@@ -765,6 +765,10 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
                                 Energy = StripHits[d][1][BestYSideCombo[h][sh]]->GetEnergy();
                                 EnergyTotal += Energy;
                                 EnergyResolution = StripHits[d][1][BestYSideCombo[h][sh]]->GetEnergyResolution();
+                                XEnergyRes = EnergyResolution;
+                                YEnergyRes = EnergyResolution;
+                                XEnergyResTotal += XEnergyRes * XEnergyRes; // add in quadrature, square root later
+                                YEnergyResTotal += YEnergyRes * YEnergyRes;
                                 MHit* Hit = new MHit();
                                 Hit->SetEnergy(Energy);
                                 Hit->SetEnergyResolution(EnergyResolution);
@@ -793,6 +797,10 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
                                 Energy = StripHits[d][0][BestXSideCombo[h][sh]]->GetEnergy();
                                 EnergyTotal += Energy;
                                 EnergyResolution = StripHits[d][0][BestXSideCombo[h][sh]]->GetEnergyResolution();
+                                XEnergyRes = EnergyResolution;
+                                YEnergyRes = EnergyResolution;
+                                XEnergyResTotal += XEnergyRes * XEnergyRes;
+                                YEnergyResTotal += YEnergyRes * YEnergyRes;
                                 MHit* Hit = new MHit();
                                 Hit->SetEnergy(Energy);
                                 Hit->SetEnergyResolution(EnergyResolution);
@@ -838,8 +846,8 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
                     YEnergyResTotal = sqrt(YEnergyResTotal);
                     
                     //Total energy check will only go through if there are not multiple hits per strip
-                    if ( AllAdjacent == true and (EnergyTotal > max(XEnergyTotal, YEnergyTotal) + 2.5*max(XEnergyResTotal, YEnergyResTotal) || EnergyTotal < min(XEnergyTotal, YEnergyTotal) - 2.5*max(XEnergyResTotal, YEnergyResTotal))) {
-                        Event->SetStripPairingIncomplete(true, "Strips not pairable wihin 2.5 sigma of measure denergy");
+                    if ((EnergyTotal > max(XEnergyTotal, YEnergyTotal) + 2.5*max(XEnergyResTotal, YEnergyResTotal) || EnergyTotal < min(XEnergyTotal, YEnergyTotal) - 2.5*max(XEnergyResTotal, YEnergyResTotal))) {
+                        Event->SetStripPairingIncomplete(true, "Strips not pairable wihin 2.5 sigma of measured energy");
                         Event->SetAnalysisProgress(MAssembly::c_StripPairing);
                         return false;
                     }
