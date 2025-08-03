@@ -118,6 +118,7 @@ void MReadOutAssembly::Clear()
   m_Time = 0;
   m_EventTimeUTC = 0;
   m_MJD = 0.0;
+  m_RedChiSquare = -1;
 
   m_ShieldVeto = false;
   m_GuardRingVeto = false;
