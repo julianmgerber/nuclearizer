@@ -554,6 +554,8 @@ bool MModuleStripPairingChiSquare::AnalyzeEvent(MReadOutAssembly* Event)
       Event->SetStripPairingIncomplete(true, "Pairing did not find a single match");
       Event->SetAnalysisProgress(MAssembly::c_StripPairing);
       return false;
+    } else {
+        double m_RedChiSquare = BestChiSquare;
     }
 
     // Create the hits
