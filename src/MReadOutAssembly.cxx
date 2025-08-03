@@ -177,7 +177,7 @@ void MReadOutAssembly::Clear()
   m_DepthCalibration_OutofRangeString = "";
     
   m_MultipleHitsOnXStrip = false;
-  m_multipleHitsOnYStrip = false;
+  m_MultipleHitsOnYStrip = false;
 
   
   m_FilteredOut = false;
