@@ -816,6 +816,10 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
                         if (AllAdjacentY == false && AllAdjacentX == true ) {
                             //cout<<"Multiple hits on single LV strip"<<endl;
                             bool MultipleHitsOnX = true;
+                            
+                            //Collect timing info for X strip based on dominantX strip found above
+                            LVtau = StripHits[d][0][BestXSideCombo[h][dominantX]]->GetTiming();
+                            
                             Event->SetMultipleHitsOnXStrip(MultipleHitsOnX);
                             for (unsigned int sh = 0; sh < BestYSideCombo[h].size(); ++sh) {
                                 Energy = StripHits[d][1][BestYSideCombo[h][sh]]->GetEnergy();
@@ -838,6 +842,16 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
                                 XEnergyTotal += XEnergy;
                                 XEnergies.push_back(XEnergy);
                                 YEnergies.push_back(YEnergy);
+                                
+                                //Collect timing info for Y strip
+                                HVtau = StripHits[d][1][BestYSideCombo[h][sh]]->GetTiming();
+                                
+                                //Calculate CTD and record it to file
+                                double CTD = LVTau = HVTau
+                                std::ofstream outFile("/Users/juliangerber/Desktop/Research/StripPairing/ChiSquareTesting/CTD.txt", std::ios::app);
+                                outFile << CTD << endl;
+                                outFile.close();
+                                
                                 for (unsigned int sh = 0; sh < BestXSideCombo[h].size(); ++sh) {
                                     Hit->AddStripHit(StripHits[d][0][BestXSideCombo[h][sh]]);
                                     }
@@ -849,6 +863,10 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
                            // cout<<"Multiple hits on single HV strip"<<endl;
                             bool MultipleHitsOnY = true;
                             Event->SetMultipleHitsOnYStrip(MultipleHitsOnY);
+                            
+                            //Collect timing info for Y strip based on dominantY strip found above
+                            HVtau = StripHits[d][1][BestYSideCombo[h][dominantY]]->GetTiming();
+                            
                             for (unsigned int sh = 0; sh < BestXSideCombo[h].size(); ++sh) {
                                 Energy = StripHits[d][0][BestXSideCombo[h][sh]]->GetEnergy();
                                 EnergyTotal += Energy;
@@ -870,6 +888,16 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
                                 XEnergyTotal += XEnergy;
                                 XEnergies.push_back(XEnergy);
                                 YEnergies.push_back(YEnergy);
+                                
+                                //Collect timing info for X strip
+                                LVtau = StripHits[d][0][BestXSideCombo[h][sh]]->GetTiming();
+                                
+                                //Calculate CTD and record it to file
+                                double CTD = LVTau = HVTau
+                                std::ofstream outFile("/Users/juliangerber/Desktop/Research/StripPairing/ChiSquareTesting/CTD.txt", std::ios::app);
+                                outFile << CTD << endl;
+                                outFile.close();
+                                
                                 for (unsigned int sh = 0; sh < BestYSideCombo[h].size(); ++sh) {
                                     Hit->AddStripHit(StripHits[d][1][BestYSideCombo[h][sh]]);
                                     }
