@@ -311,6 +311,8 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
             for (unsigned int j = 0; j < 64; ++j) {
                 ChargeTrappingMap[d][i][j][0] = 0;
                 ChargeTrappingMap[d][i][j][1] = 0; //populate with 0s for now
+ Have to make sure I'm indexing correctly!!! Do the Strip IDs start at 0???
+ Also need to make sure the indexing on the detectors is consistent. Ie, what is detector 0, 1, etc.
             }
         }
     }
@@ -546,6 +548,9 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
     //                                        double slope = ChargeTrappingMap[d][Combinations[d][0][xc][en][dominantX]->GetStripID()][Combinations[d][1][yc][ep][dominantY]->GetStripID()][0];
     //                                        double intercept = ChargeTrappingMap[d][Combinations[d][0][xc][en][dominantX]->GetStripID()][Combinations[d][1][yc][ep][dominantY]->GetStripID()][1];
     //                                        yEnergy /= 1 - (slope*CTDHVShift - intercept)/100;
+                                
+    //Right now, adding up all the strips in the grouping's Yenergies then applying the CTD correction to the sum... is that correct?
+                                
                                 HVtauList.push_back(HVtau);
                                 LVtauList.push_back(-LVtau);
                                 HVtauMean += HVtau;
@@ -679,6 +684,8 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
                     double EnergyTotal = 0;
                     double XEnergyResTotal = 0;
                     double YEnergyResTotal = 0;
+            
+                    
                     
                     // Create a list for plotting X and Y energies
                     vector<double> XEnergies;
@@ -688,6 +695,25 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
                     // my guess is that this is done on the xc level: i.e. the set of combinations [ [1], [2] ] is not equal to [ [2], [1] ] which makes sure that the chi^2 picks out the correct pairing
     
                     for (unsigned int h = 0; h < min(BestXSideCombo.size(), BestYSideCombo.size()); ++h) {
+                        
+                        //Find dominant strip in each grouping
+                        MaxEnergy = -numeric_limits<double>::max();
+                        for (unsigned int sh = 0; sh < BestXSideCombo[h].size(); ++sh) {
+                            tempEnergy = StripHits[d][0][BestXSideCombo[h][sh]]->GetEnergy();
+                            if (tempEnergy > MaxEnergy) {
+                                MaxEnergy = tempEnergy;
+                                dominantX = sh
+                            }
+                        }
+                        
+                        MaxEnergy = -numeric_limits<double>::max();
+                        for (unsigned int sh = 0; sh < BestYSideCombo[h].size(); ++sh) {
+                            tempEnergy = StripHits[d][1][BestYSideCombo[h][sh]]->GetEnergy();
+                            if (tempEnergy > MaxEnergy) {
+                                MaxEnergy = tempEnergy;
+                                dominantY = sh
+                            }
+                        }
                         
                         bool AllAdjacentX = true;
                         bool AllAdjacentY = true;
@@ -735,6 +761,19 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
                                 YEnergy += StripHits[d][1][BestYSideCombo[h][sh]]->GetEnergy();
                                 YEnergyRes += StripHits[d][1][BestYSideCombo[h][sh]]->GetEnergyResolution()*StripHits[d][1][BestYSideCombo[h][sh]]->GetEnergyResolution();
                             }
+                            
+                            LVtau = StripHits[d][0][BestXSideCombo[h][dominantX]]->GetTiming();
+                            HVtau = StripHits[d][1][BestYSideCombo[h][dominantY]]->GetTiming();
+                            
+                            // Charge trapping correction --> only being applied to events with all adjacent strips (though maybe it should be applied to all since that's how it's going through the chi^2 calculation)
+                            // correction made based only on the dominant X and Y strip in a grouping of strips (eg neighboring strips)
+//                                        double CTDHVShift = LVtau - HVtau + 200;
+//                                        double slope = ChargeTrappingMap[d][BestXSideCombo[h][dominantX]->GetStripID()][BestYSideCombo[h][dominantY]->GetStripID()][0];
+//                                        double intercept = ChargeTrappingMap[d][BestXSideCombo[h][dominantX]->GetStripID()][BestYSideCombo[h][dominantY]->GetStripID()][1];
+//                                        yEnergy /= 1 - (slope*CTDHVShift - intercept)/100;
+                            
+//Right now, adding up all the strips in the grouping's Yenergies then applying the CTD correction to the sum... is that correct?
+                            
                             YEnergyResTotal += YEnergyRes;
                             YEnergyRes = sqrt(YEnergyRes);
                             YEnergyTotal += YEnergy;
