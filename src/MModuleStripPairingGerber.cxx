@@ -303,7 +303,7 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
   }
 
   // (2.5) Create and populate charge trapping map for energy correction
-    
+/*
   vector<array<array<array<double, 2>, 64>, 64>> ChargeTrappingMap; //64 x 64 grid
     for (unsigned int d = 0; d < StripHits.size(); ++d) { // Detector loop
         ChargeTrappingMap.push_back(array<array<array<double, 2>, 64>, 64>());
@@ -315,7 +315,7 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
         }
     }
   
-
+*/
 
   // (3) Find all possible combinations
   vector<vector<vector<vector<vector<unsigned int>>>>> Combinations;  // list of detector IDs, list of sides, list of combinations; combination with list of combined strips
@@ -542,10 +542,10 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
                                 
                                 // Charge trapping correction
                                 // correction made based only on the dominant X and Y strip in a grouping of strips (eg neighboring strips)
-                                            double CTDHVShift = LVtau - HVtau + 200;
-                                            double slope = ChargeTrappingMap[d][Combinations[d][0][xc][en][dominantX]->GetStripID()][Combinations[d][1][yc][ep][dominantY]->GetStripID()][0];
-                                            double intercept = ChargeTrappingMap[d][Combinations[d][0][xc][en][dominantX]->GetStripID()][Combinations[d][1][yc][ep][dominantY]->GetStripID()][1];
-                                            yEnergy /= 1 - (slope*CTDHVShift - intercept)/100;
+    //                                        double CTDHVShift = LVtau - HVtau + 200;
+    //                                        double slope = ChargeTrappingMap[d][Combinations[d][0][xc][en][dominantX]->GetStripID()][Combinations[d][1][yc][ep][dominantY]->GetStripID()][0];
+    //                                        double intercept = ChargeTrappingMap[d][Combinations[d][0][xc][en][dominantX]->GetStripID()][Combinations[d][1][yc][ep][dominantY]->GetStripID()][1];
+    //                                        yEnergy /= 1 - (slope*CTDHVShift - intercept)/100;
                                 HVtauList.push_back(HVtau);
                                 LVtauList.push_back(-LVtau);
                                 HVtauMean += HVtau;
