@@ -685,6 +685,9 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
                     double XEnergyResTotal = 0;
                     double YEnergyResTotal = 0;
             
+                    double LVTau;
+                    double HVTau;
+            
                     
                     
                     // Create a list for plotting X and Y energies
@@ -697,21 +700,24 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
                     for (unsigned int h = 0; h < min(BestXSideCombo.size(), BestYSideCombo.size()); ++h) {
                         
                         //Find dominant strip in each grouping
-                        MaxEnergy = -numeric_limits<double>::max();
+                        double MaxEnergy = -numeric_limits<double>::max();
+                        double tempEnergy;
+                        int dominantX;
                         for (unsigned int sh = 0; sh < BestXSideCombo[h].size(); ++sh) {
                             tempEnergy = StripHits[d][0][BestXSideCombo[h][sh]]->GetEnergy();
                             if (tempEnergy > MaxEnergy) {
                                 MaxEnergy = tempEnergy;
-                                dominantX = sh
+                                dominantX = sh;
                             }
                         }
                         
                         MaxEnergy = -numeric_limits<double>::max();
+                        int dominantY;
                         for (unsigned int sh = 0; sh < BestYSideCombo[h].size(); ++sh) {
-                            tempEnergy = StripHits[d][1][BestYSideCombo[h][sh]]->GetEnergy();
+                            double tempEnergy = StripHits[d][1][BestYSideCombo[h][sh]]->GetEnergy();
                             if (tempEnergy > MaxEnergy) {
                                 MaxEnergy = tempEnergy;
-                                dominantY = sh
+                                dominantY = sh;
                             }
                         }
                         
@@ -725,7 +731,6 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
                         YEnergy = 0;
                         XEnergyRes = 0;
                         YEnergyRes = 0;
-                        
                         
                         //Check if there are any non-adjacent strip groupings
                         for (unsigned int sh = 0; sh < BestXSideCombo[h].size() - 1; ++sh) {
@@ -762,8 +767,8 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
                                 YEnergyRes += StripHits[d][1][BestYSideCombo[h][sh]]->GetEnergyResolution()*StripHits[d][1][BestYSideCombo[h][sh]]->GetEnergyResolution();
                             }
                             
-                            LVtau = StripHits[d][0][BestXSideCombo[h][dominantX]]->GetTiming();
-                            HVtau = StripHits[d][1][BestYSideCombo[h][dominantY]]->GetTiming();
+                            LVTau = StripHits[d][0][BestXSideCombo[h][dominantX]]->GetTiming();
+                            HVTau = StripHits[d][1][BestYSideCombo[h][dominantY]]->GetTiming();
                             
                             // Charge trapping correction --> only being applied to events with all adjacent strips (though maybe it should be applied to all since that's how it's going through the chi^2 calculation)
                             // correction made based only on the dominant X and Y strip in a grouping of strips (eg neighboring strips)
@@ -818,7 +823,7 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
                             bool MultipleHitsOnX = true;
                             
                             //Collect timing info for X strip based on dominantX strip found above
-                            LVtau = StripHits[d][0][BestXSideCombo[h][dominantX]]->GetTiming();
+                            LVTau = StripHits[d][0][BestXSideCombo[h][dominantX]]->GetTiming();
                             
                             Event->SetMultipleHitsOnXStrip(MultipleHitsOnX);
                             for (unsigned int sh = 0; sh < BestYSideCombo[h].size(); ++sh) {
@@ -844,10 +849,10 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
                                 YEnergies.push_back(YEnergy);
                                 
                                 //Collect timing info for Y strip
-                                HVtau = StripHits[d][1][BestYSideCombo[h][sh]]->GetTiming();
+                                HVTau = StripHits[d][1][BestYSideCombo[h][sh]]->GetTiming();
                                 
                                 //Calculate CTD and record it to file
-                                double CTD = LVTau = HVTau
+                                double CTD = LVTau = HVTau;
                                 std::ofstream outFile("/Users/juliangerber/Desktop/Research/StripPairing/ChiSquareTesting/CTD.txt", std::ios::app);
                                 outFile << CTD << endl;
                                 outFile.close();
@@ -865,7 +870,7 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
                             Event->SetMultipleHitsOnYStrip(MultipleHitsOnY);
                             
                             //Collect timing info for Y strip based on dominantY strip found above
-                            HVtau = StripHits[d][1][BestYSideCombo[h][dominantY]]->GetTiming();
+                            HVTau = StripHits[d][1][BestYSideCombo[h][dominantY]]->GetTiming();
                             
                             for (unsigned int sh = 0; sh < BestXSideCombo[h].size(); ++sh) {
                                 Energy = StripHits[d][0][BestXSideCombo[h][sh]]->GetEnergy();
@@ -890,10 +895,10 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
                                 YEnergies.push_back(YEnergy);
                                 
                                 //Collect timing info for X strip
-                                LVtau = StripHits[d][0][BestXSideCombo[h][sh]]->GetTiming();
+                                LVTau = StripHits[d][0][BestXSideCombo[h][sh]]->GetTiming();
                                 
                                 //Calculate CTD and record it to file
-                                double CTD = LVTau = HVTau
+                                double CTD = LVTau = HVTau;
                                 std::ofstream outFile("/Users/juliangerber/Desktop/Research/StripPairing/ChiSquareTesting/CTD.txt", std::ios::app);
                                 outFile << CTD << endl;
                                 outFile.close();
