@@ -129,7 +129,6 @@ bool MModuleStripPairingGerber::Initialize()
   return MModule::Initialize();
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////
 
 // following function returns a 3D vector of integers
@@ -303,6 +302,19 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
     //cout<<"Energies: "<<xEnergy<<":"<<xEnergyRes<<" -- "<<yEnergy<<":"<<yEnergyRes<<endl;
   }
 
+  // (2.5) Create and populate charge trapping map for energy correction
+    
+  vector<array<array<array<double, 2>, 64>, 64>> ChargeTrappingMap; //64 x 64 grid
+    for (unsigned int d = 0; d < StripHits.size(); ++d) { // Detector loop
+        ChargeTrappingMap.push_back(array<array<array<double, 2>, 64>, 64>());
+        for (unsigned int i = 0; i < 64; ++i) {
+            for (unsigned int j = 0; j < 64; ++j) {
+                ChargeTrappingMap[d][i][j][0] = 0;
+                ChargeTrappingMap[d][i][j][1] = 0; //populate with 0s for now
+            }
+        }
+    }
+  
 
 
   // (3) Find all possible combinations
@@ -527,8 +539,13 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
                                 // Here begins the timing bit, skipping for now.
                                 double LVtau = StripHits[d][0][Combinations[d][0][xc][en][dominantX]]->GetTiming();
                                 double HVtau = StripHits[d][1][Combinations[d][1][yc][ep][dominantY]]->GetTiming();
-                                //            double CTDHVShift = LVtau - HVtau + 200;
-                                //            yEnergy /= 1 - (0.005687*CTDHVShift - 1.164)/100;
+                                
+                                // Charge trapping correction
+                                // correction made based only on the dominant X and Y strip in a grouping of strips (eg neighboring strips)
+                                            double CTDHVShift = LVtau - HVtau + 200;
+                                            double slope = ChargeTrappingMap[d][Combinations[d][0][xc][en][dominantX]->GetStripID()][Combinations[d][1][yc][ep][dominantY]->GetStripID()][0];
+                                            double intercept = ChargeTrappingMap[d][Combinations[d][0][xc][en][dominantX]->GetStripID()][Combinations[d][1][yc][ep][dominantY]->GetStripID()][1];
+                                            yEnergy /= 1 - (slope*CTDHVShift - intercept)/100;
                                 HVtauList.push_back(HVtau);
                                 LVtauList.push_back(-LVtau);
                                 HVtauMean += HVtau;
@@ -600,7 +617,7 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
                             }
                             
                             //cout<<"ChiSquare: "<<ChiSquare<<endl;
-                            // this takes into account the possibility of unequal combo sizes
+                            
                             if (Combinations[d][1][yc].size() > Combinations[d][0][xc].size()) {
                                 MorePermutations = next_permutation(Combinations[d][1][yc].begin(), Combinations[d][1][yc].end());
                             } else {
@@ -845,7 +862,7 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
                     XEnergyResTotal = sqrt(XEnergyResTotal);
                     YEnergyResTotal = sqrt(YEnergyResTotal);
                     
-                    //Total energy check will only go through if there are not multiple hits per strip
+                    
                     if ((EnergyTotal > max(XEnergyTotal, YEnergyTotal) + 2.5*max(XEnergyResTotal, YEnergyResTotal) || EnergyTotal < min(XEnergyTotal, YEnergyTotal) - 2.5*max(XEnergyResTotal, YEnergyResTotal))) {
                         Event->SetStripPairingIncomplete(true, "Strips not pairable wihin 2.5 sigma of measured energy");
                         Event->SetAnalysisProgress(MAssembly::c_StripPairing);
