@@ -694,8 +694,8 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
                     vector<double> XEnergies;
                     vector<double> YEnergies;
                     
-                    // MARK: NOTE - But how do you know that the XSide and YSide Combos are ordered in exactly the right way such that h=0 on either side corresponds to the right pairing???
-                    // my guess is that this is done on the xc level: i.e. the set of combinations [ [1], [2] ] is not equal to [ [2], [1] ] which makes sure that the chi^2 picks out the correct pairing
+                    // But how do you know that the XSide and YSide Combos are ordered in exactly the right way such that h=0 on either side corresponds to the right pairing???
+                    // This is done on the xc level: i.e. the set of combinations [ [1], [2] ] is not equal to [ [2], [1] ] which makes sure that the chi^2 picks out the correct pairing
     
                     for (unsigned int h = 0; h < min(BestXSideCombo.size(), BestYSideCombo.size()); ++h) {
                         
