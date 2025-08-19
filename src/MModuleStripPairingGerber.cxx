@@ -849,13 +849,13 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
                                 YEnergies.push_back(YEnergy);
                                 
                                 //Collect timing info for Y strip
-                                HVTau = StripHits[d][1][BestYSideCombo[h][sh]]->GetTiming();
+                             //   HVTau = StripHits[d][1][BestYSideCombo[h][sh]]->GetTiming();
                                 
                                 //Calculate CTD and record it to file
-                                double CTD = LVTau = HVTau;
-                                std::ofstream outFile("/Users/juliangerber/Desktop/Research/StripPairing/ChiSquareTesting/CTD.txt", std::ios::app);
-                                outFile << CTD << endl;
-                                outFile.close();
+                             //   double CTD = LVTau = HVTau;
+                             //   std::ofstream outFile("/Users/juliangerber/Desktop/Research/StripPairing/ChiSquareTesting/CTD.txt", std::ios::app);
+                            //    outFile << CTD << endl;
+                           //     outFile.close();
                                 
                                 for (unsigned int sh = 0; sh < BestXSideCombo[h].size(); ++sh) {
                                     Hit->AddStripHit(StripHits[d][0][BestXSideCombo[h][sh]]);
