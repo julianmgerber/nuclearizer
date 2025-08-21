@@ -475,26 +475,7 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
                                 unsigned int dominantX;
                                 double MaxEnergy = -numeric_limits<double>::max();
                                 for (unsigned int entry = 0; entry < Combinations[d][0][xc][en].size(); ++entry) { // Sum up energy on xstrips in the set of strips, en (entry is on the strip level itself)
-                                    
-                                    //Debugging statement to see why nuclearizer keeps crashing
-                                    
-                                    unsigned int index = Combinations[d][0][xc][en][entry];
 
-                                    if (index >= StripHits[d][0].size() || StripHits[d][0][index] == nullptr) {
-                                        std::cerr << "CRASH WARNING:\n"
-                                                  << "  d: " << d
-                                                  << ", yc: " << yc
-                                                  << ", ep: " << ep
-                                                  << ", entry: " << entry
-                                                  << ", index: " << index
-                                                  << ", StripHits size: " << StripHits[d][0].size() << "\n";
-                                        if (index < StripHits[d][0].size())
-                                            std::cerr << "  But StripHits[d][0][index] is nullptr.\n";
-                                        else
-                                            std::cerr << "  Index is out of bounds.\n";
-                                    }
-
-                                    
                                     double tempEnergy = StripHits[d][0][Combinations[d][0][xc][en][entry]]->GetEnergy();
                                     if (tempEnergy > MaxEnergy){
                                         dominantX = entry;
