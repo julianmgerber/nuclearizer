@@ -194,8 +194,8 @@ bool MGUIOptionsEventFilter::OnApply()
   dynamic_cast<MModuleEventFilter*>(m_Module)->SetMinimumHits(m_Hits->GetMinValue());
   dynamic_cast<MModuleEventFilter*>(m_Module)->SetMaximumHits(m_Hits->GetMaxValue());
     
-  dynamic_cast<MModuleEventFilter*>(m_Module)->SetMinimumRedChiSquare(m_MinimumRedChiSquare->GetMinValue());
-  dynamic_cast<MModuleEventFilter*>(m_Module)->SetMaximumRedChiSquare(m_MaximumRedChiSquare->GetMaxValue());
+  dynamic_cast<MModuleEventFilter*>(m_Module)->SetMinimumRedChiSquare(m_RedChiSquareWindow->GetMinValue());
+  dynamic_cast<MModuleEventFilter*>(m_Module)->SetMaximumRedChiSquare(m_RedChiSquareWindow->GetMaxValue());
 
   return true;
 }
