@@ -252,6 +252,15 @@ bool MModuleEventFilter::ReadXmlConfiguration(MXmlNode* Node)
   if (MaximumHitsNode != 0) {
     m_MaximumHits = MaximumHitsNode->GetValueAsUnsignedInt();
   }
+    
+  MXmlNode* MinimumRedChiSquareNode = Node->GetNode("MinimumRedChiSquare");
+  if (MinimumRedChiSquareNode != 0) {
+    m_MinimumRedChiSquare = MinimumRedChiSquareNode->GetValueAsDouble();
+  }
+  MXmlNode* MaximumRedChiSquareNode = Node->GetNode("MaximumRedChiSquare");
+  if (MaximumRedChiSquareNode != 0) {
+    m_MaximumRedChiSquare = MaximumRedChiSquareNode->GetValueAsDouble();
+  }
 
   return true;
 }
@@ -277,6 +286,9 @@ MXmlNode* MModuleEventFilter::CreateXmlConfiguration()
 
   new MXmlNode(Node, "MinimumHits", m_MinimumHits);
   new MXmlNode(Node, "MaximumHits", m_MaximumHits);
+    
+  new MXmlNode(Node, "MinimumRedChiSquare", m_MinimumRedChiSquare);
+  new MXmlNode(Node, "MaximumRedChiSquare", m_MaximumRedChiSquare);
 
   return Node;
 }
