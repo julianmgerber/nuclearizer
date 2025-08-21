@@ -436,11 +436,11 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
                     for (unsigned int xc = 0; xc < Combinations[d][0].size(); ++xc) { // Loop over combinations of x-strips (xc represents a list of sets of strips,  and each set is a proposed Hit)
                         for (unsigned int yc = 0; yc < Combinations[d][1].size(); ++yc) { // Loop over combinations of y-strips (yc represents a list of sets of strips,  and each set is a proposed Hit)
                             
-                            //if (abs(long(Combinations[d][0][xc].size()) - long(Combinations[d][1][yc].size())) > 1) { // Skip this pair of combos if the x- and y-strip combos differ in size by more than one
+                            if (abs(long(Combinations[d][0][xc].size()) - long(Combinations[d][1][yc].size())) > 1) { // Skip this pair of combos if the x- and y-strip combos differ in size by more than one
                             // ie. if a certain set has 2 or more combos on one side than the other than it disregards the pair
-                            // MARK: NOTE - I believe this would remove any possibility of more than 2 hits on a single strip
-                            //continue;
-                        //}
+                          
+                            continue;
+                        }
                         
                         unsigned int MinSize = min(Combinations[d][0][xc].size(), Combinations[d][1][yc].size());
                         
