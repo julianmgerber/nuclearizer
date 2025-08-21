@@ -125,6 +125,20 @@ void MGUIOptionsEventFilter::Create()
                                 dynamic_cast<MModuleEventFilter*>(m_Module)->GetMaximumHits(),
                                 true, 0.0);
   m_OptionsFrame->AddFrame(m_Hits, SecondariesLayout);
+    
+  TGLabel* RedChiSquareLabel = new TGLabel(m_OptionsFrame,
+      "Reduced Chi Squared Window (as calculated in strip pairing)\n"
+      "This requires that Strip Pairing has been done.");
+    m_OptionsFrame->AddFrame(RedChiSquareLabel, FirstLayout);
+
+    m_RedChiSquareWindow = new MGUIEMinMaxEntry(m_OptionsFrame,
+                                  "Choose the minimum and maximum Reduced Chi Square (inclusive):",
+                                  false,
+                                  dynamic_cast<MModuleEventFilter*>(m_Module)->GetMinimumRedChiSquare(),
+                                  dynamic_cast<MModuleEventFilter*>(m_Module)->GetMaximumRedChiSquare(),
+                                  true, 0.0);
+    m_OptionsFrame->AddFrame(m_RedChiSquareWindow, SecondariesLayout);
+    
 
   PostCreate();
 }

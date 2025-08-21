@@ -94,6 +94,9 @@ MModuleEventFilter::MModuleEventFilter() : MModule()
 
   m_MinimumHits = 0;
   m_MaximumHits = 100;
+    
+  m_MinimumRedChiSquare = -1;
+  m_MaximumRedChiSquare = numeric_limits<double>::max();
 }
 
 
@@ -174,6 +177,12 @@ bool MModuleEventFilter::AnalyzeEvent(MReadOutAssembly* Event)
   if (Event->GetNHits() < m_MinimumHits || Event->GetNHits() > m_MaximumHits) {
     FilteredOut = true;
   }
+    
+  // Apply Chi^2 filter (as calculated in strip pairing)
+    
+    if (Event->GetRedChiSquare() < m_MinimumRedChiSquare || Event->GetRedChiSquare() > m_MaximumRedChiSquare) {
+        FilteredOut = true;
+    }
 
 
   if (FilteredOut == true) {
