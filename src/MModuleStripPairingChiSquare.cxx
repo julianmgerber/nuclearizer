@@ -644,7 +644,7 @@ bool MModuleStripPairingChiSquare::AnalyzeEvent(MReadOutAssembly* Event)
       Event->SetAnalysisProgress(MAssembly::c_StripPairing);
       return false;
     }
-    else if (HasExpos() == true){
+    else if (HasExpos() == true and Event->IsGood() == true){
       
       m_ExpoStripPairingHits->AddHits(Event->GetNHits());
       for (unsigned int i = 0; i < XEnergies.size(); ++i){
