@@ -579,7 +579,7 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
                             
                             if (ChiSquare < BestChiSquare) {
                                 BestChiSquare = ChiSquare;
-                                BestXSideCombo = Combinations[d][0][xc]; //best combo is chosen. But then how are the strips paired within each combo set? The ordering of the combination matters! Determines the pairing!
+                                BestXSideCombo = Combinations[d][0][xc]; //best combo is chosen. But then how are the strips paired within each combo set? The ordering of the combination matters! Determines the pairing! When it checks for the next permutation, it's testing different orderings.
                                 BestYSideCombo = Combinations[d][1][yc];
                             }
                             
@@ -589,6 +589,8 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
                                 MorePermutations = next_permutation(Combinations[d][1][yc].begin(), Combinations[d][1][yc].end());
                             } else {
                                 MorePermutations = next_permutation(Combinations[d][0][xc].begin(), Combinations[d][0][xc].end());
+                            // This doesn't affect the assignment of BestX/YSideCombo like it would in Python because c++ makes a copy when you assign a variable to a another variable. Just one of the many wonders of c++. Praise be to Bjarne Stroustrup.
+
                             }
                         }
                     }
