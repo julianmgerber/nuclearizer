@@ -579,7 +579,7 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
                             
                             if (ChiSquare < BestChiSquare) {
                                 BestChiSquare = ChiSquare;
-                                BestXSideCombo = Combinations[d][0][xc]; //best combo is chosen. But then how are the strips paired within each combo set?
+                                BestXSideCombo = Combinations[d][0][xc]; //best combo is chosen. But then how are the strips paired within each combo set? The ordering of the combination matters! Determines the pairing!
                                 BestYSideCombo = Combinations[d][1][yc];
                             }
                             
