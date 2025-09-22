@@ -317,9 +317,18 @@ bool TrappingCorrectionAm241::Analyze()
       } else {
         MString Line;
         while (F.ReadLine(Line)) {
-          HDFNames.push_back(Line.Trim());
+          MString Trimmed = Line.Trim();
+          if ((Trimmed != "")) {
+            if (F.Exists(Trimmed)==true) {
+              HDFNames.push_back(Trimmed);
+            } else {
+              cout<<"Error: Could not find file "<<Trimmed<<endl;
+            }
+          }
         }
       }
+    } else {
+      cout<<"Error: Unrecognized file format: "<<InputFile<<endl;
     }
 
     // Analyze all the data and fill in the histograms
