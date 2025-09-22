@@ -114,6 +114,7 @@ private:
   bool m_PixelCorrect;
   bool m_GreedyPairing;
   bool m_ExcludeNN;
+  bool m_ContinueHDF5;
 
   double m_MinEnergy;
   double m_MaxEnergy;
@@ -162,6 +163,7 @@ bool TrappingCorrectionAm241::ParseCommandLine(int argc, char** argv)
   Usage<<"         -g:   greedy strip pairing (default is chi-square)"<<endl;
   Usage<<"         -n:   exclude nearest neighbors"<<endl;
   Usage<<"         -o:   outfile (default YYYYMMDDHHMMSS)"<<endl;
+  Usage<<"         --nocontinue:  Suppress continuous HDF5 loading"<<endl;
   Usage<<"         -h:   print this help"<<endl;
   Usage<<endl;
 
@@ -178,6 +180,7 @@ bool TrappingCorrectionAm241::ParseCommandLine(int argc, char** argv)
 
   m_PixelCorrect = false;
   m_GreedyPairing = false;
+  m_ContinueHDF5 = true;
   m_MinEnergy = 40;
   m_MaxEnergy = 70;
   
@@ -209,58 +212,41 @@ bool TrappingCorrectionAm241::ParseCommandLine(int argc, char** argv)
     if (Option == "--HVfile") {
       m_HVFileName = argv[++i];
       cout<<"Accepting file name: "<<m_HVFileName<<endl;
-    } 
-
-    if (Option == "--LVfile") {
+    } else if (Option == "--LVfile") {
       m_LVFileName = argv[++i];
       cout<<"Accepting file name: "<<m_LVFileName<<endl;
-    } 
-
-    if (Option == "-e") {
+    } else if (Option == "-e") {
       m_EcalFile = argv[++i];
       cout<<"Accepting file name: "<<m_EcalFile<<endl;
-    } 
-
-    if (Option == "--emin") {
+    } else if (Option == "--emin") {
       m_MinEnergy = stod(argv[++i]);
-    } 
-
-    if (Option == "--emax") {
+    } else if (Option == "--emax") {
       m_MaxEnergy = stod(argv[++i]);
-    } 
-
-    if (Option == "--tcal") {
+    } else if (Option == "--tcal") {
       m_TACCalFile = argv[++i];
       cout<<"Accepting file name: "<<m_TACCalFile<<endl;
-    } 
-
-    if (Option == "--tcut") {
+    } else if (Option == "--tcut") {
       m_TACCutFile = argv[++i];
       cout<<"Accepting file name: "<<m_TACCutFile<<endl;
-    }
-
-    if (Option == "-m"){
+    } else if (Option == "-m") {
       m_StripMapFile = argv[++i];
       cout<<"Accepting file name: "<<m_StripMapFile<<endl;
-    } 
-
-    if (Option == "-o"){
+    } else if (Option == "-o") {
       m_OutFile = argv[++i];
       cout<<"Accepting file name: "<<m_OutFile<<endl;
-    }
-
-    if (Option == "-p"){
+    } else if (Option == "-p") {
       m_PixelCorrect = true;
-    }
-
-    if (Option == "-g"){
+    } else if (Option == "-g") {
       m_GreedyPairing = true;
-    }
-
-    if (Option == "-n"){
+    } else if (Option == "-n") {
       m_ExcludeNN = true;
+    } else if (Option == "--nocontinue") {
+      m_ContinueHDF5 = false;
+    } else {
+      cout<<"Argument not recognized:"<<Option<<endl;
+      cout<<Usage.str()<<endl;
+      return false;
     }
-
   }
 
   return true;
@@ -323,6 +309,8 @@ bool TrappingCorrectionAm241::Analyze()
     if ((InputFile.GetSubString(InputFile.Length() - 4)) == "hdf5") {
       HDFNames.push_back(InputFile);
     } else if ((InputFile.GetSubString(InputFile.Length() - 3)) == "txt") {
+      cout<<"Reading input file "<<InputFile<<endl;
+      cout<<"WARNING: When passing a list of files, ensure that you have chosen the correct HDF5 continuous reading mode. Use the --nocontinue option to suppress continuous file reading."<<endl;
       MFile F;
       if (F.Open(InputFile)==false) {
         cout<<"Error: Failed to open input file."<<endl;
@@ -352,7 +340,7 @@ bool TrappingCorrectionAm241::Analyze()
       Loader = new MModuleLoaderMeasurementsHDF();
       Loader->SetFileNameStripMap(m_StripMapFile);
       Loader->SetFileName(File);
-      Loader->SetLoadContinuationFiles(true);
+      Loader->SetLoadContinuationFiles(m_ContinueHDF5);
       S->SetModule(Loader, MNumber);
       ++MNumber;
 
