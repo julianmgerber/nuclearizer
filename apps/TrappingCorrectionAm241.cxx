@@ -149,6 +149,8 @@ bool TrappingCorrectionAm241::ParseCommandLine(int argc, char** argv)
 {
   ostringstream Usage;
   Usage<<endl;
+  Usage<<"  This app reads HV-illuminated and LV-illuminated Am241 data and determines the amount of charge loss occurring across the detector. When comparing the two illuminations, the energy read by each side of the detector is shifted. This app measures and records this shift, as well as the CTD endpoints on the HV and LV faces of the detector."<<endl;
+  Usage<<endl;
   Usage<<"  Usage: TrappingCorrectionAm241 <options>"<<endl;
   Usage<<"    General options:"<<endl;
   Usage<<"         --HVfile:   HV illumination input file name (.hdf5 or .txt with list of hdf5s)"<<endl;
@@ -269,14 +271,18 @@ bool TrappingCorrectionAm241::Analyze()
   map<unsigned int, vector<vector<double>>> Endpoints;
   map<unsigned int, vector<vector<double>>> FullDetEndpoints;
 
+  // Store the HV and LV input files
   vector<MString> FileNames;
   FileNames.push_back(m_HVFileName);
   FileNames.push_back(m_LVFileName);
 
+  // Map the side integer to HV and LV labels
+  // i.e. 0=HV, 1=LV
   vector<MString> IllumSide;
   IllumSide.push_back(MString("HV"));
   IllumSide.push_back(MString("LV"));
 
+  // Make a directory in which to store the pixel-level data 
   MString PixelDir = m_OutFile + MString("_pixeldata");
   if (m_PixelCorrect==true) {
     if (std::filesystem::create_directories(PixelDir.Data())==false) {
@@ -284,8 +290,10 @@ bool TrappingCorrectionAm241::Analyze()
     }
   }
 
+  // For each side (HV and LV) calibrate the input data, construct histograms, and fit models
   for (unsigned int s=0; s<2; ++s) {
 
+    // Prep CTD model parameters. Mirror the model about the x-axis depending which side is being analyzed. 
     double CTDFitMin, CTDFitMax, FlipSwitch;
     if (IllumSide[s]=="HV") {
       FlipSwitch = 1;
@@ -306,6 +314,7 @@ bool TrappingCorrectionAm241::Analyze()
     map<int, TH1D*> HVEnergyHistograms;
     map<int, TH1D*> LVEnergyHistograms;
 
+    // Read in the input files and make a list of hdf5 files to calibrate
     if ((InputFile.GetSubString(InputFile.Length() - 4)) == "hdf5") {
       HDFNames.push_back(InputFile);
     } else if ((InputFile.GetSubString(InputFile.Length() - 3)) == "txt") {
@@ -337,6 +346,7 @@ bool TrappingCorrectionAm241::Analyze()
       MString File = HDFNames[f];
       cout<<"Beginning analysis of file "<<File<<endl;
 
+      // Create and initialize nuclearizer modules
       MSupervisor* S = MSupervisor::GetSupervisor();
       
     	MModuleLoaderMeasurementsHDF* Loader;
@@ -368,7 +378,8 @@ bool TrappingCorrectionAm241::Analyze()
       ++MNumber;
 
       cout<<"Creating Event filter"<<endl;
-      //! Only use events with 1 to 3 Strip Hits on each side
+      // Only use events with 1 to 3 Strip Hits on each side
+      // After strip pairing, we'll also filter to make sure we're only looking at single Hits
       EventFilter = new MModuleEventFilter();
       EventFilter->SetMinimumLVStrips(1);
       EventFilter->SetMaximumLVStrips(3);
@@ -377,7 +388,7 @@ bool TrappingCorrectionAm241::Analyze()
       EventFilter->SetMinimumHits(0);
       EventFilter->SetMaximumHits(100);
       EventFilter->SetMinimumTotalEnergy(m_MinEnergy);
-      EventFilter->SetMaximumTotalEnergy(m_MaxEnergy*2);
+      EventFilter->SetMaximumTotalEnergy(m_MaxEnergy*2); // Multiply by 2 because this is the event-level energy, i.e. sum over both sides
       S->SetModule(EventFilter, MNumber);
       ++MNumber;
       
@@ -404,12 +415,14 @@ bool TrappingCorrectionAm241::Analyze()
       bool IsFinished = false;
       MReadOutAssembly* Event = new MReadOutAssembly();
 
+      // Pass Events through each module. Once calibrated, add the Event to the histograms
       cout<<"Analyzing..."<<endl;
       while ((IsFinished == false) && (m_Interrupt == false)) {
         Event->Clear();
 
         if (Loader->IsReady()) {
 
+          // Load Event from HDF5 file, then do TAC cut/calibration, energy calibration, and filtering
           Loader->AnalyzeEvent(Event);
           TACCalibrator->AnalyzeEvent(Event);
           EnergyCalibrator->AnalyzeEvent(Event);
@@ -417,11 +430,13 @@ bool TrappingCorrectionAm241::Analyze()
 
           if (Unfiltered == true) {
             
+            // Pair strips
             Pairing->AnalyzeEvent(Event);
 
             // Only look at events with 1 Hit since we're interested in the 60keV photopeak.
             if ((Event->HasAnalysisProgress(MAssembly::c_StripPairing) == true) && (Unfiltered==true) && (Event->GetNHits()==1)) {
               
+              // for each Hit
               for (unsigned int h = 0; h < Event->GetNHits(); ++h) {
                 double HVEnergy = 0.0;
                 double LVEnergy = 0.0;
@@ -434,9 +449,11 @@ bool TrappingCorrectionAm241::Analyze()
                 
                 int DetID = H->GetStripHit(0)->GetDetectorID();
 
+                // for each Strip Hit in the Hit
                 for (unsigned int sh = 0; sh < H->GetNStripHits(); ++sh) {
                   MStripHit* SH = H->GetStripHit(sh);
 
+                  // Sum up the HV and LV energies, excluding nearest neighbors if m_ExcludeNN==true
                   if ((m_ExcludeNN==false) || ((m_ExcludeNN==true) && (SH->IsNearestNeighbor()==false))) {
                     if (SH->IsLowVoltageStrip()==true) {
                       LVEnergy += SH->GetEnergy();
@@ -450,6 +467,7 @@ bool TrappingCorrectionAm241::Analyze()
                   }
                 }
 
+                // As long as there are Strip Hits remaining on each side, add the energies and CTDs to histograms
                 if ((HVStrips.size()>0) && (LVStrips.size()>0)) {
                   
                   double HVEnergyFraction = 0;
@@ -463,6 +481,7 @@ bool TrappingCorrectionAm241::Analyze()
                     
                     int PixelID = (10000*DetID) + (100*LVSH->GetStripID()) + (HVSH->GetStripID());
 
+                    // If this PixelID hasn't been encountered yet, make an entry for it in Endpoints 
                     if (Endpoints.find(PixelID)==Endpoints.end()) {
                       vector<double> tempHVvec;
                       vector<double> tempLVvec;
@@ -476,6 +495,7 @@ bool TrappingCorrectionAm241::Analyze()
                     TH1D* HVHist = HVEnergyHistograms[PixelID];
                     TH1D* LVHist = LVEnergyHistograms[PixelID];
                     
+                    // If we didnt find an entry for the CTD and energy histograms, make new ones
                     if (CTDHist == nullptr) {
                       char name[64]; sprintf(name,"CTD: PixelID %d %s Illumination",PixelID,IllumSide[s].Data());
                       CTDHist = new TH1D(name, name, (g_MaxCTD - g_MinCTD)/2, g_MinCTD, g_MaxCTD);
@@ -483,7 +503,6 @@ bool TrappingCorrectionAm241::Analyze()
                       CTDHist->SetYTitle("Hits");
                       CTDHistograms[PixelID] = CTDHist;
                     }
-
                     if (HVHist == nullptr) {
                       char name[64]; sprintf(name,"HV energy: PixelID %d %s Illumination",PixelID,IllumSide[s].Data());
                       HVHist = new TH1D(name, name, (m_MaxEnergy - m_MinEnergy)*2, m_MinEnergy, m_MaxEnergy);
@@ -491,7 +510,6 @@ bool TrappingCorrectionAm241::Analyze()
                       HVHist->SetYTitle("Hits");
                       HVEnergyHistograms[PixelID] = HVHist;
                     }
-
                     if (LVHist == nullptr) {
                       char name[64]; sprintf(name,"LV energy: PixelID %d %s Illumination",PixelID,IllumSide[s].Data());
                       LVHist = new TH1D(name, name, (m_MaxEnergy - m_MinEnergy)*2, m_MinEnergy, m_MaxEnergy);
@@ -500,6 +518,7 @@ bool TrappingCorrectionAm241::Analyze()
                       LVEnergyHistograms[PixelID] = LVHist;
                     }
 
+                    // Add the data to the histograms
                     CTDHist->Fill(CTD);
                     HVHist->Fill(HVEnergy);
                     LVHist->Fill(LVEnergy);
@@ -517,13 +536,14 @@ bool TrappingCorrectionAm241::Analyze()
     map<int, TH1D*> FullDetHVEnergyHistograms;
     map<int, TH1D*> FullDetLVEnergyHistograms;
     
-    // Add up the pixel-level histograms to get full detector histograms
+    // Loop over all pixels for which there are pixel-level histograms and sum to get full detector histograms
     // Fit to the pixel-level histograms and record the results
     for (auto H: CTDHistograms) {
       
       int PixelID = H.first;
       int DetID = (PixelID-(PixelID%10000))/10000;
 
+      // If this DetID hasn't been encountered yet, make an entry for it in Endpoints
       if (FullDetEndpoints.find(DetID)==FullDetEndpoints.end()) {
         vector<double> tempHVvec;
         vector<double> tempLVvec;
@@ -537,6 +557,7 @@ bool TrappingCorrectionAm241::Analyze()
       TH1D* HVHist = FullDetHVEnergyHistograms[DetID];
       TH1D* LVHist = FullDetLVEnergyHistograms[DetID];
       
+      // If we didnt find an entry for the CTD and energy histograms, make new ones
       if (CTDHist == nullptr) {
         char name[64]; sprintf(name,"CTD: DetID %d %s Illumination",DetID,IllumSide[s].Data());
         CTDHist = new TH1D(name, name, (g_MaxCTD - g_MinCTD)/2, g_MinCTD, g_MaxCTD);
@@ -544,7 +565,6 @@ bool TrappingCorrectionAm241::Analyze()
         CTDHist->SetYTitle("Hits");
         FullDetCTDHistograms[DetID] = CTDHist;
       }
-
       if (HVHist == nullptr) {
         char name[64]; sprintf(name,"HV energy: DetID %d %s Illumination",DetID,IllumSide[s].Data());
         HVHist = new TH1D(name, name, (m_MaxEnergy - m_MinEnergy)*2, m_MinEnergy, m_MaxEnergy);
@@ -552,7 +572,6 @@ bool TrappingCorrectionAm241::Analyze()
         HVHist->SetYTitle("Hits");
         FullDetHVEnergyHistograms[DetID] = HVHist;
       }
-
       if (LVHist == nullptr) {
         char name[64]; sprintf(name,"LV energy: DetID %d %s Illumination",DetID,IllumSide[s].Data());
         LVHist = new TH1D(name, name, (m_MaxEnergy - m_MinEnergy)*2, m_MinEnergy, m_MaxEnergy);
@@ -567,13 +586,16 @@ bool TrappingCorrectionAm241::Analyze()
 
       if (m_PixelCorrect==true) {
 
-        // Write each of the histograms to a root file
+        // Fit histograms and save the results
+        // Only perform fits if the total counts in each is above the threshold given by g_MinCounts
         if ((H.second->Integral() > g_MinCounts) && (HVEnergyHistograms[PixelID]->Integral() > g_MinCounts) && (LVEnergyHistograms[PixelID]->Integral() > g_MinCounts)) {
           
+          // Initialize and run the CTD fit
           double CTDGuess = H.second->GetBinCenter(H.second->GetMaximumBin());
           TF1* CTDFunction = GenerateCTDFunction(CTDFitMin, CTDFitMax, CTDGuess, FlipSwitch);
           TFitResultPtr CTDFit = H.second->Fit(CTDFunction, "SQ", "", CTDFitMin, CTDFitMax);
 
+          // Save the results of the CTD fit
           ofstream CTDFitFile(PixelDir +MString("/") + PixelID+MString("_CTDFitResult_")+IllumSide[s]+ MString("Illum.txt"));
           streambuf* coutbuf = cout.rdbuf();
           cout.rdbuf(CTDFitFile.rdbuf());
@@ -582,10 +604,12 @@ bool TrappingCorrectionAm241::Analyze()
           }
           cout.rdbuf(coutbuf);
           CTDFitFile.close();
-
+          
+          // Initialize and run the HV photopeak fit
           TF1* PhotopeakFunctionHV = GeneratePhotopeakFunction();
           TFitResultPtr HVFit = HVEnergyHistograms[PixelID]->Fit(PhotopeakFunctionHV, "SQ", "", 55, 70);
 
+          // Save the results of the HV photopeak fit
           ofstream HVFitFile(PixelDir +MString("/") + PixelID+MString("_HVEnergyFitResult_")+IllumSide[s]+ MString("Illum.txt"));
           coutbuf = cout.rdbuf();
           cout.rdbuf(HVFitFile.rdbuf());
@@ -595,9 +619,11 @@ bool TrappingCorrectionAm241::Analyze()
           cout.rdbuf(coutbuf);
           HVFitFile.close();
 
+          // Initialize and run the LV photopeak fit
           TF1* PhotopeakFunctionLV = GeneratePhotopeakFunction();
           TFitResultPtr LVFit = LVEnergyHistograms[PixelID]->Fit(PhotopeakFunctionLV, "SQ", "", 55, 70);
           
+          // Save the results of the LV photopeak fit
           ofstream LVFitFile(PixelDir +MString("/") + PixelID+MString("_LVEnergyFitResult_")+IllumSide[s]+ MString("Illum.txt"));
           coutbuf = cout.rdbuf();
           cout.rdbuf(LVFitFile.rdbuf());
@@ -607,6 +633,8 @@ bool TrappingCorrectionAm241::Analyze()
           cout.rdbuf(coutbuf);
           LVFitFile.close();
 
+          // Save the resulting HV and LV photopeak centroids and CTD centroids to the Endpoints map.
+          // Only save these values if the fits ran successfully and if their reduced chi-square is less than 5
           if ((!(CTDFit->IsEmpty())) && (!(HVFit->IsEmpty())) && (!(LVFit->IsEmpty())) && ((CTDFit->Chi2()/CTDFit->Ndf()) < 5) && ((HVFit->Chi2()/HVFit->Ndf()) < 5) && ((LVFit->Chi2()/LVFit->Ndf()) < 5)) {
             Endpoints[PixelID][s].push_back(CTDFit->Parameter(2));
             Endpoints[PixelID][s].push_back(HVFit->Parameter(1));
@@ -632,7 +660,7 @@ bool TrappingCorrectionAm241::Analyze()
       }
     }
 
-    // Fit and plot the detector-level histograms
+    // Do the same function fitting and recording as above, but for the full detectors rather than pixel-by-pixel
     for (auto H: FullDetCTDHistograms) {
 
       int DetID = H.first;
@@ -720,7 +748,7 @@ bool TrappingCorrectionAm241::Analyze()
     }
   }
 
-  //setup output file
+  //setup parameter file
   ofstream OutputCalFile;
   OutputCalFile.open(m_OutFile+MString("_parameters.txt"));
   OutputCalFile<<"# Det ID"<<'\t'<<"HV Strip ID"<<'\t'<<"LV Strip ID"<<'\t'<<"HV Illum CTD"<<'\t'<<"LV Illum CTD"<<'\t'<<"HV Illum. HV Centroid"<<'\t'<<"LV Illum. HV Centroid"<<'\t'<<"HV Illum. LV Centroid"<<'\t'<<"LV Illum. LV Centroid"<<endl<<endl;
@@ -731,8 +759,9 @@ bool TrappingCorrectionAm241::Analyze()
   map<int, TH1D*> DeltaHVHist;
   map<int, TH1D*> DeltaLVHist;
 
-  // Write the results of good fits to the output file and produce summary plots.
+  // Write the results of good fits to the parameter file and produce summary plots.
   // If an individual pixel did not produce a good fit, default to the detector-level parameters.
+  // Loop over each detector
   for (auto E: FullDetEndpoints) {
     
     int DetID = E.first;
@@ -753,6 +782,7 @@ bool TrappingCorrectionAm241::Analyze()
       LVIllumLVCentroid = E.second[1][2];
     }
 
+    // Loop over each pixel
     for (int hv=0; hv<g_HVStrips; ++hv) {
       for (int lv=0; lv<g_LVStrips; ++lv) {
         if (m_PixelCorrect==true) {
@@ -765,6 +795,7 @@ bool TrappingCorrectionAm241::Analyze()
           TH1D* TempHVHist = DeltaHVHist[DetID];
           TH1D* TempLVHist = DeltaLVHist[DetID];
           
+          // Create the histograms and pixel maps if they don't exist yet
           if (TempHVMap == nullptr) {
 
             char HVname[64]; sprintf(HVname,"Delta HV Map: Det %d",DetID);
@@ -802,6 +833,8 @@ bool TrappingCorrectionAm241::Analyze()
           DeltaHVMap[DetID]->SetBinContent(hv+1, lv+1, -100);
           DeltaLVMap[DetID]->SetBinContent(hv+1, lv+1, -100);
 
+          // Retrieve the stored HV and LV energies and CTDs
+          // Plot the energy shifts in the HV and LV Maps, and fill in the histograms
           if (Endpoints.find(PixelID)!=Endpoints.end()) {
             if ((Endpoints[PixelID][0].size() > 0) && (Endpoints[PixelID][1].size() > 0)) {
               
@@ -812,18 +845,21 @@ bool TrappingCorrectionAm241::Analyze()
               HVIllumLVCentroid = Endpoints[PixelID][0][2];
               LVIllumLVCentroid = Endpoints[PixelID][1][2];
 
+              // Normalize the differences in Energy to account for calibration differences
               double HVDiff = (HVIllumHVCentroid - LVIllumHVCentroid)*(g_AmPhotopeak/HVIllumHVCentroid);
               double LVDiff = (HVIllumLVCentroid - LVIllumLVCentroid)*(g_AmPhotopeak/HVIllumLVCentroid);
 
               DeltaHVMap[DetID]->SetBinContent(hv+1, lv+1, HVDiff);
               DeltaLVMap[DetID]->SetBinContent(hv+1, lv+1, LVDiff);
 
-              // Normalize the differences in Energy to account for calibration differences
               DeltaHVHist[DetID]->Fill(HVDiff);
               DeltaLVHist[DetID]->Fill(LVDiff);
             }
           }
         }
+
+        // Record the Energies and CTDs in the parameter file
+        // Note that we default to the detector value if the pixel value isn't available and to 0 if the detector value isn't available.
         OutputCalFile<<to_string(DetID)<<'\t'<<to_string(hv)<<'\t'<<to_string(lv)<<'\t'<<to_string(HVIllumCTD)<<'\t'<<to_string(LVIllumCTD)<<'\t'<<to_string(HVIllumHVCentroid)<<'\t'<<to_string(LVIllumHVCentroid)<<'\t'<<to_string(HVIllumLVCentroid)<<'\t'<<to_string(LVIllumLVCentroid)<<endl<<endl;
       }
     }
