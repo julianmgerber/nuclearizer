@@ -200,7 +200,8 @@ void MHit::StreamEvta(ostream& S)
   }
   
   S<<"HT 3;"<<m_Position.GetX()<<";"<<m_Position.GetY()<<";"<<m_Position.GetZ()<<";"<<m_Energy
-       <<";"<<m_PositionResolution.GetX()<<";"<<m_PositionResolution.GetY()<<";"<<m_PositionResolution.GetZ()<<";"<<m_EnergyResolution;
+       <<";"<<m_PositionResolution.GetX()<<";"<<m_PositionResolution.GetY()<<";"<<m_PositionResolution.GetZ()<<";"<<m_EnergyResolution<<";"<<m_XEnergy<<";"<<m_YEnergy;
+  // Just tacking on the hit's X/Y energy at the end here
   for (unsigned int i = 0; i < Origins.size(); ++i) {
     S<<";"<<Origins[i]; 
   }
