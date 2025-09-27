@@ -26,6 +26,7 @@
 
 // MEGAlib libs:
 #include "MGlobal.h"
+#include "MModule.h"
 #include "MString.h"
 #include "MFile.h"
 
@@ -44,8 +45,14 @@ class MDepthCalibrator
     virtual ~MDepthCalibrator() {};
 		//! Load the coefficients file (i.e. fit parameters for each pixel)
 		bool LoadCoeffsFile(MString FName);
+		//! Load the TAC Calibration file
+  		bool LoadTACCalFile(MString FName);
 		//! Return the coefficients for a pixel
 		std::vector<double>* GetPixelCoeffs(int pixel_code);
+		//! Return the TAC calibration coefficients for a LV strip
+		std::vector<double>* GetLVTACCal(int DetID, int StripID);
+		//! Return the TAC calibration coefficients for a HV strip
+		std::vector<double>* GetHVTACCal(int DetID, int StripID);
 		//! Load the splines file
 		bool LoadSplinesFile(MString FName);
 		//! Return a pointer to a spline
@@ -75,6 +82,10 @@ class MDepthCalibrator
 		std::unordered_map<int,TSpline3*> m_SplineMap_Depth2CatTiming;
 		bool m_SplinesFileIsLoaded;
 		bool m_CoeffsFileIsLoaded;
+		bool m_TACCalFileIsLoaded;
+		vector<MDDetector*> m_Detectors;
+		unordered_map<int, unordered_map<int, vector<double>>> m_HVTACCal;
+  		unordered_map<int, unordered_map<int, vector<double>>> m_LVTACCal;
 		std::vector<double> m_Thicknesses;
 		// The CTD Map maps each detector (int) to a 2D array of CTD values.
   		unordered_map<int, vector<vector<double>>> m_CTDMap;

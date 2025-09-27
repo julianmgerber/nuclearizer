@@ -1,5 +1,7 @@
 #include "MDepthCalibrator.h"
 
+#include "MModule.h"
+
 //TFile* RootF;
 
 MDepthCalibrator::MDepthCalibrator()
@@ -132,6 +134,76 @@ std::vector<double>* MDepthCalibrator::GetPixelCoeffs(int pixel_code)
 
 }
 
+bool MDepthCalibrator::LoadTACCalFile(MString FName)
+{
+  // Read in the TAC Calibration file, which should contain for each strip:
+  // DetID, h or l for high or low voltage, TAC cal, TAC cal error, TAC cal offset, TAC offset error
+  MFile F;
+  if (!F.Open(FName)) {
+    cout << "MDepthCalibrator: failed to open TAC Calibration file." << endl;
+    m_TACCalFileIsLoaded = false;
+    return false;
+  } 
+
+  MString Line;
+  while (F.ReadLine(Line)) {
+    if (!Line.BeginsWith("#")) {
+      vector<MString> Tokens = Line.Tokenize(",");
+      if (Tokens.size() == 7) {
+        int DetID = Tokens[0].ToInt();
+        int StripID = Tokens[2].ToInt();
+        double taccal = Tokens[3].ToDouble();
+        double taccal_err = Tokens[4].ToDouble();
+        double offset = Tokens[5].ToDouble();
+        double offset_err = Tokens[6].ToDouble();
+
+        // Create a vector with calibration values
+        vector<double> cal_vals = {taccal, offset, taccal_err, offset_err};
+
+        // Ensure the unordered_map exists for this DetID (automatically creates if missing)
+        if (Tokens[1] == "l") {
+          m_LVTACCal[DetID][StripID] = cal_vals;  
+        } else if (Tokens[1] == "h") {
+          m_HVTACCal[DetID][StripID] = cal_vals;
+        }
+      }
+    }
+  }
+
+  F.Close();
+  m_TACCalFileIsLoaded = true;
+  return true;
+}
+
+std::vector<double>* MDepthCalibrator::GetLVTACCal(int DetID, int StripID)
+{
+	if( m_TACCalFileIsLoaded ){
+		if( m_LVTACCal.count(DetID) && m_LVTACCal[DetID].count(StripID) > 0 ){
+			return &m_LVTACCal[DetID][StripID];
+		} else {
+			return NULL;
+		}
+	} else {
+		cout << "MDepthCalibrator::GetLVTACCal: cannot get coeffs, coeff file has not yet been loaded" << endl;
+		return NULL;
+	}
+
+}
+
+std::vector<double>* MDepthCalibrator::GetHVTACCal(int DetID, int StripID)
+{
+	if( m_TACCalFileIsLoaded ){
+		if( m_HVTACCal.count(DetID) && m_HVTACCal[DetID].count(StripID) > 0 ){
+			return &m_HVTACCal[DetID][StripID];
+		} else {
+			return NULL;
+		}
+	} else {
+		cout << "MDepthCalibrator::GetHVTACCal: cannot get coeffs, coeff file has not yet been loaded" << endl;
+		return NULL;
+	}
+
+}
 
 bool MDepthCalibrator::LoadSplinesFile(MString FName)
 {
