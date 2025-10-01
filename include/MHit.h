@@ -174,6 +174,13 @@ class MHit
   //! YEnergy of the hit
   double m_YEnergy;
     
+    
+    //! X EnergyRes of the hit
+    double m_XEnergyRes;
+      
+    //! YEnergyRes of the hit
+    double m_YEnergyRes;
+    
   //! Energy resolution of the hit
   double m_EnergyResolution;
 
