@@ -767,6 +767,8 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
                             Hit->SetEnergy(Energy);
                             Hit->SetXEnergy(XEnergy);
                             Hit->SetYEnergy(YEnergy);
+                            Hit->SetXEnergyRes(XEnergyRes);
+                            Hit->SetYEnergyRes(YEnergyRes);
                             Hit->SetEnergyResolution(EnergyResolution);
                             Event->AddHit(Hit);
                             for (unsigned int sh = 0; sh < BestXSideCombo[h].size(); ++sh) {

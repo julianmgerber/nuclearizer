@@ -62,6 +62,15 @@ class MHit
     void SetXEnergy(double XEnergy) { m_XEnergy = XEnergy; }
     //! Return the Xenergy
     double GetXEnergy() const { return m_XEnergy; }
+    
+    void SetXEnergyRes(double XEnergyRes) { m_XEnergyRes = XEnergyRes; }
+    //! Return the Xenergyresolution
+    double GetXEnergyRes() const { return m_XEnergyRes; }
+    
+    void SetYEnergyRes(double YEnergyRes) { m_YEnergyRes = YEnergyRes; }
+    //! Return the Yenergyresolution
+    double GetYEnergyRes() const { return m_YEnergyRes; }
+
 
     //! Set the Yenergy
     void SetYEnergy(double YEnergy) { m_YEnergy = YEnergy; }

@@ -139,7 +139,7 @@ bool MHit::StreamDat(ostream& S, int Version)
   } else if( Version == 2 ){
 	  //stream the hit information, then stream the strip hit info for this hit so that 
 	  //we will know which strip hits were associated with which hits
-     S<<"HT "<<m_Position.GetX()<<" "<<m_Position.GetY()<<" "<<m_Position.GetZ()<<" "<<m_Energy<<" "<<m_XEnergy<<" "<<m_YEnergy<<endl;
+     S<<"HT "<<m_Position.GetX()<<" "<<m_Position.GetY()<<" "<<m_Position.GetZ()<<" "<<m_Energy<<" "<<m_XEnergy<<" "<<m_YEnergy<<" "<<m_XEnergyRes<<" "<<m_YEnergyRes<<endl;
 	  for( auto SH : m_StripHits ){
 		  SH->StreamDat(S,0);
 	  }
