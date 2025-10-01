@@ -533,19 +533,19 @@ bool MDetectorEffectsEngineSingleDet::GetNextEvent(MReadOutAssembly* Event)
             if (found) break; // Exit loop once found
           }
 
-    //       if (m_ShieldLastHitTime[ShieldDetGroup] + m_ShieldDeadtime[ShieldDetGroup] < evt_time) {
+          if (m_ShieldLastHitTime[ShieldDetGroup] + m_ShieldDeadtime[ShieldDetGroup] < evt_time) {
     //       // Event occured after deadtime
 
 
             for (int group=0; group<nShieldPanels; group++) {
-              m_ShieldHitID[group].clear();
+             m_ShieldHitID[group].clear();
             }
             m_ShieldLastHitTime[ShieldDetGroup] = evt_time;
             m_ShieldVetoTime = evt_time;
             m_ShieldHitID[ShieldDetGroup].push_back(ShieldDetNum);
             m_ShieldVeto = true;
             m_TotalShieldDeadtime[ShieldDetGroup] += m_ShieldDeadtime[ShieldDetGroup];
-            }
+          }
 
           else if (m_ShieldLastHitTime[ShieldDetGroup] + m_ShieldDelayBefore > evt_time) {
             // Event occured within coincidence window so append all strip IDs
