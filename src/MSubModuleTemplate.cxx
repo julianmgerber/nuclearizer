@@ -127,11 +127,9 @@ bool MSubModuleTemplate::ReadXmlConfiguration(MXmlNode* Node)
 ////////////////////////////////////////////////////////////////////////////////
 
 
-MXmlNode* MSubModuleTemplate::CreateXmlConfiguration()
+MXmlNode* MSubModuleTemplate::CreateXmlConfiguration(MXmlNode* Node)
 {
   //! Create an XML node tree from the configuration
-
-  MXmlNode* Node = new MXmlNode(0, m_XmlTag);
   
   /*
   MXmlNode* SomeTagNode = new MXmlNode(Node, "SomeTag", "SomeValue");

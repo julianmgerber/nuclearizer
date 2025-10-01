@@ -1,5 +1,5 @@
 /*
- * MSubModuleTemplate.cxx
+ * MSubModuleShieldEnergyCorrection.cxx
  *
  *
  * Copyright (C) by Andreas Zoglauer.
@@ -18,13 +18,13 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// MSubModuleTemplate
+// MSubModuleShieldEnergyCorrection
 //
 ////////////////////////////////////////////////////////////////////////////////
 
 
 // Include the header:
-#include "MSubModuleTemplate.h"
+#include "MSubModuleShieldEnergyCorrection.h"
 
 // Standard libs:
 
@@ -38,16 +38,16 @@
 
 
 #ifdef ___CLING___
-ClassImp(MSubModuleTemplate)
+ClassImp(MSubModuleShieldEnergyCorrection)
 #endif
 
 
 ////////////////////////////////////////////////////////////////////////////////
 
 
-MSubModuleTemplate::MSubModuleTemplate() : MSubModule()
+MSubModuleShieldEnergyCorrection::MSubModuleShieldEnergyCorrection() : MSubModule()
 {
-  // Construct an instance of MSubModuleTemplate
+  // Construct an instance of MSubModuleShieldEnergyCorrection
 
 
 }
@@ -56,16 +56,16 @@ MSubModuleTemplate::MSubModuleTemplate() : MSubModule()
 ////////////////////////////////////////////////////////////////////////////////
 
 
-MSubModuleTemplate::~MSubModuleTemplate()
+MSubModuleShieldEnergyCorrection::~MSubModuleShieldEnergyCorrection()
 {
-  // Delete this instance of MSubModuleTemplate
+  // Delete this instance of MSubModuleShieldEnergyCorrection
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////
 
 
-bool MSubModuleTemplate::Initialize()
+bool MSubModuleShieldEnergyCorrection::Initialize()
 {
   // Initialize the module
 
@@ -76,7 +76,7 @@ bool MSubModuleTemplate::Initialize()
 ////////////////////////////////////////////////////////////////////////////////
 
 
-void MSubModuleTemplate::Clear()
+void MSubModuleShieldEnergyCorrection::Clear()
 {
   // Clear for the next event
 
@@ -87,7 +87,7 @@ void MSubModuleTemplate::Clear()
 ////////////////////////////////////////////////////////////////////////////////
 
 
-bool MSubModuleTemplate::AnalyzeEvent(MReadOutAssembly* Event)
+bool MSubModuleShieldEnergyCorrection::AnalyzeEvent(MReadOutAssembly* Event)
 {
   // Main data analysis routine, which updates the event to a new level 
 
@@ -98,7 +98,7 @@ bool MSubModuleTemplate::AnalyzeEvent(MReadOutAssembly* Event)
 ////////////////////////////////////////////////////////////////////////////////
 
 
-void MSubModuleTemplate::Finalize()
+void MSubModuleShieldEnergyCorrection::Finalize()
 {
   // Finalize the analysis - do all cleanup, i.e., undo Initialize() 
 
@@ -109,7 +109,7 @@ void MSubModuleTemplate::Finalize()
 ////////////////////////////////////////////////////////////////////////////////
 
 
-bool MSubModuleTemplate::ReadXmlConfiguration(MXmlNode* Node)
+bool MSubModuleShieldEnergyCorrection::ReadXmlConfiguration(MXmlNode* Node)
 {
   //! Read the configuration data from an XML node
 
@@ -127,11 +127,9 @@ bool MSubModuleTemplate::ReadXmlConfiguration(MXmlNode* Node)
 ////////////////////////////////////////////////////////////////////////////////
 
 
-MXmlNode* MSubModuleTemplate::CreateXmlConfiguration()
+MXmlNode* MSubModuleShieldEnergyCorrection::CreateXmlConfiguration(MXmlNode* Node)
 {
   //! Create an XML node tree from the configuration
-
-  MXmlNode* Node = new MXmlNode(0, m_XmlTag);
   
   /*
   MXmlNode* SomeTagNode = new MXmlNode(Node, "SomeTag", "SomeValue");
@@ -141,5 +139,5 @@ MXmlNode* MSubModuleTemplate::CreateXmlConfiguration()
 }
 
 
-// MSubModuleTemplate.cxx: the end...
+// MSubModuleShieldEnergyCorrection.cxx: the end...
 ////////////////////////////////////////////////////////////////////////////////

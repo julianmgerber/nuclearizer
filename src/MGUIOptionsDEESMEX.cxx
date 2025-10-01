@@ -1,5 +1,5 @@
 /*
- * MGUIOptionsCrossTalkCorrection.cxx
+ * MGUIOptionsDEESMEX.cxx
  *
  *
  * Copyright (C) by Andreas Zoglauer.
@@ -17,7 +17,7 @@
 
 
 // Include the header:
-#include "MGUIOptionsCrosstalkCorrection.h"
+#include "MGUIOptionsDEESMEX.h"
 
 // Standard libs:
 
@@ -29,21 +29,21 @@
 
 // MEGAlib libs:
 #include "MStreams.h"
-#include "MModuleCrosstalkCorrection.h"
+#include "MModuleDEESMEX.h"
 
 
 ////////////////////////////////////////////////////////////////////////////////
 
 
 #ifdef ___CLING___
-ClassImp(MGUIOptionsCrosstalkCorrection)
+ClassImp(MGUIOptionsDEESMEX)
 #endif
 
 
 ////////////////////////////////////////////////////////////////////////////////
 
 
-MGUIOptionsCrosstalkCorrection::MGUIOptionsCrosstalkCorrection(MModule* Module) 
+MGUIOptionsDEESMEX::MGUIOptionsDEESMEX(MModule* Module)
   : MGUIOptions(Module)
 {
   // standard constructor
@@ -53,7 +53,7 @@ MGUIOptionsCrosstalkCorrection::MGUIOptionsCrosstalkCorrection(MModule* Module)
 ////////////////////////////////////////////////////////////////////////////////
 
 
-MGUIOptionsCrosstalkCorrection::~MGUIOptionsCrosstalkCorrection()
+MGUIOptionsDEESMEX::~MGUIOptionsDEESMEX()
 {
   // kDeepCleanup is activated 
 }
@@ -62,17 +62,10 @@ MGUIOptionsCrosstalkCorrection::~MGUIOptionsCrosstalkCorrection()
 ////////////////////////////////////////////////////////////////////////////////
 
 
-void MGUIOptionsCrosstalkCorrection::Create()
+void MGUIOptionsDEESMEX::Create()
 {
   PreCreate();
 
-  m_FileSelector = new MGUIEFileSelector(m_OptionsFrame, "Please select a cross talk calibration file:",
-    dynamic_cast<MModuleCrosstalkCorrection*>(m_Module)->GetFileName());
-  m_FileSelector->SetFileType("Crosstalk calibration file", "*.txt");
-  TGLayoutHints* LabelLayout = new TGLayoutHints(kLHintsTop | kLHintsCenterX | kLHintsExpandX, 10, 10, 10, 10);
-  m_OptionsFrame->AddFrame(m_FileSelector, LabelLayout);
-
-  
   PostCreate();
 }
 
@@ -80,16 +73,18 @@ void MGUIOptionsCrosstalkCorrection::Create()
 ////////////////////////////////////////////////////////////////////////////////
 
 
-bool MGUIOptionsCrosstalkCorrection::ProcessMessage(long Message, long Parameter1, long Parameter2)
+bool MGUIOptionsDEESMEX::ProcessMessage(long Message, long Parameter1, long Parameter2)
 {
   // Modify here if you have more buttons
 
-	bool Status = true;
-	
+  bool Status = true;
+  
   switch (GET_MSG(Message)) {
   case kC_COMMAND:
     switch (GET_SUBMSG(Message)) {
     case kCM_BUTTON:
+      break;
+    case kCM_CHECKBUTTON:
       break;
     default:
       break;
@@ -111,15 +106,13 @@ bool MGUIOptionsCrosstalkCorrection::ProcessMessage(long Message, long Parameter
 ////////////////////////////////////////////////////////////////////////////////
 
 
-bool MGUIOptionsCrosstalkCorrection::OnApply()
+bool MGUIOptionsDEESMEX::OnApply()
 {
-	// Modify this to store the data in the module!
-
-  dynamic_cast<MModuleCrosstalkCorrection*>(m_Module)->SetFileName(m_FileSelector->GetFileName());
-	
-	return true;
+  // Modify this to store the data in the module!
+  
+  return true;
 }
 
 
-// MGUIOptionsCrosstalkCorrection: the end...
+// MGUIOptionsDEESMEX: the end...
 ////////////////////////////////////////////////////////////////////////////////

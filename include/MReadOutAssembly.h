@@ -26,9 +26,11 @@
 #include "MReadOutSequence.h"
 #include "MAspect.h"
 #include "MStripHit.h"
+#include "MDEEStripHit.h"
 #include "MGuardringHit.h"
 #include "MHit.h"
 #include "MPhysicalEvent.h"
+#include "MSimEvent.h"
 #include "MSimIA.h"
 
 // Forward declarations:
@@ -165,10 +167,13 @@ class MReadOutAssembly : public MReadOutSequence
   void RemoveHit(unsigned int i);
 
   //! Return the number of simulation hits
+  // TODO: Remove - part of m_SimEvent
   unsigned int GetNHitsSim() const { return m_HitsSim.size(); }
   //! Return simulation hit i
+  // TODO: Remove - part of m_SimEvent
   MHit* GetHitSim(unsigned int i);
   //! Move hits to simulation hits list
+  // TODO: Why ??
   void MoveHitsToSim() {m_HitsSim = m_Hits; m_Hits.clear();}
 
   /*
@@ -177,11 +182,26 @@ class MReadOutAssembly : public MReadOutSequence
   //! Return simulation hit i
   MSimIA* GetSimIA(unsigned int i);
   */
-  
+
   //! Set the physical event from event reconstruction
   void SetPhysicalEvent(MPhysicalEvent* Event);
-  //! Return the physical event 
+  //! Return the physical event
   MPhysicalEvent* GetPhysicalEvent() { return m_PhysicalEvent; }
+
+  //! Set the physical event from event reconstruction
+  void SetSimulatedEvent(MSimEvent* Event) { m_SimEvent = Event; }
+  //! Return the simulated event
+  MSimEvent* GetSimulatedEvent() { return m_SimEvent; }
+
+  //! Return the number of DEE strip hits
+  unsigned int GetNDEEStripHits() const { return m_DEEStripHits.size(); }
+  //! Return DEE Strip hit at position i
+  MDEEStripHit* GetDEEStripHit(unsigned int i);
+  //! Add a DEE Strip hit
+  void AddHit(MDEEStripHit* DEEStripHit) { return m_DEEStripHits.push_back(DEEStripHit); }
+  //! Remove a DEE Strip hit
+  void RemoveDEEStripHit(unsigned int i);
+
 
   //! Return the number of read outs
   //unsigned int GetNReadOuts() const { return m_ReadOuts.size(); }
@@ -355,8 +375,15 @@ class MReadOutAssembly : public MReadOutSequence
   //! List of real hits
   vector<MHit*> m_Hits;
 
+  //! The simulated event (nullptr if there is none)
+  MSimEvent* m_SimEvent;
+
   //! List of simulation hits
+  //! TODO: Remove: Part of m_SimEvent
   vector<MHit*> m_HitsSim;
+
+  //! A list of DEE strips hit - i.e. normal strip hits in the making from the simulated hits
+  vector<MDEEStripHit*> m_DEEStripHits;
 
   //! The physical event from event reconstruction
   MPhysicalEvent* m_PhysicalEvent; 

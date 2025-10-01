@@ -1,5 +1,5 @@
 /*
- * MGUIOptionsCrosstalkCorrection.h
+ * MGUIOptionsLoaderSimulationsCosima.h
  *
  * Copyright (C) by Andreas Zoglauer.
  * All rights reserved.
@@ -9,8 +9,8 @@
  */
 
 
-#ifndef __MGUIOptionsCrosstalkCorrection__
-#define __MGUIOptionsCrosstalkCorrection__
+#ifndef __MGUIOptionsLoaderSimulationsCosima__
+#define __MGUIOptionsLoaderSimulationsCosima__
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -29,6 +29,7 @@
 // MEGAlib libs:
 #include "MGlobal.h"
 #include "MGUIEFileSelector.h"
+#include "MGUIEEntry.h"
 #include "MGUIOptions.h"
 
 // Nuclearizer libs:
@@ -41,14 +42,14 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-class MGUIOptionsCrosstalkCorrection : public MGUIOptions
+class MGUIOptionsLoaderSimulationsCosima : public MGUIOptions
 {
   // public Session:
  public:
   //! Default constructor
-  MGUIOptionsCrosstalkCorrection(MModule* Module);
+  MGUIOptionsLoaderSimulationsCosima(MModule* Module);
   //! Default destructor
-  virtual ~MGUIOptionsCrosstalkCorrection();
+  virtual ~MGUIOptionsLoaderSimulationsCosima();
 
   //! Process all button, etc. messages
   virtual bool ProcessMessage(long Message, long Parameter1, long Parameter2);
@@ -60,7 +61,7 @@ class MGUIOptionsCrosstalkCorrection : public MGUIOptions
  protected:
 
   //! Actions after the Apply or OK button has been pressed
-	virtual bool OnApply();
+  virtual bool OnApply();
 
 
   // protected members:
@@ -69,12 +70,17 @@ class MGUIOptionsCrosstalkCorrection : public MGUIOptions
   // private members:
  private:
   //! Select which file to load
-  MGUIEFileSelector* m_FileSelector;
-
-
+  MGUIEFileSelector* m_SimulationFileSelector;
+  //! Use stop after a maximum number of events
+  TGCheckButton* m_StopAfter;
+  //! Entry field for the maximum number of accepted events
+  MGUIEEntry* m_MaximumAcceptedEvents;
+  
+  
+  
 #ifdef ___CLING___
  public:
-  ClassDef(MGUIOptionsCrosstalkCorrection, 1) // basic class for dialog windows
+  ClassDef(MGUIOptionsLoaderSimulationsCosima, 1) // basic class for dialog windows
 #endif
 
 };
