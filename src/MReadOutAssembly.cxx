@@ -95,6 +95,9 @@ MReadOutAssembly::~MReadOutAssembly()
   }
   m_GuardringHits.clear();
 
+  m_DEEStripHitsLV.clear();
+  m_DEEStripHitsHV.clear();
+
   delete m_SimEvent;
   delete m_PhysicalEvent;
   delete m_Aspect;
@@ -178,6 +181,9 @@ void MReadOutAssembly::Clear()
 
   delete m_PhysicalEvent;
   m_PhysicalEvent = nullptr;
+
+  m_DEEStripHitsLV.clear();
+  m_DEEStripHitsHV.clear();
 
   delete m_SimEvent;
   m_SimEvent = nullptr;
@@ -342,36 +348,6 @@ void MReadOutAssembly::RemoveHit(unsigned int i)
   //! Remove a strip hit
   if (i < m_Hits.size()) {
     m_Hits.erase(m_Hits.begin()+i);
-  }
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-
-
-MDEEStripHit* MReadOutAssembly::GetDEEStripHit(unsigned int i)
-{
-  //! Return hit i
-
-  if (i < m_DEEStripHits.size()) {
-    return m_DEEStripHits[i];
-  }
-
-  merr<<"Index out of bounds!"<<show;
-
-  return nullptr;
-}
-
-
-
-////////////////////////////////////////////////////////////////////////////////
-
-
-void MReadOutAssembly::RemoveDEEStripHit(unsigned int i)
-{
-  //! Remove a strip hit
-  if (i < m_DEEStripHits.size()) {
-    m_DEEStripHits.erase(m_DEEStripHits.begin()+i);
   }
 }
 

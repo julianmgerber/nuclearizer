@@ -49,7 +49,7 @@ MSubModuleShieldEnergyCorrection::MSubModuleShieldEnergyCorrection() : MSubModul
 {
   // Construct an instance of MSubModuleShieldEnergyCorrection
 
-
+  m_Name = "DEE shield energy correction module";
 }
 
 

@@ -49,7 +49,7 @@ MSubModuleDepthReadout::MSubModuleDepthReadout() : MSubModule()
 {
   // Construct an instance of MSubModuleDepthReadout
 
-
+  m_Name = "DEE depth readout module";
 }
 
 
@@ -90,6 +90,22 @@ void MSubModuleDepthReadout::Clear()
 bool MSubModuleDepthReadout::AnalyzeEvent(MReadOutAssembly* Event)
 {
   // Main data analysis routine, which updates the event to a new level 
+
+  // Dummy code
+  list<MDEEStripHit>& LVHits = Event->GetDEEStripHitLVListReference();
+  for (MDEEStripHit& SH: LVHits) {
+    if (SH.m_IsGuardRing == false) {
+      SH.m_TAC = 8000 + 2000*SH.m_SimulatedRelativeDepth;
+      if (SH.m_TAC > 16383) SH.m_TAC = 16383;
+    }
+  }
+  list<MDEEStripHit>& HVHits = Event->GetDEEStripHitHVListReference();
+  for (MDEEStripHit& SH: HVHits) {
+    if (SH.m_IsGuardRing == false) {
+      SH.m_TAC = 8000 + 2000*(1.0-SH.m_SimulatedRelativeDepth);
+      if (SH.m_TAC > 16383) SH.m_TAC = 16383;
+    }
+  }
 
   return true;
 }

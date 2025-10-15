@@ -49,7 +49,7 @@ MSubModuleShieldReadout::MSubModuleShieldReadout() : MSubModule()
 {
   // Construct an instance of MSubModuleShieldReadout
 
-
+  m_Name = "DEE shield readout module";
 }
 
 

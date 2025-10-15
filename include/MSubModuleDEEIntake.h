@@ -1,5 +1,5 @@
 /*
- * __MSubModuleChargeTransport__.h
+ * MSubModuleDEEIntake.h
  *
  * Copyright (C) by Andreas Zoglauer.
  * All rights reserved.
@@ -9,8 +9,8 @@
  */
 
 
-#ifndef __MSubModuleChargeTransport__
-#define __MSubModuleChargeTransport__
+#ifndef __MSubModuleDEEIntake__
+#define __MSubModuleDEEIntake__
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -29,26 +29,25 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-//! Class handling the charge transport in the GeD detectors
-//! End point is the energy in the individual strips and the guard ring
-class MSubModuleChargeTransport : public MSubModule
+
+class MSubModuleDEEIntake : public MSubModule
 {
   // public interface:
  public:
   //! Default constructor
-  MSubModuleChargeTransport();
+  MSubModuleDEEIntake();
 
   //! No copy constructor
-  MSubModuleChargeTransport(const MSubModuleChargeTransport&) = delete;
+  MSubModuleDEEIntake(const MSubModuleDEEIntake&) = delete;
   //! No copy assignment
-  MSubModuleChargeTransport& operator=(const MSubModuleChargeTransport&) = delete;
+  MSubModuleDEEIntake& operator=(const MSubModuleDEEIntake&) = delete;
   //! No move constructors
-  MSubModuleChargeTransport(MSubModuleChargeTransport&&) = delete;
+  MSubModuleDEEIntake(MSubModuleDEEIntake&&) = delete;
   //! No move operators
-  MSubModuleChargeTransport& operator=(MSubModuleChargeTransport&&) = delete;
+  MSubModuleDEEIntake& operator=(MSubModuleDEEIntake&&) = delete;
 
   //! Default destructor
-  virtual ~MSubModuleChargeTransport();
+  virtual ~MSubModuleDEEIntake();
 
   //! Initialize the module
   virtual bool Initialize();
@@ -87,7 +86,7 @@ class MSubModuleChargeTransport : public MSubModule
 
 #ifdef ___CLING___
  public:
-  ClassDef(MSubModuleChargeTransport, 0) // no description
+  ClassDef(MSubModuleDEEIntake, 0) // no description
 #endif
 
 };

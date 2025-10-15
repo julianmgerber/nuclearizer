@@ -1,5 +1,5 @@
 /*
- * MSubModuleStripReadout.cxx
+ * MSubModuleDEEOutput.cxx
  *
  *
  * Copyright (C) by Andreas Zoglauer.
@@ -18,13 +18,13 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// MSubModuleStripReadout
+// MSubModuleDEEOutput
 //
 ////////////////////////////////////////////////////////////////////////////////
 
 
 // Include the header:
-#include "MSubModuleStripReadout.h"
+#include "MSubModuleDEEOutput.h"
 
 // Standard libs:
 
@@ -33,39 +33,38 @@
 // MEGAlib libs:
 #include "MSubModule.h"
 
-
 ////////////////////////////////////////////////////////////////////////////////
 
 
 #ifdef ___CLING___
-ClassImp(MSubModuleStripReadout)
+ClassImp(MSubModuleDEEOutput)
 #endif
 
 
 ////////////////////////////////////////////////////////////////////////////////
 
 
-MSubModuleStripReadout::MSubModuleStripReadout() : MSubModule()
+MSubModuleDEEOutput::MSubModuleDEEOutput() : MSubModule()
 {
-  // Construct an instance of MSubModuleStripReadout
+  // Construct an instance of MSubModuleDEEOutput
 
-  m_Name = "DEE strip readout module";
+  m_Name = "DEE output module";
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////
 
 
-MSubModuleStripReadout::~MSubModuleStripReadout()
+MSubModuleDEEOutput::~MSubModuleDEEOutput()
 {
-  // Delete this instance of MSubModuleStripReadout
+  // Delete this instance of MSubModuleDEEOutput
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////
 
 
-bool MSubModuleStripReadout::Initialize()
+bool MSubModuleDEEOutput::Initialize()
 {
   // Initialize the module
 
@@ -76,7 +75,7 @@ bool MSubModuleStripReadout::Initialize()
 ////////////////////////////////////////////////////////////////////////////////
 
 
-void MSubModuleStripReadout::Clear()
+void MSubModuleDEEOutput::Clear()
 {
   // Clear for the next event
 
@@ -87,21 +86,20 @@ void MSubModuleStripReadout::Clear()
 ////////////////////////////////////////////////////////////////////////////////
 
 
-bool MSubModuleStripReadout::AnalyzeEvent(MReadOutAssembly* Event)
+bool MSubModuleDEEOutput::AnalyzeEvent(MReadOutAssembly* Event)
 {
   // Main data analysis routine, which updates the event to a new level 
 
-  // Dummy code:
+  // Convert the DEE strip hits to standard strip hits
   list<MDEEStripHit>& LVHits = Event->GetDEEStripHitLVListReference();
   for (MDEEStripHit& SH: LVHits) {
-    SH.m_ADC = 2000 + 4*SH.m_Energy;
-    if (SH.m_ADC > 16383) SH.m_ADC = 16383;
+    Event->AddStripHit(SH.Convert());
   }
   list<MDEEStripHit>& HVHits = Event->GetDEEStripHitHVListReference();
   for (MDEEStripHit& SH: HVHits) {
-    SH.m_ADC = 2000 + 4*SH.m_Energy;
-    if (SH.m_ADC > 16383) SH.m_ADC = 16383;
+    Event->AddStripHit(SH.Convert());
   }
+
 
   return true;
 }
@@ -110,7 +108,7 @@ bool MSubModuleStripReadout::AnalyzeEvent(MReadOutAssembly* Event)
 ////////////////////////////////////////////////////////////////////////////////
 
 
-void MSubModuleStripReadout::Finalize()
+void MSubModuleDEEOutput::Finalize()
 {
   // Finalize the analysis - do all cleanup, i.e., undo Initialize() 
 
@@ -121,7 +119,7 @@ void MSubModuleStripReadout::Finalize()
 ////////////////////////////////////////////////////////////////////////////////
 
 
-bool MSubModuleStripReadout::ReadXmlConfiguration(MXmlNode* Node)
+bool MSubModuleDEEOutput::ReadXmlConfiguration(MXmlNode* Node)
 {
   //! Read the configuration data from an XML node
 
@@ -139,10 +137,10 @@ bool MSubModuleStripReadout::ReadXmlConfiguration(MXmlNode* Node)
 ////////////////////////////////////////////////////////////////////////////////
 
 
-MXmlNode* MSubModuleStripReadout::CreateXmlConfiguration(MXmlNode* Node)
+MXmlNode* MSubModuleDEEOutput::CreateXmlConfiguration(MXmlNode* Node)
 {
   //! Create an XML node tree from the configuration
-  
+
   /*
   MXmlNode* SomeTagNode = new MXmlNode(Node, "SomeTag", "SomeValue");
   */
@@ -151,5 +149,5 @@ MXmlNode* MSubModuleStripReadout::CreateXmlConfiguration(MXmlNode* Node)
 }
 
 
-// MSubModuleStripReadout.cxx: the end...
+// MSubModuleDEEOutput.cxx: the end...
 ////////////////////////////////////////////////////////////////////////////////

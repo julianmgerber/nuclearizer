@@ -49,7 +49,7 @@ MSubModuleShieldTrigger::MSubModuleShieldTrigger() : MSubModule()
 {
   // Construct an instance of MSubModuleShieldTrigger
 
-
+  m_Name = "DEE shield trigger module";
 }
 
 

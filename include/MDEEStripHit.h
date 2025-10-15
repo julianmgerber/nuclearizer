@@ -25,6 +25,7 @@ using namespace std;
 
 // MEGAlib libs:
 #include "MGlobal.h"
+#include "MStripHit.h"
 #include "MReadOutElementDoubleStrip.h"
 
 // Forward declarations:
@@ -44,14 +45,19 @@ struct MDEEStripHit
   //! Default destructor
   virtual ~MDEEStripHit() {};
 
+  //! Create new real strip hit
+  MStripHit* Convert();
+
   // Simulation data
 
   //! The simulated event ID
   unsigned long m_SimulatedEventID; // original: long m_ID;
   //! The position from simulations (global coordinates)
   MVector m_SimulatedPosition; // original: Position
-  //! The simulated depth in the detector
-  double m_SimulatedDepth; // original: m_Depth
+  //! The simulated position in the detector
+  MVector m_SimulatedPositionInDetector;
+  //! The simulated depth relative to the top of the detector in [0..1]
+  double m_SimulatedRelativeDepth;
   //! The energy from simulations
   double m_SimulatedEnergy; // original: m_EnergyOrig
   //! The list of origin IDs form the simulation
@@ -66,10 +72,18 @@ struct MDEEStripHit
   //! The read-out element
   MReadOutElementDoubleStrip m_ROE;
 
+  //! A unique lookup ID of the strup hit
+  unsigned int m_ID;
+  //! The ID of the strip on the opposite side
+  unsigned int m_OppositeSideID;
+  //! Is this a guard ring
+  bool m_IsGuardRing;
   //! The measured energy
   double m_Energy;
   //! The measured ADC value
   unsigned int m_ADC;
+  //! Is this a guard ring
+  bool m_HasTriggered;
   //! The measured TAC value;
   unsigned int m_TAC;
   //! The measured temperature value
@@ -82,9 +96,9 @@ struct MDEEStripHit
   vector<int> m_SharedOrigin; // <--- Check if needed
 
   //! ??
-  vector<MDEEStripHit> m_OppositeStrips;  // <--- Check if needed
+  // vector<MDEEStripHit> m_OppositeStripID;  // <--- Check if needed
 
-  //! ?? for charge loss
+  //! The
   // int m_OppositeStrip;  // <--- Check if needed
 
 

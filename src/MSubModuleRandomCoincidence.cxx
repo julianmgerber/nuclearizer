@@ -49,7 +49,7 @@ MSubModuleRandomCoincidence::MSubModuleRandomCoincidence() : MSubModule()
 {
   // Construct an instance of MSubModuleRandomCoincidence
 
-
+  m_Name = "DEE random coincidence module";
 }
 
 

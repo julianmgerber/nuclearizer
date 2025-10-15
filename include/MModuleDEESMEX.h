@@ -25,6 +25,7 @@
 
 // Nuclearizer libs
 #include "MModule.h"
+#include "MSubModuleDEEIntake.h"
 #include "MSubModuleRandomCoincidence.h"
 #include "MSubModuleShieldEnergyCorrection.h"
 #include "MSubModuleShieldReadout.h"
@@ -33,6 +34,7 @@
 #include "MSubModuleStripReadout.h"
 #include "MSubModuleStripTrigger.h"
 #include "MSubModuleDepthReadout.h"
+#include "MSubModuleDEEOutput.h"
 
 // Forward declarations:
 
@@ -97,7 +99,10 @@ class MModuleDEESMEX : public MModule
    //! The sub module handling random coincidences
    MSubModuleRandomCoincidence m_RandomCoincidence;
 
-   //! The sub module handling the shield readout
+   //! The sub module handling the intake of the sim data into the event
+   MSubModuleDEEIntake m_Intake;
+
+   //! The sub module handling the shield energy correction
    MSubModuleShieldEnergyCorrection m_ShieldEnergyCorrection;
 
    //! The sub module handling the shield readout
@@ -117,6 +122,9 @@ class MModuleDEESMEX : public MModule
 
    //! The sub module handling depth and timing noise
    MSubModuleDepthReadout m_DepthReadout;
+
+   //! The sub module handling the output of the DEE in to the standard nuclearizer classes
+   MSubModuleDEEOutput m_Output;
 
 
 #ifdef ___CLING___

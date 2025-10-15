@@ -193,14 +193,19 @@ class MReadOutAssembly : public MReadOutSequence
   //! Return the simulated event
   MSimEvent* GetSimulatedEvent() { return m_SimEvent; }
 
-  //! Return the number of DEE strip hits
-  unsigned int GetNDEEStripHits() const { return m_DEEStripHits.size(); }
-  //! Return DEE Strip hit at position i
-  MDEEStripHit* GetDEEStripHit(unsigned int i);
-  //! Add a DEE Strip hit
-  void AddHit(MDEEStripHit* DEEStripHit) { return m_DEEStripHits.push_back(DEEStripHit); }
-  //! Remove a DEE Strip hit
-  void RemoveDEEStripHit(unsigned int i);
+  //! Return the number of low-voltage DEE strip hits
+  unsigned int GetNDEEStripHitsLV() const { return m_DEEStripHitsLV.size(); }
+  //! Return low-voltage DEE Strip hit at position i
+  void AddDEEStripHitLV(MDEEStripHit& DEEStripHit) { return m_DEEStripHitsLV.push_back(DEEStripHit); }
+  //! Get a reference to the list of strip hits for direct manipulation
+  list<MDEEStripHit>& GetDEEStripHitLVListReference() { return m_DEEStripHitsLV; }
+
+  //! Return the number of high-voltage DEE strip hits
+  unsigned int GetNDEEStripHitsHV() const { return m_DEEStripHitsHV.size(); }
+  //! Add a high-voltage DEE Strip hit
+  void AddDEEStripHitHV(MDEEStripHit DEEStripHit) { return m_DEEStripHitsHV.push_back(DEEStripHit); }
+  //! Get a reference to the list of strip hits for direct manipulation
+  list<MDEEStripHit>& GetDEEStripHitHVListReference() { return m_DEEStripHitsHV; }
 
 
   //! Return the number of read outs
@@ -382,8 +387,10 @@ class MReadOutAssembly : public MReadOutSequence
   //! TODO: Remove: Part of m_SimEvent
   vector<MHit*> m_HitsSim;
 
-  //! A list of DEE strips hit - i.e. normal strip hits in the making from the simulated hits
-  vector<MDEEStripHit*> m_DEEStripHits;
+  //! A list of low voltage DEE strips hit - i.e. normal strip hits in the making from the simulated hits sorted by side
+  list<MDEEStripHit> m_DEEStripHitsLV;
+  //! A list of high voltage DEE strips hit - i.e. normal strip hits in the making from the simulated hits sorted by side
+  list<MDEEStripHit> m_DEEStripHitsHV;
 
   //! The physical event from event reconstruction
   MPhysicalEvent* m_PhysicalEvent; 

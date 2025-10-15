@@ -49,7 +49,7 @@ MSubModuleTemplate::MSubModuleTemplate() : MSubModule()
 {
   // Construct an instance of MSubModuleTemplate
 
-
+  m_Name = "Template module";
 }
 
 

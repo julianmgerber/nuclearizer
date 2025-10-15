@@ -49,7 +49,7 @@ MSubModuleStripTrigger::MSubModuleStripTrigger() : MSubModule()
 {
   // Construct an instance of MSubModuleStripTrigger
 
-
+  m_Name = "DEE strip trigger module";
 }
 
 

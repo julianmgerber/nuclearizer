@@ -93,6 +93,7 @@ bool MModuleDEESMEX::Initialize()
   // Initialize the module 
 
   // Each Initialize() should handle its own error messaging
+  if (m_Intake.Initialize() == false) return false;
   if (m_RandomCoincidence.Initialize() == false) return false;
   if (m_ShieldEnergyCorrection.Initialize() == false) return false;
   if (m_ShieldReadout.Initialize() == false) return false;
@@ -101,7 +102,8 @@ bool MModuleDEESMEX::Initialize()
   if (m_StripReadout.Initialize() == false) return false;
   if (m_StripTrigger.Initialize() == false) return false;
   if (m_DepthReadout.Initialize() == false) return false;
-  
+  if (m_Output.Initialize() == false) return false;
+
   return MModule::Initialize();
 }
 
@@ -121,9 +123,10 @@ bool MModuleDEESMEX::AnalyzeEvent(MReadOutAssembly* Event)
     return true;
   }
 
-  // Step (2)
-  // Fill MDEEStripHits - just book keeping - do it in main DEE class
-
+  // Step (2): Fill the MDEEStripHits of the event
+  m_Intake.Clear();
+  m_Intake.AnalyzeEvent(Event);
+  cout<<"(2): # LV strips: "<<Event->GetNDEEStripHitsLV()<<endl;
 
   // Step (3): Merge coincident events
 
@@ -165,16 +168,21 @@ bool MModuleDEESMEX::AnalyzeEvent(MReadOutAssembly* Event)
     }
   }
 
+  // Charge trapping as input to the charge transport or as "correction afterwards"?
 
   // Step (7): Handle GeD charge transport to grid and voxelation into strips
   m_ChargeTransport.Clear();
   m_ChargeTransport.AnalyzeEvent(Event);
+  cout<<"(7): # LV strips: "<<Event->GetNDEEStripHitsLV()<<endl;
 
-  // Step (8): Simulate micro-phonics random noise
+  // Step (8): Simulate micro-phonics random noise for triggered strips & next neighbors
+
+  // Do we have some other random noise?
 
   // Step (9): Handle the strip readout: energy -> ADCs and thresholds
   m_StripReadout.Clear();
   m_StripReadout.AnalyzeEvent(Event);
+  cout<<"(8): # LV strips: "<<Event->GetNDEEStripHitsLV()<<endl;
 
 
   // Step (10): Handles triggers and guard ring vetoes, pre-scalers, calculate dead-time, add nearest neighbor noise, calculate random coincidence time
@@ -198,13 +206,16 @@ bool MModuleDEESMEX::AnalyzeEvent(MReadOutAssembly* Event)
   // Step (11): Handle depth and timing noise
   m_DepthReadout.Clear();
   m_DepthReadout.AnalyzeEvent(Event);
+  cout<<"(11): # LV strips: "<<Event->GetNDEEStripHitsLV()<<endl;
 
 
-  // Step (12): Handle event time
+  // Step (12): Global event time?
 
 
   // Step (13): Fill strip hit structures of the event
-
+  m_Output.Clear();
+  m_Output.AnalyzeEvent(Event);
+  cout<<"(13): # strips hits: "<<Event->GetNStripHits()<<endl;
 
   // Step (14): Handle Aspect and other auxillary data
 
@@ -220,6 +231,7 @@ void MModuleDEESMEX::Finalize()
 {
   // Initialize the module 
   
+  m_Intake.Finalize();
   m_RandomCoincidence.Finalize();
   m_ShieldEnergyCorrection.Finalize();
   m_ShieldReadout.Finalize();
@@ -228,6 +240,7 @@ void MModuleDEESMEX::Finalize()
   m_StripReadout.Finalize();
   m_StripTrigger.Finalize();
   m_DepthReadout.Finalize();
+  m_Output.Finalize();
 
   MModule::Finalize();
 }
@@ -253,6 +266,7 @@ bool MModuleDEESMEX::ReadXmlConfiguration(MXmlNode* Node)
 {
   //! Read the configuration data from an XML node
 
+  m_Intake.ReadXmlConfiguration(Node);
   m_RandomCoincidence.ReadXmlConfiguration(Node);
   m_ShieldEnergyCorrection.ReadXmlConfiguration(Node);
   m_ShieldReadout.ReadXmlConfiguration(Node);
@@ -261,6 +275,7 @@ bool MModuleDEESMEX::ReadXmlConfiguration(MXmlNode* Node)
   m_StripReadout.ReadXmlConfiguration(Node);
   m_StripTrigger.ReadXmlConfiguration(Node);
   m_DepthReadout.ReadXmlConfiguration(Node);
+  m_Output.ReadXmlConfiguration(Node);
 
   return true;
 }
