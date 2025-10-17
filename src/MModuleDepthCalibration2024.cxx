@@ -254,7 +254,7 @@ bool MModuleDepthCalibration2024::AnalyzeEvent(MReadOutAssembly* Event)
         for( unsigned int j = 0; j < H->GetNStripHits(); ++j){
           // cout << "strip hit " << j << endl;
           MStripHit* SH = H->GetStripHit(j);
-          if( SH->IsLowVoltageStrip() ) XStrips.push_back(SH); else YStrips.push_back(SH);
+          if( SH->IsLowVoltageStrip() ) YStrips.push_back(SH); else XStrips.push_back(SH);
         }
 
         // cout << "finished looping over strip hits" << endl;
