@@ -137,6 +137,8 @@ bool MGUIOptionsLoaderSimulationsCosima::OnApply()
 {
   // Modify this to store the data in the module!
 
+  cout<<"Settint: "<<m_SimulationFileSelector->GetFileName()<<endl;
+
   dynamic_cast<MModuleLoaderSimulationsCosima*>(m_Module)->SetSimulationFileName(m_SimulationFileSelector->GetFileName());
   dynamic_cast<MModuleLoaderSimulationsCosima*>(m_Module)->SetUseStopAfter(m_StopAfter->IsOn());
   dynamic_cast<MModuleLoaderSimulationsCosima*>(m_Module)->SetMaximumAcceptedEvents(m_MaximumAcceptedEvents->GetAsInt());

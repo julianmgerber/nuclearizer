@@ -126,7 +126,6 @@ bool MModuleDEESMEX::AnalyzeEvent(MReadOutAssembly* Event)
   // Step (2): Fill the MDEEStripHits of the event
   m_Intake.Clear();
   m_Intake.AnalyzeEvent(Event);
-  cout<<"(2): # LV strips: "<<Event->GetNDEEStripHitsLV()<<endl;
 
   // Step (3): Merge coincident events
 
@@ -173,17 +172,15 @@ bool MModuleDEESMEX::AnalyzeEvent(MReadOutAssembly* Event)
   // Step (7): Handle GeD charge transport to grid and voxelation into strips
   m_ChargeTransport.Clear();
   m_ChargeTransport.AnalyzeEvent(Event);
-  cout<<"(7): # LV strips: "<<Event->GetNDEEStripHitsLV()<<endl;
 
-  // Step (8): Simulate micro-phonics random noise for triggered strips & next neighbors
-
-  // Do we have some other random noise?
-
-  // Step (9): Handle the strip readout: energy -> ADCs and thresholds
+  // Step (8): Handle the strip readout: energy -> ADCs
   m_StripReadout.Clear();
   m_StripReadout.AnalyzeEvent(Event);
-  cout<<"(8): # LV strips: "<<Event->GetNDEEStripHitsLV()<<endl;
 
+
+  // Step (9)): Simulate micro-phonics random noise for triggered strips & next neighbors
+  m_StripReadoutNoise.Clear();
+  m_StripReadoutNoise.AnalyzeEvent(Event);
 
   // Step (10): Handles triggers and guard ring vetoes, pre-scalers, calculate dead-time, add nearest neighbor noise, calculate random coincidence time
   m_StripTrigger.Clear();
@@ -215,7 +212,6 @@ bool MModuleDEESMEX::AnalyzeEvent(MReadOutAssembly* Event)
   // Step (13): Fill strip hit structures of the event
   m_Output.Clear();
   m_Output.AnalyzeEvent(Event);
-  cout<<"(13): # strips hits: "<<Event->GetNStripHits()<<endl;
 
   // Step (14): Handle Aspect and other auxillary data
 

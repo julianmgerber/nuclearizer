@@ -32,6 +32,7 @@
 #include "MSubModuleShieldTrigger.h"
 #include "MSubModuleChargeTransport.h"
 #include "MSubModuleStripReadout.h"
+#include "MSubModuleStripReadoutNoise.h"
 #include "MSubModuleStripTrigger.h"
 #include "MSubModuleDepthReadout.h"
 #include "MSubModuleDEEOutput.h"
@@ -116,6 +117,9 @@ class MModuleDEESMEX : public MModule
 
    //! The sub module handling the strip readout: energy -> ADCs and thresholds
    MSubModuleStripReadout m_StripReadout;
+
+   //! The sub module handling the strip readout noise on non-triggered strips
+   MSubModuleStripReadout m_StripReadoutNoise;
 
    //! The sub module handling triggers and guard ring vetoes
    MSubModuleStripTrigger m_StripTrigger;

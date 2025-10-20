@@ -1,5 +1,5 @@
 /*
- * MSubModuleChargeTransport.cxx
+ * MSubModuleStripReadoutNoise.cxx
  *
  *
  * Copyright (C) by Andreas Zoglauer.
@@ -18,13 +18,13 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// MSubModuleChargeTransport
+// MSubModuleStripReadoutNoise
 //
 ////////////////////////////////////////////////////////////////////////////////
 
 
 // Include the header:
-#include "MSubModuleChargeTransport.h"
+#include "MSubModuleStripReadoutNoise.h"
 
 // Standard libs:
 
@@ -38,34 +38,34 @@
 
 
 #ifdef ___CLING___
-ClassImp(MSubModuleChargeTransport)
+ClassImp(MSubModuleStripReadoutNoise)
 #endif
 
 
 ////////////////////////////////////////////////////////////////////////////////
 
 
-MSubModuleChargeTransport::MSubModuleChargeTransport() : MSubModule()
+MSubModuleStripReadoutNoise::MSubModuleStripReadoutNoise() : MSubModule()
 {
-  // Construct an instance of MSubModuleChargeTransport
+  // Construct an instance of MSubModuleStripReadoutNoise
 
-
+  m_Name = "DEE strip readout module";
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////
 
 
-MSubModuleChargeTransport::~MSubModuleChargeTransport()
+MSubModuleStripReadoutNoise::~MSubModuleStripReadoutNoise()
 {
-  // Delete this instance of MSubModuleChargeTransport
+  // Delete this instance of MSubModuleStripReadoutNoise
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////
 
 
-bool MSubModuleChargeTransport::Initialize()
+bool MSubModuleStripReadoutNoise::Initialize()
 {
   // Initialize the module
 
@@ -76,7 +76,7 @@ bool MSubModuleChargeTransport::Initialize()
 ////////////////////////////////////////////////////////////////////////////////
 
 
-void MSubModuleChargeTransport::Clear()
+void MSubModuleStripReadoutNoise::Clear()
 {
   // Clear for the next event
 
@@ -87,63 +87,20 @@ void MSubModuleChargeTransport::Clear()
 ////////////////////////////////////////////////////////////////////////////////
 
 
-bool MSubModuleChargeTransport::AnalyzeEvent(MReadOutAssembly* Event)
+bool MSubModuleStripReadoutNoise::AnalyzeEvent(MReadOutAssembly* Event)
 {
   // Main data analysis routine, which updates the event to a new level 
 
   // Dummy code:
-
-  // Create strip hits
   list<MDEEStripHit>& LVHits = Event->GetDEEStripHitLVListReference();
   for (MDEEStripHit& SH: LVHits) {
-    MVector Pos = SH.m_SimulatedPositionInDetector;
-    int ID = (Pos.X() + 7.4/2) / (7.4/64);
-    if (ID > 0 && ID < 64) {
-      SH.m_ROE.SetStripID(ID);
-      SH.m_IsGuardRing = false;
-    } else {
-      SH.m_ROE.SetStripID(65);
-      SH.m_IsGuardRing = true;
-    }
-    SH.m_Energy = SH.m_SimulatedEnergy;
+    SH.m_ADC = 2000 + 4*SH.m_Energy;
+    if (SH.m_ADC > 16383) SH.m_ADC = 16383;
   }
-
   list<MDEEStripHit>& HVHits = Event->GetDEEStripHitHVListReference();
   for (MDEEStripHit& SH: HVHits) {
-    MVector Pos = SH.m_SimulatedPositionInDetector;
-    int ID = (Pos.Y() + 7.4/2) / (7.4/64);
-    if (ID > 0 && ID < 64) {
-      SH.m_ROE.SetStripID(ID);
-      SH.m_IsGuardRing = false;
-    } else {
-      SH.m_ROE.SetStripID(65);
-      SH.m_IsGuardRing = true;
-    }
-    SH.m_Energy = SH.m_SimulatedEnergy;
-  }
-
-  // Merge hits:
-  for (auto IterLV1 = LVHits.begin(); IterLV1 != LVHits.end(); ++IterLV1) {
-    auto IterLV2 = std::next(IterLV1);
-    while (IterLV2 != LVHits.end()) {
-      if (IterLV1->m_ROE == IterLV2->m_ROE) {
-        IterLV1->m_Energy += IterLV2->m_Energy;
-        IterLV2 = LVHits.erase(IterLV2);
-      } else {
-        ++IterLV2;
-      }
-    }
-  }
-  for (auto IterHV1 = HVHits.begin(); IterHV1 != HVHits.end(); ++IterHV1) {
-    auto IterHV2 = std::next(IterHV1);
-    while (IterHV2 != HVHits.end()) {
-      if (IterHV1->m_ROE == IterHV2->m_ROE) {
-        IterHV1->m_Energy += IterHV2->m_Energy;
-        IterHV2 = HVHits.erase(IterHV2);
-      } else {
-        ++IterHV2;
-      }
-    }
+    SH.m_ADC = 2000 + 4*SH.m_Energy;
+    if (SH.m_ADC > 16383) SH.m_ADC = 16383;
   }
 
   return true;
@@ -153,7 +110,7 @@ bool MSubModuleChargeTransport::AnalyzeEvent(MReadOutAssembly* Event)
 ////////////////////////////////////////////////////////////////////////////////
 
 
-void MSubModuleChargeTransport::Finalize()
+void MSubModuleStripReadoutNoise::Finalize()
 {
   // Finalize the analysis - do all cleanup, i.e., undo Initialize() 
 
@@ -164,7 +121,7 @@ void MSubModuleChargeTransport::Finalize()
 ////////////////////////////////////////////////////////////////////////////////
 
 
-bool MSubModuleChargeTransport::ReadXmlConfiguration(MXmlNode* Node)
+bool MSubModuleStripReadoutNoise::ReadXmlConfiguration(MXmlNode* Node)
 {
   //! Read the configuration data from an XML node
 
@@ -182,10 +139,10 @@ bool MSubModuleChargeTransport::ReadXmlConfiguration(MXmlNode* Node)
 ////////////////////////////////////////////////////////////////////////////////
 
 
-MXmlNode* MSubModuleChargeTransport::CreateXmlConfiguration(MXmlNode* Node)
+MXmlNode* MSubModuleStripReadoutNoise::CreateXmlConfiguration(MXmlNode* Node)
 {
   //! Create an XML node tree from the configuration
-
+  
   /*
   MXmlNode* SomeTagNode = new MXmlNode(Node, "SomeTag", "SomeValue");
   */
@@ -194,5 +151,5 @@ MXmlNode* MSubModuleChargeTransport::CreateXmlConfiguration(MXmlNode* Node)
 }
 
 
-// MSubModuleChargeTransport.cxx: the end...
+// MSubModuleStripReadoutNoise.cxx: the end...
 ////////////////////////////////////////////////////////////////////////////////
