@@ -70,7 +70,6 @@ class MModuleDEESMEX : public MModule
   //! Finalize the module
   virtual void Finalize();
 
-
   //! Show the options GUI
   virtual void ShowOptionsGUI();
 
@@ -78,6 +77,14 @@ class MModuleDEESMEX : public MModule
   virtual bool ReadXmlConfiguration(MXmlNode* Node);
   //! Create an XML node tree from the configuration
   virtual MXmlNode* CreateXmlConfiguration();
+
+
+  // Pass through interfaces to sub-modules
+
+  //! Set energy calibration file name
+  void SetEnergyCalibrationFileName(const MString& FileName) { m_StripReadout.SetEnergyCalibrationFileName(FileName); }
+  //! Set energy calibration file name
+  MString GetEnergyCalibrationFileName() const { return m_StripReadout.GetEnergyCalibrationFileName(); }
 
 
   // protected methods:
@@ -119,7 +126,7 @@ class MModuleDEESMEX : public MModule
    MSubModuleStripReadout m_StripReadout;
 
    //! The sub module handling the strip readout noise on non-triggered strips
-   MSubModuleStripReadout m_StripReadoutNoise;
+   MSubModuleStripReadoutNoise m_StripReadoutNoise;
 
    //! The sub module handling triggers and guard ring vetoes
    MSubModuleStripTrigger m_StripTrigger;

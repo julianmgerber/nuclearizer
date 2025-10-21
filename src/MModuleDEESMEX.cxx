@@ -269,6 +269,7 @@ bool MModuleDEESMEX::ReadXmlConfiguration(MXmlNode* Node)
   m_ShieldTrigger.ReadXmlConfiguration(Node);
   m_ChargeTransport.ReadXmlConfiguration(Node);
   m_StripReadout.ReadXmlConfiguration(Node);
+  m_StripReadoutNoise.ReadXmlConfiguration(Node);
   m_StripTrigger.ReadXmlConfiguration(Node);
   m_DepthReadout.ReadXmlConfiguration(Node);
   m_Output.ReadXmlConfiguration(Node);
@@ -284,8 +285,19 @@ MXmlNode* MModuleDEESMEX::CreateXmlConfiguration()
 {
   //! Create an XML node tree from the configuration
   
-  MXmlNode* Node = new MXmlNode(0, m_XmlTag);  
-  
+  MXmlNode* Node = new MXmlNode(0, m_XmlTag);
+  m_Intake.CreateXmlConfiguration(Node);
+  m_RandomCoincidence.CreateXmlConfiguration(Node);
+  m_ShieldEnergyCorrection.CreateXmlConfiguration(Node);
+  m_ShieldReadout.CreateXmlConfiguration(Node);
+  m_ShieldTrigger.CreateXmlConfiguration(Node);
+  m_ChargeTransport.CreateXmlConfiguration(Node);
+  m_StripReadout.CreateXmlConfiguration(Node);
+  m_StripReadoutNoise.CreateXmlConfiguration(Node);
+  m_StripTrigger.CreateXmlConfiguration(Node);
+  m_DepthReadout.CreateXmlConfiguration(Node);
+  m_Output.CreateXmlConfiguration(Node);
+
   return Node;
 }
 
