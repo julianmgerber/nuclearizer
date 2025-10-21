@@ -46,11 +46,11 @@ MAKEFLAGS += --no-builtin-rules
 H5CXXFLAGS =
 H5LIBS =
 ifeq ("$(shell pkg-config --exists hdf5 1>&2 2> /dev/null; echo $$?)", "0")
-        H5CXXFLAGS += $(shell pkg-config --cflags hdf5)
-        H5LIBS += $(shell pkg-config --libs hdf5)
-	H5LIBS += -lhdf5_cpp
+H5CXXFLAGS += $(shell pkg-config --cflags hdf5)
+H5LIBS += $(shell pkg-config --libs hdf5)
+H5LIBS += -lhdf5_cpp
 else
-	$(error "Unable to find HDF5 headers and libraries")
+$(error "Unable to find HDF5 headers and libraries")
 endif
 
 
