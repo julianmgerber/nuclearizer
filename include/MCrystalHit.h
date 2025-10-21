@@ -1,5 +1,5 @@
 /*
- * MShieldCrystalHit.h
+ * MCrystalHit.h
  *
  * Copyright (C) by Andreas Zoglauer.
  * All rights reserved.
@@ -9,8 +9,8 @@
  */
 
 
-#ifndef __MShieldCrystalHit__
-#define __MShieldCrystalHit__
+#ifndef __MCrystalHit__
+#define __MCrystalHit__
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -25,7 +25,6 @@
 
 // Nuclearizer libs
 #include "MReadOutElement.h"
-#include "MShieldCrystalHit.h"
 
 // Forward declarations:
 
@@ -33,14 +32,14 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-class MShieldCrystalHit
+class MCrystalHit
 {
   // public interface:
  public:
   //! Default constructor
-  MShieldCrystalHit();
+  MCrystalHit();
   //! Default destructor
-  virtual ~MShieldCrystalHit();
+  virtual ~MCrystalHit();
 
   //! Reset all data
   void Clear();
@@ -135,7 +134,7 @@ class MShieldCrystalHit
 
 #ifdef ___CLING___
  public:
-  ClassDef(MShieldCrystalHit, 0) // no description
+  ClassDef(MCrystalHit, 0) // no description
 #endif
 
 };

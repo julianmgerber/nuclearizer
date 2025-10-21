@@ -1,5 +1,5 @@
 /*
- * MShieldCrystalHit.cxx
+ * MCrystalHit.cxx
  *
  *
  * Copyright (C) by Andreas Zoglauer.
@@ -18,13 +18,13 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// MShieldCrystalHit
+// MCrystalHit
 //
 ////////////////////////////////////////////////////////////////////////////////
 
 
 // Include the header:
-#include "MShieldCrystalHit.h"
+#include "MCrystalHit.h"
 
 // Standard libs:
 #include <iomanip>
@@ -40,16 +40,16 @@ using namespace std;
 
 
 #ifdef ___CLING___
-ClassImp(MShieldCrystalHit)
+ClassImp(MCrystalHit)
 #endif
 
 
 ////////////////////////////////////////////////////////////////////////////////
 
 
-MShieldCrystalHit::MShieldCrystalHit()
+MCrystalHit::MCrystalHit()
 {
-  // Construct an instance of MShieldCrystalHit
+  // Construct an instance of MCrystalHit
 
   m_ReadOutElement = new MReadOutElement();
   
@@ -60,9 +60,9 @@ MShieldCrystalHit::MShieldCrystalHit()
 ////////////////////////////////////////////////////////////////////////////////
 
 
-MShieldCrystalHit::~MShieldCrystalHit()
+MCrystalHit::~MCrystalHit()
 {
-  // Delete this instance of MShieldCrystalHit
+  // Delete this instance of MCrystalHit
   
   delete m_ReadOutElement;
 }
@@ -71,7 +71,7 @@ MShieldCrystalHit::~MShieldCrystalHit()
 ////////////////////////////////////////////////////////////////////////////////
 
 
-void MShieldCrystalHit::Clear()
+void MCrystalHit::Clear()
 {
   // Reset all data
 
@@ -89,7 +89,7 @@ void MShieldCrystalHit::Clear()
 ////////////////////////////////////////////////////////////////////////////////
 
 
-bool MShieldCrystalHit::Parse(MString& Line, int Version)
+bool MCrystalHit::Parse(MString& Line, int Version)
 {
   /* To write - probably CH - crystal hit
   const char* line = Line.Data();
@@ -123,7 +123,7 @@ bool MShieldCrystalHit::Parse(MString& Line, int Version)
 
 
 //! Set the origins from the simulations (take care of duplicates)
-void MShieldCrystalHit::AddOrigins(vector<int> Origins)
+void MCrystalHit::AddOrigins(vector<int> Origins)
 {
   m_Origins.insert(m_Origins.end(), Origins.begin(), Origins.end());
   sort(m_Origins.begin(), m_Origins.end());
@@ -134,11 +134,11 @@ void MShieldCrystalHit::AddOrigins(vector<int> Origins)
 ////////////////////////////////////////////////////////////////////////////////
 
 
-bool MShieldCrystalHit::StreamDat(ostream& S, int Version)
+bool MCrystalHit::StreamDat(ostream& S, int Version)
 {
   //! Stream the content to an ASCII file 
   
-  S<<"CH "
+  S<<"UH "
    <<m_ReadOutElement->GetDetectorID()<<" "
    <<m_HasTriggered<<" "
    <<m_HasVetoed<<" "
@@ -156,11 +156,11 @@ bool MShieldCrystalHit::StreamDat(ostream& S, int Version)
 ////////////////////////////////////////////////////////////////////////////////
 
 
-void MShieldCrystalHit::StreamRoa(ostream& S, bool WithADC, bool WithEnergy, bool WithFlags, bool WithOrigins)
+void MCrystalHit::StreamRoa(ostream& S, bool WithADC, bool WithEnergy, bool WithFlags, bool WithOrigins)
 {
   //! Stream the content in MEGAlib's evta format 
 
-  S<<"UC "
+  S<<"UH "
    <<m_ReadOutElement->GetDetectorID()<<" ";
   if (WithADC == true) {
     S<<m_ADCUnits<<" ";
@@ -188,7 +188,7 @@ void MShieldCrystalHit::StreamRoa(ostream& S, bool WithADC, bool WithEnergy, boo
 ////////////////////////////////////////////////////////////////////////////////
 
 
-unsigned int MShieldCrystalHit::MakeFlags()
+unsigned int MCrystalHit::MakeFlags()
 {
   //! Return flags to indicate the type of crstyal; hit
 
@@ -201,11 +201,11 @@ unsigned int MShieldCrystalHit::MakeFlags()
 ////////////////////////////////////////////////////////////////////////////////
 
 
-void MShieldCrystalHit::ParseFlags(unsigned int Flags)
+void MCrystalHit::ParseFlags(unsigned int Flags)
 {
   //! Set internal booleans according to flag
 }
 
 
-// MShieldCrystalHit.cxx: the end...
+// MCrystalHit.cxx: the end...
 ////////////////////////////////////////////////////////////////////////////////

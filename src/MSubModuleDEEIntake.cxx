@@ -181,13 +181,35 @@ bool MSubModuleDEEIntake::AnalyzeEvent(MReadOutAssembly* Event)
 
       // The rest will be filled in later
 
-      // Event will be responsible for deleting the event
-      cout<<"Adding LV hit"<<endl;
       Event->AddDEEStripHitLV(LVHit);
       Event->AddDEEStripHitHV(HVHit);
 
     } else if (DetectorName.BeginsWith("ACS_Crystal_") == true) {
-      // later
+      vector<MString> Tokens = DetectorName.Tokenize("_");
+      int DetectorID = Tokens[1].ToInt();
+      //int CrystalID = Tokens[2].ToInt();
+
+      MDEECrystalHit CHit;
+      CHit.m_SimulatedEventID = Event->GetSimulatedEvent()->GetID();
+
+      CHit.m_SimulatedHitIndex = h;
+
+      // Sivan provides a vector and we want a list her (why??)
+      auto HTOrigins = HT->GetOrigins();
+      vector<int> Origins(HTOrigins.begin(), HTOrigins.end());
+      CHit.m_SimulatedOrigins = list<int>(Origins.begin(), Origins.end());
+
+      CHit.m_SimulatedPosition = HT->GetPosition();
+      CHit.m_SimulatedEnergy = HT->GetEnergy();
+
+      CHit.m_ID = 1000+(2*h);
+
+      CHit.m_ROE.SetDetectorID(DetectorID);
+
+      // The rest will be filled in later
+
+      Event->AddDEECrystalHit(CHit);
+
     } else {
       if (g_Verbosity >= c_Error) cout<<m_Name<<": No GeD_ volumes found"<<endl;
       continue;

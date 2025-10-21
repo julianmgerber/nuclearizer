@@ -91,6 +91,25 @@ bool MSubModuleShieldEnergyCorrection::AnalyzeEvent(MReadOutAssembly* Event)
 {
   // Main data analysis routine, which updates the event to a new level 
 
+  // Set the energy
+  list<MDEECrystalHit>& Hits = Event->GetDEECrystalHitListReference();
+  for (MDEECrystalHit& CH: Hits) {
+    CH.m_Energy = CH.m_SimulatedEnergy;
+  }
+
+  // Merge hits:
+  for (auto IterLV1 = Hits.begin(); IterLV1 != Hits.end(); ++IterLV1) {
+    auto IterLV2 = std::next(IterLV1);
+    while (IterLV2 != Hits.end()) {
+      if (IterLV1->m_ROE == IterLV2->m_ROE) {
+        IterLV1->m_Energy += IterLV2->m_Energy;
+        IterLV2 = Hits.erase(IterLV2);
+      } else {
+        ++IterLV2;
+      }
+    }
+  }
+
   return true;
 }
 
