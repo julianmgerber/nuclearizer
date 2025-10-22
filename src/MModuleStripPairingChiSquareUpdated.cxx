@@ -200,13 +200,27 @@ vector<vector<vector<unsigned int>>> MModuleStripPairingChiSquareUpdated::FindNe
 
 ////////////////////////////////////////////////////////////////////////////////
 
+float MModuleStripPairingChiSquareUpdated::ChargeTrappingCorrection(unsigned int d, vector<unsigned int> LVStripSet, vector<unsigned int> HVStripSet) {
+    
+    // idea: read in detector number and set of LV/HV strips to be paired
+    // Will also need to read in actual charge trapping parameters from text file
+    // The LV/HVStripSet will only be multiple strips if there is charge sharing going on. Otherwise it'll just be a vector with a single number. That number will have to be converted to the actual stripID
+    // In the case of charge sharing, will have to find "dominant" LV/HV strip to get correct CTD
+    // I'm going to make another function "FindDominantStrip" to just get out the strip on LV or HV side that has the highest energy
+    // Return a corrected energy after applying charge trapping correction. Does there need to be two values or is correcting one side enough?
+    
+    float CorrectedEnergy = 0;
+    
+    
+    return CorrectedEnergy
+}
 
 bool MModuleStripPairingChiSquareUpdated::AnalyzeEvent(MReadOutAssembly* Event)
 {
 
   // Main data analysis routine, which updates the event to a new level
 
-  mdebug<<"StripPairing started"<<endl;
+ // mdebug<<"StripPairing started"<<endl;
   // MARK: NOTE - Limit on number of combos
   unsigned int MaxCombinations = 5; //sets limit on the number of strip combinations. why though?
 
