@@ -346,7 +346,7 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
     
   // Starting from this seed, find more new combinations
         for (unsigned int d = 0; d < StripHits.size(); ++d) { // Detector loop
-            double BestChiSquare;
+            double BestChiSquare = numeric_limits<double>::max(); 
             vector<vector<unsigned int>> BestXSideCombo; //list of lists (ie. list of strip combos making up an event on either side)
             vector<vector<unsigned int>> BestYSideCombo;
             
@@ -429,7 +429,7 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
                     
                     // (3) Evaluate all combinations
                     // All strip combinations for one side have been found, now check for the best x-y combinations
-                    BestChiSquare = numeric_limits<double>::max();
+                    // BestChiSquare = numeric_limits<double>::max();
                     //vector<vector<unsigned int>> BestXSideCombo; //list of lists (ie. list of strip combos making up an event on either side)
                     //vector<vector<unsigned int>> BestYSideCombo;
                     
@@ -862,7 +862,7 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
                                 LVTau = StripHits[d][0][BestXSideCombo[h][sh]]->GetTiming();
                                 
                                 //Calculate CTD and record it to file
-                                double CTD = LVTau = HVTau;
+                                double CTD = LVTau = HVTau; //well that's not correct...
                                 std::ofstream outFile("/Users/juliangerber/Desktop/Research/StripPairing/ChiSquareTesting/CTD.txt", std::ios::app);
                                 outFile << CTD << endl;
                                 outFile.close();
@@ -898,7 +898,9 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
                     XEnergyResTotal = sqrt(XEnergyResTotal);
                     YEnergyResTotal = sqrt(YEnergyResTotal);
                     
-                    
+            // Should the following if statement be changed to "if XEnergyTotal > max(etcetc.)". Right now it only seems to be applying to narrow range of events. The chi square cut will prob do the same thing but in a stricter way.
+            
+            
                     if ((EnergyTotal > max(XEnergyTotal, YEnergyTotal) + 2.5*max(XEnergyResTotal, YEnergyResTotal) || EnergyTotal < min(XEnergyTotal, YEnergyTotal) - 2.5*max(XEnergyResTotal, YEnergyResTotal))) {
                         Event->SetStripPairingIncomplete(true, "Strips not pairable wihin 2.5 sigma of measured energy");
                         Event->SetAnalysisProgress(MAssembly::c_StripPairing);
