@@ -285,8 +285,8 @@ class MReadOutAssembly : public MReadOutSequence
   double GetRedChiSquare() const { return m_RedChiSquare; }
     
   //Set flags for multiple hits on a single strip
-  void SetMultipleHitsOnXStrip(bool MultipleHitsOnX) { m_MultipleHitsOnXStrip = MultipleHitsOnX; }
-  void SetMultipleHitsOnYStrip(bool MultipleHitsOnY) { m_MultipleHitsOnYStrip = MultipleHitsOnY; }
+  void SetMultipleHitsOnLVStrip(bool MultipleHitsOnLV) { m_MultipleHitsOnLVStrip = MultipleHitsOnLV; }
+  void SetMultipleHitsOnHVStrip(bool MultipleHitsOnHV) { m_MultipleHitsOnHVStrip = MultipleHitsOnHV; }
 
 
   // protected methods:
@@ -394,8 +394,8 @@ class MReadOutAssembly : public MReadOutSequence
   MString m_DepthCalibration_OutofRangeString;
   
   // Flags for multiple hits on a single strip
-  bool m_MultipleHitsOnXStrip;
-  bool m_MultipleHitsOnYStrip;
+  bool m_MultipleHitsOnLVStrip;
+  bool m_MultipleHitsOnHVStrip;
 
 
 

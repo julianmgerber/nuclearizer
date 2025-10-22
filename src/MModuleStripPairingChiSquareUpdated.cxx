@@ -238,8 +238,8 @@ bool MModuleStripPairingChiSquareUpdated::AnalyzeEvent(MReadOutAssembly* Event)
       StripHits[DetectorPos][Side].push_back(SH);
     } else {
       vector<vector<MStripHit*>> List; // list of sides, list of hits
-      List.push_back(vector<MStripHit*>()); // X
-      List.push_back(vector<MStripHit*>()); // Y
+      List.push_back(vector<MStripHit*>()); // LV
+      List.push_back(vector<MStripHit*>()); // HV
       List[Side].push_back(SH);
       StripHits.push_back(List);
       DetectorIDs.push_back(SH->GetDetectorID());
@@ -286,17 +286,17 @@ bool MModuleStripPairingChiSquareUpdated::AnalyzeEvent(MReadOutAssembly* Event)
       return false;
     }
 
-    double xEnergy = 0;
-    double xEnergyRes = 0;
+    double LVEnergy = 0;
+    double LVEnergyRes = 0;
     for (unsigned int sh = 0; sh < StripHits[d][0].size(); ++sh) {
-      xEnergy += StripHits[d][0][sh]->GetEnergy();
-      xEnergyRes += StripHits[d][0][sh]->GetEnergyResolution()*StripHits[d][0][sh]->GetEnergyResolution();
+      LVEnergy += StripHits[d][0][sh]->GetEnergy();
+      LVEnergyRes += StripHits[d][0][sh]->GetEnergyResolution()*StripHits[d][0][sh]->GetEnergyResolution();
     }
-    double yEnergy = 0;
-    double yEnergyRes = 0;
+    double HVEnergy = 0;
+    double HVEnergyRes = 0;
     for (unsigned int sh = 0; sh < StripHits[d][1].size(); ++sh) {
-      yEnergy += StripHits[d][1][sh]->GetEnergy();
-      yEnergyRes += StripHits[d][1][sh]->GetEnergyResolution()*StripHits[d][1][sh]->GetEnergyResolution();
+      HVEnergy += StripHits[d][1][sh]->GetEnergy();
+      HVEnergyRes += StripHits[d][1][sh]->GetEnergyResolution()*StripHits[d][1][sh]->GetEnergyResolution();
     }
 
     //cout<<"Energies: "<<xEnergy<<":"<<xEnergyRes<<" -- "<<yEnergy<<":"<<yEnergyRes<<endl;
@@ -324,8 +324,8 @@ bool MModuleStripPairingChiSquareUpdated::AnalyzeEvent(MReadOutAssembly* Event)
   for (unsigned int d = 0; d < StripHits.size(); ++d) { // Detector loop
     Combinations.push_back(vector<vector<vector<vector<unsigned int>>>>()); //create 4D vectors for each detector
     for (unsigned int s = 0; s <= 1 ; ++s) {
-      Combinations[d].push_back(vector<vector<vector<unsigned int>>>()); // X create 3D vectors within each detector vector for each side
-      Combinations[d].push_back(vector<vector<vector<unsigned int>>>()); // Y
+      Combinations[d].push_back(vector<vector<vector<unsigned int>>>()); // LV create 3D vectors within each detector vector for each side
+      Combinations[d].push_back(vector<vector<vector<unsigned int>>>()); // HV
     }
     // Create the seed combinations --> the base case that will be used for the FindNewCombinations function (this is the start of the "OldOnes" vector
     for (unsigned int s = 0; s < StripHits[d].size(); ++s) { //is s just the side??? I think so...
@@ -342,13 +342,13 @@ bool MModuleStripPairingChiSquareUpdated::AnalyzeEvent(MReadOutAssembly* Event)
     
 // so a full set of combinations might be [ [ [1], [2], [3] ] , [ [1,2], [3] ], etc ] hence why you need a 3D vector
     
-    int ChiSquareThreshold = 100;
+    int ChiSquareThreshold = 100; // should this be changed???????
     
   // Starting from this seed, find more new combinations
         for (unsigned int d = 0; d < StripHits.size(); ++d) { // Detector loop
             double BestChiSquare = numeric_limits<double>::max();
-            vector<vector<unsigned int>> BestXSideCombo; //list of lists (ie. list of strip combos making up an event on either side)
-            vector<vector<unsigned int>> BestYSideCombo;
+            vector<vector<unsigned int>> BestLVSideCombo; //list of lists (ie. list of strip combos making up an event on either side)
+            vector<vector<unsigned int>> BestHVSideCombo;
             
             bool RoundTwo = false;
             //For loop allows for the possibility for a second round, but only if RoundTwo is set to true
@@ -433,18 +433,18 @@ bool MModuleStripPairingChiSquareUpdated::AnalyzeEvent(MReadOutAssembly* Event)
                     //vector<vector<unsigned int>> BestXSideCombo; //list of lists (ie. list of strip combos making up an event on either side)
                     //vector<vector<unsigned int>> BestYSideCombo;
                     
-                    for (unsigned int xc = 0; xc < Combinations[d][0].size(); ++xc) { // Loop over combinations of x-strips (xc represents a list of sets of strips,  and each set is a proposed Hit)
-                        for (unsigned int yc = 0; yc < Combinations[d][1].size(); ++yc) { // Loop over combinations of y-strips (yc represents a list of sets of strips,  and each set is a proposed Hit)
+                    for (unsigned int lv = 0; lv < Combinations[d][0].size(); ++lv) { // Loop over combinations of lv-strips (lv represents a list of sets of strips,  and each set is a proposed Hit)
+                        for (unsigned int hv = 0; hv < Combinations[d][1].size(); ++hv) { // Loop over combinations of hv-strips (hv represents a list of sets of strips,  and each set is a proposed Hit)
                             
-                            if (abs(long(Combinations[d][0][xc].size()) - long(Combinations[d][1][yc].size())) > 1) { // Skip this pair of combos if the x- and y-strip combos differ in size by more than one
+                            if (abs(long(Combinations[d][0][lv].size()) - long(Combinations[d][1][hv].size())) > 1) { // Skip this pair of combos if the lv- and hv-strip combos differ in size by more than one
                             // ie. if a certain set has 2 or more combos on one side than the other than it disregards the pair
                           
                             continue;
                         }
                         
-                        unsigned int MinSize = min(Combinations[d][0][xc].size(), Combinations[d][1][yc].size());
+                        unsigned int MinSize = min(Combinations[d][0][lv].size(), Combinations[d][1][hv].size());
                         
-                        if (max(Combinations[d][0][xc].size(), Combinations[d][1][yc].size()) > MaxCombinations) { // Skip if either side has more than 5 sets of strips
+                        if (max(Combinations[d][0][lv].size(), Combinations[d][1][hv].size()) > MaxCombinations) { // Skip if either side has more than 5 sets of strips
                             continue;
                         }
                         
@@ -470,39 +470,39 @@ bool MModuleStripPairingChiSquareUpdated::AnalyzeEvent(MReadOutAssembly* Event)
                                 unsigned int ep = en;
                                 // MARK: NOTE - The way this is written, doesn't this mean that if there are more sets of strips on one side than the other, they won't be counted in the chi^2? NO --> because of later if statement (line 535)
                                 
-                                double xEnergy = 0;
-                                double xResolution = 0;
-                                unsigned int dominantX;
+                                double LVEnergy = 0;
+                                double LVResolution = 0;
+                                unsigned int dominantLV;
                                 double MaxEnergy = -numeric_limits<double>::max();
-                                for (unsigned int entry = 0; entry < Combinations[d][0][xc][en].size(); ++entry) { // Sum up energy on xstrips in the set of strips, en (entry is on the strip level itself)
+                                for (unsigned int entry = 0; entry < Combinations[d][0][lv][en].size(); ++entry) { // Sum up energy on xstrips in the set of strips, en (entry is on the strip level itself)
 
-                                    double tempEnergy = StripHits[d][0][Combinations[d][0][xc][en][entry]]->GetEnergy();
+                                    double tempEnergy = StripHits[d][0][Combinations[d][0][lv][en][entry]]->GetEnergy();
                                     if (tempEnergy > MaxEnergy){
-                                        dominantX = entry;
+                                        dominantLV = entry;
                                         MaxEnergy = tempEnergy; //keeps track of max energy on a single strip
                                     }
-                                    xEnergy += StripHits[d][0][Combinations[d][0][xc][en][entry]]->GetEnergy();
-                                    xResolution += pow(StripHits[d][0][Combinations[d][0][xc][en][entry]]->GetEnergyResolution(), 2);
+                                    LVEnergy += StripHits[d][0][Combinations[d][0][lv][en][entry]]->GetEnergy();
+                                    LVResolution += pow(StripHits[d][0][Combinations[d][0][lv][en][entry]]->GetEnergyResolution(), 2);
                                 }
                                 
                                 //repeats for y side
-                                double yEnergy = 0;
-                                double yResolution = 0;
-                                unsigned int dominantY;
+                                double HVEnergy = 0;
+                                double HVResolution = 0;
+                                unsigned int dominantHV;
                                 MaxEnergy = -numeric_limits<double>::max();
-                                for (unsigned int entry = 0; entry < Combinations[d][1][yc][ep].size(); ++entry) { // Sum up energy on ystrips in the set of strips, ep
+                                for (unsigned int entry = 0; entry < Combinations[d][1][hv][ep].size(); ++entry) { // Sum up energy on HVstrips in the set of strips, ep
                                     
-                                    double tempEnergy = StripHits[d][1][Combinations[d][1][yc][ep][entry]]->GetEnergy();
+                                    double tempEnergy = StripHits[d][1][Combinations[d][1][hv][ep][entry]]->GetEnergy();
                                     if (tempEnergy > MaxEnergy){
-                                        dominantY = entry;
+                                        dominantHV = entry;
                                         MaxEnergy = tempEnergy;
                                     }
-                                    yEnergy += tempEnergy;
-                                    yResolution += pow(StripHits[d][1][Combinations[d][1][yc][ep][entry]]->GetEnergyResolution(), 2);
+                                    HVEnergy += tempEnergy;
+                                    HVResolution += pow(StripHits[d][1][Combinations[d][1][yc][ep][entry]]->GetEnergyResolution(), 2);
                                 }
                                 // Here begins the timing bit, skipping for now.
-                                double LVtau = StripHits[d][0][Combinations[d][0][xc][en][dominantX]]->GetTiming();
-                                double HVtau = StripHits[d][1][Combinations[d][1][yc][ep][dominantY]]->GetTiming();
+                                double LVtau = StripHits[d][0][Combinations[d][0][lv][en][dominantLV]]->GetTiming();
+                                double HVtau = StripHits[d][1][Combinations[d][1][hv][ep][dominantHV]]->GetTiming();
                                 
                                 // Charge trapping correction
                                 // correction made based only on the dominant X and Y strip in a grouping of strips (eg neighboring strips)
@@ -519,8 +519,8 @@ bool MModuleStripPairingChiSquareUpdated::AnalyzeEvent(MReadOutAssembly* Event)
                                 LVtauMean += LVtau;
                                 
                                 // !!! TODO: Fix timing resolution. Maybe put GetTimingResolution into MStripHit
-                                double LVtauResolution = 3*60/StripHits[d][0][Combinations[d][0][xc][en][dominantX]]->GetEnergy();
-                                double HVtauResolution = 3*60/StripHits[d][1][Combinations[d][1][yc][ep][dominantY]]->GetEnergy();
+                                double LVtauResolution = 3*60/StripHits[d][0][Combinations[d][0][lv][en][dominantLV]]->GetEnergy();
+                                double HVtauResolution = 3*60/StripHits[d][1][Combinations[d][1][hv][ep][dominantHV]]->GetEnergy();
                                 
                                 HVtauResolutionList.push_back(HVtauResolution*HVtauResolution);
                                 LVtauResolutionList.push_back(LVtauResolution*LVtauResolution);
@@ -532,8 +532,8 @@ bool MModuleStripPairingChiSquareUpdated::AnalyzeEvent(MReadOutAssembly* Event)
                                 //cout << "  Sub - Test en=" << en << " (" << xEnergy << ") with ep="
                                 //     << ep << " (" << yEnergy << "):" << endl;
                                 //cout<<xResolution<<":"<<yResolution<<endl;
-                                ChiSquare += (xEnergy - yEnergy)*(xEnergy - yEnergy) / (xResolution + yResolution); // Chi-squared is determined by how close the energies on either side match
-                                // chi^2 is calculated for each individual pairing of x and y strip combos within each individual set of combos
+                                ChiSquare += (LVEnergy - HVEnergy)*(LVEnergy - HVEnergy) / (LVResolution + HVResolution); // Chi-squared is determined by how close the energies on either side match
+                                // chi^2 is calculated for each individual pairing of lv and hv strip combos within each individual set of combos
                                 // But the chi^2 is then added up over the total combination (ie. each xc/yc pair has a different chi^2)
                             }
                             
@@ -579,16 +579,16 @@ bool MModuleStripPairingChiSquareUpdated::AnalyzeEvent(MReadOutAssembly* Event)
                             
                             if (ChiSquare < BestChiSquare) {
                                 BestChiSquare = ChiSquare;
-                                BestXSideCombo = Combinations[d][0][xc]; //best combo is chosen. But then how are the strips paired within each combo set? The ordering of the combination matters! Determines the pairing! When it checks for the next permutation, it's testing different orderings.
-                                BestYSideCombo = Combinations[d][1][yc];
+                                BestLVSideCombo = Combinations[d][0][lv]; //best combo is chosen. But then how are the strips paired within each combo set? The ordering of the combination matters! Determines the pairing! When it checks for the next permutation, it's testing different orderings.
+                                BestHVSideCombo = Combinations[d][1][hv];
                             }
                             
                             //cout<<"ChiSquare: "<<ChiSquare<<endl;
                             
-                            if (Combinations[d][1][yc].size() > Combinations[d][0][xc].size()) {
-                                MorePermutations = next_permutation(Combinations[d][1][yc].begin(), Combinations[d][1][yc].end());
+                            if (Combinations[d][1][hv].size() > Combinations[d][0][lv].size()) {
+                                MorePermutations = next_permutation(Combinations[d][1][hv].begin(), Combinations[d][1][hv].end());
                             } else {
-                                MorePermutations = next_permutation(Combinations[d][0][xc].begin(), Combinations[d][0][xc].end());
+                                MorePermutations = next_permutation(Combinations[d][0][lv].begin(), Combinations[d][0][lv].end());
                             // This doesn't affect the assignment of BestX/YSideCombo like it would in Python because c++ makes a copy when you assign a variable to a another variable. Just one of the many wonders of c++. Praise be to Bjarne Stroustrup.
 
                             }
@@ -634,20 +634,20 @@ bool MModuleStripPairingChiSquareUpdated::AnalyzeEvent(MReadOutAssembly* Event)
                     Event->SetRedChiSquare(BestChiSquare);
                     
                     // Create the hits
-                    double XPos = 0;
-                    double YPos = 0;
-                    double XEnergy = 0;
-                    double XEnergyRes = 0;
-                    double YEnergy = 0;
-                    double YEnergyRes = 0;
+                    double LVPos = 0;
+                    double HVPos = 0;
+                    double LVEnergy = 0;
+                    double LVEnergyRes = 0;
+                    double HVEnergy = 0;
+                    double HVEnergyRes = 0;
                     double Energy = 0;
                     double EnergyResolution = 0;
                     
-                    double XEnergyTotal = 0;
-                    double YEnergyTotal = 0;
+                    double LVEnergyTotal = 0;
+                    double HVEnergyTotal = 0;
                     double EnergyTotal = 0;
-                    double XEnergyResTotal = 0;
-                    double YEnergyResTotal = 0;
+                    double LVEnergyResTotal = 0;
+                    double HVEnergyResTotal = 0;
             
                     double LVTau;
                     double HVTau;
@@ -655,60 +655,60 @@ bool MModuleStripPairingChiSquareUpdated::AnalyzeEvent(MReadOutAssembly* Event)
                     
                     
                     // Create a list for plotting X and Y energies
-                    vector<double> XEnergies;
-                    vector<double> YEnergies;
+                    vector<double> LVEnergies;
+                    vector<double> HVEnergies;
                     
-                    // But how do you know that the XSide and YSide Combos are ordered in exactly the right way such that h=0 on either side corresponds to the right pairing???
-                    // This is done on the xc level: i.e. the set of combinations [ [1], [2] ] is not equal to [ [2], [1] ] which makes sure that the chi^2 picks out the correct pairing
+                    // But how do you know that the LVSide and HVSide Combos are ordered in exactly the right way such that h=0 on either side corresponds to the right pairing???
+                    // This is done on the LVcombo level: i.e. the set of combinations [ [1], [2] ] is not equal to [ [2], [1] ] which makes sure that the chi^2 picks out the correct pairing
     
-                    for (unsigned int h = 0; h < min(BestXSideCombo.size(), BestYSideCombo.size()); ++h) {
+                    for (unsigned int h = 0; h < min(BestLVSideCombo.size(), BestHVSideCombo.size()); ++h) {
                         
                         //Find dominant strip in each grouping
                         double MaxEnergy = -numeric_limits<double>::max();
                         double tempEnergy;
-                        int dominantX;
-                        for (unsigned int sh = 0; sh < BestXSideCombo[h].size(); ++sh) {
-                            tempEnergy = StripHits[d][0][BestXSideCombo[h][sh]]->GetEnergy();
+                        int dominantLV;
+                        for (unsigned int sh = 0; sh < BestLVSideCombo[h].size(); ++sh) {
+                            tempEnergy = StripHits[d][0][BestLVSideCombo[h][sh]]->GetEnergy();
                             if (tempEnergy > MaxEnergy) {
                                 MaxEnergy = tempEnergy;
-                                dominantX = sh;
+                                dominantLV = sh;
                             }
                         }
                         
                         MaxEnergy = -numeric_limits<double>::max();
-                        int dominantY;
-                        for (unsigned int sh = 0; sh < BestYSideCombo[h].size(); ++sh) {
-                            double tempEnergy = StripHits[d][1][BestYSideCombo[h][sh]]->GetEnergy();
+                        int dominantHV;
+                        for (unsigned int sh = 0; sh < BestHVSideCombo[h].size(); ++sh) {
+                            double tempEnergy = StripHits[d][1][BestHVSideCombo[h][sh]]->GetEnergy();
                             if (tempEnergy > MaxEnergy) {
                                 MaxEnergy = tempEnergy;
-                                dominantY = sh;
+                                dominantHV = sh;
                             }
                         }
                         
-                        bool AllAdjacentX = true;
-                        bool AllAdjacentY = true;
+                        bool AllAdjacentLV = true;
+                        bool AllAdjacentHV = true;
                         bool AllAdjacent = true;
                         
-                        XPos = 0;
-                        YPos = 0;
-                        XEnergy = 0;
-                        YEnergy = 0;
-                        XEnergyRes = 0;
-                        YEnergyRes = 0;
+                        LVPos = 0;
+                        HVPos = 0;
+                        LVEnergy = 0;
+                        HVEnergy = 0;
+                        LVEnergyRes = 0;
+                        HVEnergyRes = 0;
                         
                         //Check if there are any non-adjacent strip groupings
-                        for (unsigned int sh = 0; sh < BestXSideCombo[h].size() - 1; ++sh) {
-                            if (StripHits[d][0][BestXSideCombo[h][sh]]->GetStripID() + 1 != StripHits[d][0][BestXSideCombo[h][sh+1]]->GetStripID()) {
-                                AllAdjacentX = false;
+                        for (unsigned int sh = 0; sh < BestLVSideCombo[h].size() - 1; ++sh) {
+                            if (StripHits[d][0][BestLVSideCombo[h][sh]]->GetStripID() + 1 != StripHits[d][0][BestLVSideCombo[h][sh+1]]->GetStripID()) {
+                                AllAdjacentLV = false;
                                 AllAdjacent = false;
                                 break;
                             }
                                 
                         }
                         
-                        for (unsigned int sh = 0; sh < BestYSideCombo[h].size() - 1; ++sh) {
-                            if (StripHits[d][1][BestYSideCombo[h][sh]]->GetStripID() + 1 != StripHits[d][1][BestYSideCombo[h][sh+1]]->GetStripID()) {
-                                AllAdjacentY = false;
+                        for (unsigned int sh = 0; sh < BestHVSideCombo[h].size() - 1; ++sh) {
+                            if (StripHits[d][1][BestHVSideCombo[h][sh]]->GetStripID() + 1 != StripHits[d][1][BestHVSideCombo[h][sh+1]]->GetStripID()) {
+                                AllAdjacentHV = false;
                                 AllAdjacent = false;
                                 break;
                             }
@@ -717,22 +717,22 @@ bool MModuleStripPairingChiSquareUpdated::AnalyzeEvent(MReadOutAssembly* Event)
                         //If no non-adjacent strip groupings, continue pairing as normal
                         if (AllAdjacent) {
                             
-                            for (unsigned int sh = 0; sh < BestXSideCombo[h].size(); ++sh) {
+                            for (unsigned int sh = 0; sh < BestLVSideCombo[h].size(); ++sh) {
                                 //cout<<"x-pos: "<<StripHits[d][0][BestXSideCombo[h][sh]]->GetNonStripPosition()<<endl;
-                                XEnergy += StripHits[d][0][BestXSideCombo[h][sh]]->GetEnergy();
-                                XEnergyRes += StripHits[d][0][BestXSideCombo[h][sh]]->GetEnergyResolution()*StripHits[d][0][BestXSideCombo[h][sh]]->GetEnergyResolution();
+                                LVEnergy += StripHits[d][0][BestLVSideCombo[h][sh]]->GetEnergy();
+                                LVEnergyRes += StripHits[d][0][BestLVSideCombo[h][sh]]->GetEnergyResolution()*StripHits[d][0][BestLVSideCombo[h][sh]]->GetEnergyResolution();
                             }
-                            XEnergyResTotal += XEnergyRes;
-                            XEnergyRes = sqrt(XEnergyRes);
-                            XEnergyTotal += XEnergy;
+                            LVEnergyResTotal += LVEnergyRes;
+                            LVEnergyRes = sqrt(LVEnergyRes);
+                            LVEnergyTotal += LVEnergy;
                             
-                            for (unsigned int sh = 0; sh < BestYSideCombo[h].size(); ++sh) {
-                                YEnergy += StripHits[d][1][BestYSideCombo[h][sh]]->GetEnergy();
-                                YEnergyRes += StripHits[d][1][BestYSideCombo[h][sh]]->GetEnergyResolution()*StripHits[d][1][BestYSideCombo[h][sh]]->GetEnergyResolution();
+                            for (unsigned int sh = 0; sh < BestHVSideCombo[h].size(); ++sh) {
+                                HVEnergy += StripHits[d][1][BestHVSideCombo[h][sh]]->GetEnergy();
+                                HVEnergyRes += StripHits[d][1][BestHVSideCombo[h][sh]]->GetEnergyResolution()*StripHits[d][1][BestHVSideCombo[h][sh]]->GetEnergyResolution();
                             }
                             
-                            LVTau = StripHits[d][0][BestXSideCombo[h][dominantX]]->GetTiming();
-                            HVTau = StripHits[d][1][BestYSideCombo[h][dominantY]]->GetTiming();
+                            LVTau = StripHits[d][0][BestLVSideCombo[h][dominantLV]]->GetTiming();
+                            HVTau = StripHits[d][1][BestHVSideCombo[h][dominantHV]]->GetTiming();
                             
                             // Charge trapping correction --> only being applied to events with all adjacent strips (though maybe it should be applied to all since that's how it's going through the chi^2 calculation)
                             // correction made based only on the dominant X and Y strip in a grouping of strips (eg neighboring strips)
@@ -743,74 +743,74 @@ bool MModuleStripPairingChiSquareUpdated::AnalyzeEvent(MReadOutAssembly* Event)
                             
 //Right now, adding up all the strips in the grouping's Yenergies then applying the CTD correction to the sum... is that correct?
                             
-                            YEnergyResTotal += YEnergyRes;
-                            YEnergyRes = sqrt(YEnergyRes);
-                            YEnergyTotal += YEnergy;
+                            HVEnergyResTotal += HVEnergyRes;
+                            HVEnergyRes = sqrt(HVEnergyRes);
+                            HVEnergyTotal += HVEnergy;
                             
                             Energy = 0.0;
-                            if (XEnergy > YEnergy + 3*YEnergyRes) {
-                                Energy = XEnergy;
-                                EnergyResolution = XEnergyRes;
-                            } else if (YEnergy > XEnergy + 3*XEnergyRes) {
-                                Energy = YEnergy;
-                                EnergyResolution = YEnergyRes;
+                            if (LVEnergy > HVEnergy + 3*HVEnergyRes) {
+                                Energy = LVEnergy;
+                                EnergyResolution = LVEnergyRes;
+                            } else if (HVEnergy > LVEnergy + 3*LVEnergyRes) {
+                                Energy = HVEnergy;
+                                EnergyResolution = HVEnergyRes;
                             } else {
-                                Energy = (XEnergy/(XEnergyRes*XEnergyRes) + YEnergy/(YEnergyRes*YEnergyRes)) / (1.0/(XEnergyRes*XEnergyRes) + 1.0/(YEnergyRes*YEnergyRes));
-                                EnergyResolution = sqrt( 1.0 / (1.0/(XEnergyRes*XEnergyRes) + 1.0/(YEnergyRes*YEnergyRes)) );
+                                Energy = (LVEnergy/(LVEnergyRes*LVEnergyRes) + HVEnergy/(HVEnergyRes*HVEnergyRes)) / (1.0/(LVEnergyRes*LVEnergyRes) + 1.0/(HVEnergyRes*HVEnergyRes));
+                                EnergyResolution = sqrt( 1.0 / (1.0/(LVEnergyRes*LVEnergyRes) + 1.0/(HVEnergyRes*HVEnergyRes)) );
                             }
                             EnergyTotal += Energy;
                             
-                            XEnergies.push_back(XEnergy);
-                            YEnergies.push_back(YEnergy);
+                            LVEnergies.push_back(LVEnergy);
+                            HVEnergies.push_back(HVEnergy);
                             
                             MHit* Hit = new MHit();
                             Hit->SetEnergy(Energy);
-                            Hit->SetXEnergy(XEnergy);
-                            Hit->SetYEnergy(YEnergy);
+                            Hit->SetLVEnergy(LVEnergy);
+                            Hit->SetHVEnergy(HVEnergy);
                             Hit->SetEnergyResolution(EnergyResolution);
                             Event->AddHit(Hit);
-                            for (unsigned int sh = 0; sh < BestXSideCombo[h].size(); ++sh) {
-                                Hit->AddStripHit(StripHits[d][0][BestXSideCombo[h][sh]]);
+                            for (unsigned int sh = 0; sh < BestLVSideCombo[h].size(); ++sh) {
+                                Hit->AddStripHit(StripHits[d][0][BestLVSideCombo[h][sh]]);
                                 //cout<<"Paired Strip:"<<endl;
                                 //cout<<"StripID: "<<StripHits[d][0][BestXSideCombo[h][sh]]->GetStripID()<<endl;
                                 
                             }
-                            for (unsigned int sh = 0; sh < BestYSideCombo[h].size(); ++sh) {
-                                Hit->AddStripHit(StripHits[d][1][BestYSideCombo[h][sh]]);
+                            for (unsigned int sh = 0; sh < BestHVSideCombo[h].size(); ++sh) {
+                                Hit->AddStripHit(StripHits[d][1][BestHVSideCombo[h][sh]]);
                                 
                             }
                             
                         }
                         //If there are non-adjacent strip groupings, then have to separate them out again to form multiple (physical) hits
-                        if (AllAdjacentY == false && AllAdjacentX == true ) {
+                        if (AllAdjacentHV == false && AllAdjacentLV == true ) {
                             //cout<<"Multiple hits on single LV strip"<<endl;
-                            bool MultipleHitsOnX = true;
+                            bool MultipleHitsOnLV = true;
                             
                             //Collect timing info for X strip based on dominantX strip found above
-                            LVTau = StripHits[d][0][BestXSideCombo[h][dominantX]]->GetTiming();
+                            LVTau = StripHits[d][0][BestLVSideCombo[h][dominantLV]]->GetTiming();
                             
-                            Event->SetMultipleHitsOnXStrip(MultipleHitsOnX);
-                            for (unsigned int sh = 0; sh < BestYSideCombo[h].size(); ++sh) {
-                                Energy = StripHits[d][1][BestYSideCombo[h][sh]]->GetEnergy();
+                            Event->SetMultipleHitsOnLVStrip(MultipleHitsOnLV);
+                            for (unsigned int sh = 0; sh < BestHVSideCombo[h].size(); ++sh) {
+                                Energy = StripHits[d][1][BestHVSideCombo[h][sh]]->GetEnergy();
                                 EnergyTotal += Energy;
-                                EnergyResolution = StripHits[d][1][BestYSideCombo[h][sh]]->GetEnergyResolution();
-                                XEnergyRes = EnergyResolution;
-                                YEnergyRes = EnergyResolution;
-                                XEnergyResTotal += XEnergyRes * XEnergyRes; // add in quadrature, square root later
-                                YEnergyResTotal += YEnergyRes * YEnergyRes;
+                                EnergyResolution = StripHits[d][1][BestHVSideCombo[h][sh]]->GetEnergyResolution();
+                                LVEnergyRes = EnergyResolution;
+                                HVEnergyRes = EnergyResolution;
+                                LVEnergyResTotal += LVEnergyRes * LVEnergyRes; // add in quadrature, square root later
+                                HVEnergyResTotal += HVEnergyRes * HVEnergyRes;
                                 MHit* Hit = new MHit();
                                 Hit->SetEnergy(Energy);
                                 Hit->SetEnergyResolution(EnergyResolution);
                                 Event->AddHit(Hit);
-                                Hit->AddStripHit(StripHits[d][1][BestYSideCombo[h][sh]]);
-                                YEnergy = Energy;
-                                XEnergy = Energy;
-                                Hit->SetXEnergy(XEnergy);
-                                Hit->SetYEnergy(YEnergy);
-                                YEnergyTotal += YEnergy;
-                                XEnergyTotal += XEnergy;
-                                XEnergies.push_back(XEnergy);
-                                YEnergies.push_back(YEnergy);
+                                Hit->AddStripHit(StripHits[d][1][BestHVSideCombo[h][sh]]);
+                                HVEnergy = Energy;
+                                LVEnergy = Energy;
+                                Hit->SetLVEnergy(LVEnergy);
+                                Hit->SetHVEnergy(HVEnergy);
+                                HVEnergyTotal += HVEnergy;
+                                LVEnergyTotal += LVEnergy;
+                                LVEnergies.push_back(LVEnergy);
+                                HVEnergies.push_back(HVEnergy);
                                 
                                 //Collect timing info for Y strip
                              //   HVTau = StripHits[d][1][BestYSideCombo[h][sh]]->GetTiming();
@@ -821,53 +821,53 @@ bool MModuleStripPairingChiSquareUpdated::AnalyzeEvent(MReadOutAssembly* Event)
                             //    outFile << CTD << endl;
                            //     outFile.close();
                                 
-                                for (unsigned int sh = 0; sh < BestXSideCombo[h].size(); ++sh) {
-                                    Hit->AddStripHit(StripHits[d][0][BestXSideCombo[h][sh]]);
+                                for (unsigned int sh = 0; sh < BestLVSideCombo[h].size(); ++sh) {
+                                    Hit->AddStripHit(StripHits[d][0][BestLVSideCombo[h][sh]]);
                                     }
                                 }
                                 
                             }
                         //And again for the other side...
-                        else if (AllAdjacentX == false && AllAdjacentY == true) {
+                        else if (AllAdjacentLV == false && AllAdjacentHV == true) {
                            // cout<<"Multiple hits on single HV strip"<<endl;
-                            bool MultipleHitsOnY = true;
-                            Event->SetMultipleHitsOnYStrip(MultipleHitsOnY);
+                            bool MultipleHitsOnHV = true;
+                            Event->SetMultipleHitsOnHVStrip(MultipleHitsOnHV);
                             
                             //Collect timing info for Y strip based on dominantY strip found above
-                            HVTau = StripHits[d][1][BestYSideCombo[h][dominantY]]->GetTiming();
+                            HVTau = StripHits[d][1][BestHVSideCombo[h][dominantHV]]->GetTiming();
                             
-                            for (unsigned int sh = 0; sh < BestXSideCombo[h].size(); ++sh) {
-                                Energy = StripHits[d][0][BestXSideCombo[h][sh]]->GetEnergy();
+                            for (unsigned int sh = 0; sh < BestLVSideCombo[h].size(); ++sh) {
+                                Energy = StripHits[d][0][BestLVSideCombo[h][sh]]->GetEnergy();
                                 EnergyTotal += Energy;
-                                EnergyResolution = StripHits[d][0][BestXSideCombo[h][sh]]->GetEnergyResolution();
-                                XEnergyRes = EnergyResolution;
-                                YEnergyRes = EnergyResolution;
-                                XEnergyResTotal += XEnergyRes * XEnergyRes;
-                                YEnergyResTotal += YEnergyRes * YEnergyRes;
+                                EnergyResolution = StripHits[d][0][BestLVSideCombo[h][sh]]->GetEnergyResolution();
+                                LVEnergyRes = EnergyResolution;
+                                HVEnergyRes = EnergyResolution;
+                                LVEnergyResTotal += LVEnergyRes * LVEnergyRes;
+                                HVEnergyResTotal += HVEnergyRes * HVEnergyRes;
                                 MHit* Hit = new MHit();
                                 Hit->SetEnergy(Energy);
                                 Hit->SetEnergyResolution(EnergyResolution);
                                 Event->AddHit(Hit);
-                                Hit->AddStripHit(StripHits[d][0][BestXSideCombo[h][sh]]);
-                                YEnergy = Energy;
-                                XEnergy = Energy;
-                                Hit->SetXEnergy(XEnergy);
-                                Hit->SetYEnergy(YEnergy);
-                                YEnergyTotal += YEnergy;
-                                XEnergyTotal += XEnergy;
-                                XEnergies.push_back(XEnergy);
-                                YEnergies.push_back(YEnergy);
+                                Hit->AddStripHit(StripHits[d][0][BestLVSideCombo[h][sh]]);
+                                HVEnergy = Energy;
+                                LVEnergy = Energy;
+                                Hit->SetLVEnergy(LVEnergy);
+                                Hit->SetHVEnergy(HVEnergy);
+                                HVEnergyTotal += HVEnergy;
+                                LVEnergyTotal += LVEnergy;
+                                LVEnergies.push_back(LVEnergy);
+                                HVEnergies.push_back(HVEnergy);
                                 
-                                //Collect timing info for X strip
-                                LVTau = StripHits[d][0][BestXSideCombo[h][sh]]->GetTiming();
+                                //Collect timing info for LV strip
+                                LVTau = StripHits[d][0][BestLVSideCombo[h][sh]]->GetTiming();
                                    
-                                for (unsigned int sh = 0; sh < BestYSideCombo[h].size(); ++sh) {
-                                    Hit->AddStripHit(StripHits[d][1][BestYSideCombo[h][sh]]);
+                                for (unsigned int sh = 0; sh < BestHVSideCombo[h].size(); ++sh) {
+                                    Hit->AddStripHit(StripHits[d][1][BestHVSideCombo[h][sh]]);
                                     }
                                 }
                         }
                         //If both HV and LV have multiple hits per strip, can't pair
-                        else if (AllAdjacentX == false and AllAdjacentY == false) {
+                        else if (AllAdjacentLV == false and AllAdjacentHV == false) {
                             Event->SetStripPairingIncomplete(true, "Strips not pairable. Multiple hits per strip on LV and HV sides");
                             Event->SetAnalysisProgress(MAssembly::c_StripPairing);
                             return false;
@@ -882,28 +882,28 @@ bool MModuleStripPairingChiSquareUpdated::AnalyzeEvent(MReadOutAssembly* Event)
                      //   Hit->SetEnergy(Energy);
                      //   Hit->SetEnergyResolution(EnergyResolution);
                      //   Event->AddHit(Hit);
-                     //   for (unsigned int sh = 0; sh < BestXSideCombo[h].size(); ++sh) {
-                     //       Hit->AddStripHit(StripHits[d][0][BestXSideCombo[h][sh]]);
+                     //   for (unsigned int sh = 0; sh < BestLVSideCombo[h].size(); ++sh) {
+                     //       Hit->AddStripHit(StripHits[d][0][BestLVSideCombo[h][sh]]);
                      //   }
                       //  for (unsigned int sh = 0; sh < BestYSideCombo[h].size(); ++sh) {
                       //      Hit->AddStripHit(StripHits[d][1][BestYSideCombo[h][sh]]);
                       //  }
                     }
-                    XEnergyResTotal = sqrt(XEnergyResTotal);
-                    YEnergyResTotal = sqrt(YEnergyResTotal);
+                    LVEnergyResTotal = sqrt(LVEnergyResTotal);
+                    HVEnergyResTotal = sqrt(HVEnergyResTotal);
                     
             // Should the following if statement be changed to "if XEnergyTotal > max(etcetc.)". Right now it only seems to be applying to narrow range of events. The chi square cut will prob do the same thing but in a stricter way.
             
             
-                    if ((EnergyTotal > max(XEnergyTotal, YEnergyTotal) + 2.5*max(XEnergyResTotal, YEnergyResTotal) || EnergyTotal < min(XEnergyTotal, YEnergyTotal) - 2.5*max(XEnergyResTotal, YEnergyResTotal))) {
+                    if ((EnergyTotal > max(LVEnergyTotal, HVEnergyTotal) + 2.5*max(LVEnergyResTotal, HVEnergyResTotal) || EnergyTotal < min(LVEnergyTotal, HVEnergyTotal) - 2.5*max(LVEnergyResTotal, HVEnergyResTotal))) {
                         Event->SetStripPairingIncomplete(true, "Strips not pairable wihin 2.5 sigma of measured energy");
                         Event->SetAnalysisProgress(MAssembly::c_StripPairing);
                         return false;
                     }
                     else if ((HasExpos() == true) and Event->IsGood() == true){
                         m_ExpoStripPairingHits->AddHits(Event->GetNHits());
-                        for (unsigned int i = 0; i < XEnergies.size(); ++i){
-                            m_ExpoStripPairing->AddEnergies(XEnergies[i], YEnergies[i]);
+                        for (unsigned int i = 0; i < LVEnergies.size(); ++i){
+                            m_ExpoStripPairing->AddEnergies(LVEnergies[i], HVEnergies[i]);
                         }
                         
                         for (unsigned int h = 0; h<Event->GetNHits(); h++){

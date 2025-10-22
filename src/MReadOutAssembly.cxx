@@ -176,8 +176,8 @@ void MReadOutAssembly::Clear()
   m_DepthCalibration_OutofRange = false;
   m_DepthCalibration_OutofRangeString = "";
     
-  m_MultipleHitsOnXStrip = false;
-  m_MultipleHitsOnYStrip = false;
+  m_MultipleHitsOnLVStrip = false;
+  m_MultipleHitsOnHVStrip = false;
 
   
   m_FilteredOut = false;
@@ -547,11 +547,11 @@ bool MReadOutAssembly::StreamDat(ostream& S, int Version)
   if (m_ShieldVeto == true) {
     S<<"BD Shield Veto"<<endl;
   }
-  if (m_MultipleHitsOnXStrip == true) {
-    S<<"Multiple Hits on X Strip"<<endl;
+  if (m_MultipleHitsOnLVStrip == true) {
+    S<<"Multiple Hits on LV Strip"<<endl;
     }
-  if (m_MultipleHitsOnYStrip == true) {
-    S<<"Multiple Hits on Y Strip"<<endl;
+  if (m_MultipleHitsOnHVStrip == true) {
+    S<<"Multiple Hits on HV Strip"<<endl;
     }
   
   return true;
