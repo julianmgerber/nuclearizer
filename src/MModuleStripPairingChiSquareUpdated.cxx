@@ -644,6 +644,12 @@ bool MModuleStripPairingChiSquareUpdated::AnalyzeEvent(MReadOutAssembly* Event)
                         return false;
                     }
             
+                    if (BestChiSquare > 25) { // remove events with a red chi square > 25
+                        Event->SetStripPairingIncomplete(true, "Best reduced chi square is not below 25");
+                        Event->SetAnalysisProgress(MAssembly::c_StripPairing);
+                        return false;
+                    }
+            
                     Event->SetRedChiSquare(BestChiSquare);
                     
                     // Create the hits
