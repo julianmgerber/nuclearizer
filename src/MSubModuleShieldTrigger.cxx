@@ -50,6 +50,9 @@ MSubModuleShieldTrigger::MSubModuleShieldTrigger() : MSubModule()
   // Construct an instance of MSubModuleShieldTrigger
 
   m_Name = "DEE shield trigger module";
+
+  m_HasTrigger = false;
+  m_HasVeto = false;
 }
 
 
@@ -80,6 +83,9 @@ void MSubModuleShieldTrigger::Clear()
 {
   // Clear for the next event
 
+  m_HasTrigger = false;
+  m_HasVeto = false;
+
   MSubModule::Clear();
 }
 
@@ -90,6 +96,8 @@ void MSubModuleShieldTrigger::Clear()
 bool MSubModuleShieldTrigger::AnalyzeEvent(MReadOutAssembly* Event)
 {
   // Main data analysis routine, which updates the event to a new level 
+
+  m_HasTrigger = false;
 
   return true;
 }

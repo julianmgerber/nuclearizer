@@ -203,7 +203,6 @@ bool MModuleDEESMEX::AnalyzeEvent(MReadOutAssembly* Event)
   // Step (11): Handle depth and timing noise
   m_DepthReadout.Clear();
   m_DepthReadout.AnalyzeEvent(Event);
-  cout<<"(11): # LV strips: "<<Event->GetNDEEStripHitsLV()<<endl;
 
 
   // Step (12): Global event time?

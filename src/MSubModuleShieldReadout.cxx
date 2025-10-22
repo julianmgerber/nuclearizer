@@ -95,7 +95,6 @@ bool MSubModuleShieldReadout::AnalyzeEvent(MReadOutAssembly* Event)
   list<MDEECrystalHit>& Hits = Event->GetDEECrystalHitListReference();
   for (MDEECrystalHit& CH: Hits) {
     CH.m_ADC = 2000 + 4*CH.m_Energy;
-    cout<<CH.m_ADC<<":"<<CH.m_Energy<<endl;
     if (CH.m_ADC > 16383) CH.m_ADC = 16383;
   }
 
