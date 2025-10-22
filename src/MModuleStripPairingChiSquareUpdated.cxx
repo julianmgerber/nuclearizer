@@ -511,7 +511,7 @@ bool MModuleStripPairingChiSquareUpdated::AnalyzeEvent(MReadOutAssembly* Event)
                                         MaxEnergy = tempEnergy;
                                     }
                                     HVEnergy += tempEnergy;
-                                    HVResolution += pow(StripHits[d][1][Combinations[d][1][yc][ep][entry]]->GetEnergyResolution(), 2);
+                                    HVResolution += pow(StripHits[d][1][Combinations[d][1][hv][ep][entry]]->GetEnergyResolution(), 2);
                                 }
                                 // Here begins the timing bit, skipping for now.
                                 double LVtau = StripHits[d][0][Combinations[d][0][lv][en][dominantLV]]->GetTiming();

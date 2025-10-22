@@ -625,8 +625,8 @@ bool MModuleStripPairingChiSquare::AnalyzeEvent(MReadOutAssembly* Event)
 
       MHit* Hit = new MHit();
       Hit->SetEnergy(Energy);
-      Hit->SetXEnergy(XEnergy);
-      Hit->SetYEnergy(YEnergy);
+      Hit->SetLVEnergy(XEnergy);
+      Hit->SetHVEnergy(YEnergy);
       Hit->SetEnergyResolution(EnergyResolution);
       Event->AddHit(Hit);
       for (unsigned int sh = 0; sh < BestXSideCombo[h].size(); ++sh) {
