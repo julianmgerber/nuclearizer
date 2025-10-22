@@ -20,6 +20,7 @@ TOPLEVEL = $(shell pwd)
 IN = $(TOPLEVEL)/include
 LB = $(MEGALIB)/lib
 BN = $(MEGALIB)/bin
+HT = $(TOPLEVEL)/doc/html
 
 
 #----------------------------------------------------------------
@@ -127,6 +128,15 @@ clean:
 	@-rm -f $(NUCLEARIZER_DICT) $(NUCLEARIZER_LINKDEF) $(NUCLEARIZER_ROOTMAP) $(NUCLEARIZER_ROOTPCM)
 	@-rm -f *~ include/*~ src/*~
 	@$(MAKE) clean -C apps
+
+html: man
+doxygen: man
+doc: man
+
+man:
+	@rm -rf $(HT)
+	@sh resource/doxygen/doxy
+	@doxygen resource/doxygen/Doxyfile
 
 #----------------------------------------------------------------
 # Explicit rules & dependencies:
