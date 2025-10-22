@@ -210,9 +210,8 @@ float MModuleStripPairingChiSquareUpdated::ChargeTrappingCorrection(unsigned int
     // Return a corrected energy after applying charge trapping correction. Does there need to be two values or is correcting one side enough?
     
     float CorrectedEnergy = 0;
-    
-    
-    return CorrectedEnergy
+
+    return CorrectedEnergy;
 }
 
 bool MModuleStripPairingChiSquareUpdated::AnalyzeEvent(MReadOutAssembly* Event)
