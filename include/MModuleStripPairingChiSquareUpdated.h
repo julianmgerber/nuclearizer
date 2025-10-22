@@ -1,5 +1,5 @@
 /*
- * MModuleStripPairingGerber.h
+ * MModuleStripPairingChiSquareUpdated.h
  *
  * Copyright (C) by Andreas Zoglauer.
  * All rights reserved.
@@ -9,8 +9,8 @@
  */
 
 
-#ifndef __MModuleStripPairingGerber__
-#define __MModuleStripPairingGerber__
+#ifndef __MModuleStripPairingChiSquareUpdated__
+#define __MModuleStripPairingChiSquareUpdated__
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -41,17 +41,17 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-class MModuleStripPairingGerber : public MModule
+class MModuleStripPairingChiSquareUpdated : public MModule
 {
   // public interface:
  public:
   //! Default constructor
-  MModuleStripPairingGerber();
+  MModuleStripPairingChiSquareUpdated();
   //! Default destructor
-  virtual ~MModuleStripPairingGerber();
+  virtual ~MModuleStripPairingChiSquareUpdated();
   
   //! Create a new object of this class 
-  virtual MModuleStripPairingGerber* Clone() { return new MModuleStripPairingGerber(); }
+  virtual MModuleStripPairingChiSquareUpdated* Clone() { return new MModuleStripPairingChiSquareUpdated(); }
 
   //! Create the expos
   virtual void CreateExpos();
@@ -102,7 +102,7 @@ class MModuleStripPairingGerber : public MModule
 
 #ifdef ___CLING___
  public:
-  ClassDef(MModuleStripPairingGerber, 0) // no description
+  ClassDef(MModuleStripPairingChiSquareUpdated, 0) // no description
 #endif
 
 };

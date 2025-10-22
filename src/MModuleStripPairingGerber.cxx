@@ -1,6 +1,6 @@
 /*
- * MModuleStripPairingChiSquare.cxx
- * Gerber Version (testing)
+ * MModuleStripPairingChiSquareUpdated.cxx
+ * Chi Square Version (Updated 2025)
  *
  * Copyright (C) by Andreas Zoglauer.
  * All rights reserved.
@@ -18,13 +18,13 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// MModuleStripPairingGerber
+// MModuleStripPairingChiSquareUpdated
 //
 ////////////////////////////////////////////////////////////////////////////////
 
 
 // Include the header:
-#include "MModuleStripPairingGerber.h"
+#include "MModuleStripPairingChiSquareUpdated.h"
 
 // Standard libs:
 #include <fstream>
@@ -42,24 +42,24 @@
 
 
 #ifdef ___CLING___
-ClassImp(MModuleStripPairingGerber)
+ClassImp(MModuleStripPairingChiSquareUpdated)
 #endif
 
 
 ////////////////////////////////////////////////////////////////////////////////
 
 
-MModuleStripPairingGerber::MModuleStripPairingGerber() : MModule()
+MModuleStripPairingChiSquareUpdated::MModuleStripPairingChiSquareUpdated() : MModule()
 {
-  // Construct an instance of MModuleStripPairingGerber
+  // Construct an instance of MModuleStripPairingChiSquareUpdated
 
   // Set all module relevant information
 
   // Set the module name --- has to be unique
-  m_Name = "Strip pairing - Gerber Testing Version";
+  m_Name = "Strip pairing - chi square (updated - 2025)";
 
   // Set the XML tag --- has to be unique --- no spaces allowed
-  m_XmlTag = "XmlTagStripPairingGerber";
+  m_XmlTag = "XmlTagStripPairingChiSquareUpdated";
 
   // Set all modules, which have to be done before this module
   AddPreceedingModuleType(MAssembly::c_EventLoader);
@@ -89,16 +89,16 @@ MModuleStripPairingGerber::MModuleStripPairingGerber() : MModule()
 ////////////////////////////////////////////////////////////////////////////////
 
 
-MModuleStripPairingGerber::~MModuleStripPairingGerber()
+MModuleStripPairingChiSquareUpdated::~MModuleStripPairingChiSquareUpdated()
 {
-  // Delete this instance of MModuleStripPairingGerber
+  // Delete this instance of MModuleStripPairingChiSquareUpdated
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////
 
 
-void MModuleStripPairingGerber::CreateExpos()
+void MModuleStripPairingChiSquareUpdated::CreateExpos()
 {
   // Create all expos
 
@@ -122,7 +122,7 @@ void MModuleStripPairingGerber::CreateExpos()
 ////////////////////////////////////////////////////////////////////////////////
 
 
-bool MModuleStripPairingGerber::Initialize()
+bool MModuleStripPairingChiSquareUpdated::Initialize()
 {
   // Initialize the module
 
@@ -134,7 +134,7 @@ bool MModuleStripPairingGerber::Initialize()
 // following function returns a 3D vector of integers
 // Input is 3D vector of ints called "Old Ones" and a vector of "Strip Hits" (pointing to an object of type StripHit, defined in MStripHit.cxx)
 // StripHit is the literal readout in the .roa file
-vector<vector<vector<unsigned int>>> MModuleStripPairingGerber::FindNewCombinations(vector<vector<vector<unsigned int>>> OldOnes, vector<MStripHit*> StripHits, bool RoundTwo)
+vector<vector<vector<unsigned int>>> MModuleStripPairingChiSquareUpdated::FindNewCombinations(vector<vector<vector<unsigned int>>> OldOnes, vector<MStripHit*> StripHits, bool RoundTwo)
 {
     // define new vector of ints NewOnes
   vector<vector<vector<unsigned int>>> NewOnes; // <list> of <combinations> of <combined strips>
@@ -201,7 +201,7 @@ vector<vector<vector<unsigned int>>> MModuleStripPairingGerber::FindNewCombinati
 ////////////////////////////////////////////////////////////////////////////////
 
 
-bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
+bool MModuleStripPairingChiSquareUpdated::AnalyzeEvent(MReadOutAssembly* Event)
 {
 
   // Main data analysis routine, which updates the event to a new level
@@ -346,7 +346,7 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
     
   // Starting from this seed, find more new combinations
         for (unsigned int d = 0; d < StripHits.size(); ++d) { // Detector loop
-            double BestChiSquare = numeric_limits<double>::max(); 
+            double BestChiSquare = numeric_limits<double>::max();
             vector<vector<unsigned int>> BestXSideCombo; //list of lists (ie. list of strip combos making up an event on either side)
             vector<vector<unsigned int>> BestYSideCombo;
             
@@ -860,13 +860,7 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
                                 
                                 //Collect timing info for X strip
                                 LVTau = StripHits[d][0][BestXSideCombo[h][sh]]->GetTiming();
-                                
-                                //Calculate CTD and record it to file
-                                double CTD = LVTau = HVTau; //well that's not correct...
-                                std::ofstream outFile("/Users/juliangerber/Desktop/Research/StripPairing/ChiSquareTesting/CTD.txt", std::ios::app);
-                                outFile << CTD << endl;
-                                outFile.close();
-                                
+                                   
                                 for (unsigned int sh = 0; sh < BestYSideCombo[h].size(); ++sh) {
                                     Hit->AddStripHit(StripHits[d][1][BestYSideCombo[h][sh]]);
                                     }
@@ -972,7 +966,7 @@ bool MModuleStripPairingGerber::AnalyzeEvent(MReadOutAssembly* Event)
 ////////////////////////////////////////////////////////////////////////////////
 
 
-vector<size_t> MModuleStripPairingGerber::Argsort(vector<double> &list)
+vector<size_t> MModuleStripPairingChiSquareUpdated::Argsort(vector<double> &list)
 {
   // Return the order of indices resulting from list sorting
   // initialize original index locations
@@ -993,7 +987,7 @@ vector<size_t> MModuleStripPairingGerber::Argsort(vector<double> &list)
 ////////////////////////////////////////////////////////////////////////////////
 
 
-void MModuleStripPairingGerber::Finalize()
+void MModuleStripPairingChiSquareUpdated::Finalize()
 {
   // Finalize the analysis - do all cleanup, i.e., undo Initialize()
 
@@ -1004,7 +998,7 @@ void MModuleStripPairingGerber::Finalize()
 ////////////////////////////////////////////////////////////////////////////////
 
 
-void MModuleStripPairingGerber::ShowOptionsGUI()
+void MModuleStripPairingChiSquareUpdated::ShowOptionsGUI()
 {
   //! Show the options GUI --- has to be overwritten!
 
@@ -1017,7 +1011,7 @@ void MModuleStripPairingGerber::ShowOptionsGUI()
 ////////////////////////////////////////////////////////////////////////////////
 
 
-bool MModuleStripPairingGerber::ReadXmlConfiguration(MXmlNode* Node)
+bool MModuleStripPairingChiSquareUpdated::ReadXmlConfiguration(MXmlNode* Node)
 {
   //! Read the configuration data from an XML node
 
@@ -1035,7 +1029,7 @@ bool MModuleStripPairingGerber::ReadXmlConfiguration(MXmlNode* Node)
 ////////////////////////////////////////////////////////////////////////////////
 
 
-MXmlNode* MModuleStripPairingGerber::CreateXmlConfiguration()
+MXmlNode* MModuleStripPairingChiSquareUpdated::CreateXmlConfiguration()
 {
   //! Create an XML node tree from the configuration
 
@@ -1049,5 +1043,5 @@ MXmlNode* MModuleStripPairingGerber::CreateXmlConfiguration()
 }
 
 
-// MModuleStripPairingGerber.cxx: the end...
+// MModuleStripPairingChiSquareUpdated.cxx: the end...
 ////////////////////////////////////////////////////////////////////////////////
