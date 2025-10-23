@@ -8,16 +8,16 @@ Nuclearizer uses clang-format to automatically format the code:
 
 To format a file do the following:
 
-1. Test it
+1. Check if the changes looks OK.
+   ```
+   clang-format MSubModuleDEEIntake.cxx > /tmp/Reformated.cxx
+   diff MSubModuleDEEIntake.cxx /tmp/Reformated.cpp
+   ```
 
-clang-format MSubModuleDEEIntake.cxx > /tmp/Reformated.cxx
-diff MSubModuleDEEIntake.cxx /tmp/Reformated.cpp
-
-Check if everything looks OK.
-
-2. Do it
-clang-format -i MSubModuleDEEIntake.cxx
-
+2. Actually change the file
+   ```
+   clang-format -i MSubModuleDEEIntake.cxx
+   ```
 3. Recompile and test your code again
 
 4. Do your pull request / check it in
