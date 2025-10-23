@@ -79,7 +79,21 @@ class MModuleStripPairingChiSquareUpdated : public MModule
     vector<vector<vector<unsigned int>>> FindNewCombinations(vector<vector<vector<unsigned int>>> OldOnes, vector<MStripHit*> StripHits, bool RoundTwo);
     
   // Function to apply charge trapping correction
-    float ChargeTrappingCorrection(unsigned int d, vector<unsigned int> LVStripSet, vector<unsigned int> HVStripSet);
+    float ChargeTrappingCorrection(unsigned int d, vector<vector<MStripHit*>> StripHits);
+    
+  // Divide an event's strip hits by detector and LV/HV side
+    vector<vector<vector<MStripHit*>>> CollectStripHits(MReadOutAssembly* Event);
+
+  // Read in strip hits on each side for each detector and perform quality selections
+    bool EventSelection(MReadOutAssembly* Event, vector<vector<vector<MStripHit*>>> StripHits);
+    
+  // Find all strip combinations for each detector on LV and HV sides given seed combinations
+    vector<vector<vector<vector<vector<unsigned int>>>>> FindAllCombinations(unsigned int d, vector<vector<vector<vector<vector<unsigned int>>>>> Combinations, vector<vector<vector<MStripHit*>>> StripHits, bool RoundTwo);
+
+  // Evaluate the reduced chi square for all possible strip pairings
+    tuple<vector<vector<unsigned int>>, vector<vector<unsigned int>>, double> EvaluateAllCombinations(unsigned int d, vector<vector<vector<vector<vector<unsigned int>>>>> Combinations, vector<vector<vector<MStripHit*>>> StripHits);
+  // Create hits
+    bool CreateHits(unsigned int d, MReadOutAssembly* Event, vector<vector<vector<MStripHit*>>> StripHits, vector<vector<unsigned int>> BestLVSideCombo, vector<vector<unsigned int>> BestHVSideCombo);
     
     //! Return the order of indices resulting from sorting a vector
     vector<size_t> Argsort(vector<double> &list);
