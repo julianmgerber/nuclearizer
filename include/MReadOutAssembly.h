@@ -26,9 +26,13 @@
 #include "MReadOutSequence.h"
 #include "MAspect.h"
 #include "MStripHit.h"
+#include "MDEEStripHit.h"
+#include "MCrystalHit.h"
+#include "MDEECrystalHit.h"
 #include "MGuardringHit.h"
 #include "MHit.h"
 #include "MPhysicalEvent.h"
+#include "MSimEvent.h"
 #include "MSimIA.h"
 
 // Forward declarations:
@@ -147,6 +151,15 @@ class MReadOutAssembly : public MReadOutSequence
   //! Remove a strip hit
   void RemoveStripHitTOnly(unsigned int i);
 
+  //! Return the number of crystal hits
+  unsigned int GetNCrystalHits() const { return m_CrystalHits.size(); }
+  //! Return crystal hit i
+  MCrystalHit* GetCrystalHit(unsigned int i);
+  //! Add a crystal hit
+  void AddCrystalHit(MCrystalHit* CrystalHit);
+  //! Remove a crystal hit
+  void RemoveCrystalHit(unsigned int i);
+
 
   //! Return the number of guardring hits
   unsigned int GetNGuardringHits() const { return m_GuardringHits.size(); }
@@ -165,10 +178,13 @@ class MReadOutAssembly : public MReadOutSequence
   void RemoveHit(unsigned int i);
 
   //! Return the number of simulation hits
+  // TODO: Remove - part of m_SimEvent
   unsigned int GetNHitsSim() const { return m_HitsSim.size(); }
   //! Return simulation hit i
+  // TODO: Remove - part of m_SimEvent
   MHit* GetHitSim(unsigned int i);
   //! Move hits to simulation hits list
+  // TODO: Why ??
   void MoveHitsToSim() {m_HitsSim = m_Hits; m_Hits.clear();}
 
   /*
@@ -177,11 +193,38 @@ class MReadOutAssembly : public MReadOutSequence
   //! Return simulation hit i
   MSimIA* GetSimIA(unsigned int i);
   */
-  
+
   //! Set the physical event from event reconstruction
   void SetPhysicalEvent(MPhysicalEvent* Event);
-  //! Return the physical event 
+  //! Return the physical event
   MPhysicalEvent* GetPhysicalEvent() { return m_PhysicalEvent; }
+
+  //! Set the physical event from event reconstruction
+  void SetSimulatedEvent(MSimEvent* Event) { m_SimEvent = Event; }
+  //! Return the simulated event
+  MSimEvent* GetSimulatedEvent() { return m_SimEvent; }
+
+  //! Return the number of low-voltage DEE strip hits
+  unsigned int GetNDEEStripHitsLV() const { return m_DEEStripHitsLV.size(); }
+  //! Return low-voltage DEE Strip hit at position i
+  void AddDEEStripHitLV(MDEEStripHit& DEEStripHit) { return m_DEEStripHitsLV.push_back(DEEStripHit); }
+  //! Get a reference to the list of strip hits for direct manipulation
+  list<MDEEStripHit>& GetDEEStripHitLVListReference() { return m_DEEStripHitsLV; }
+
+  //! Return the number of high-voltage DEE strip hits
+  unsigned int GetNDEEStripHitsHV() const { return m_DEEStripHitsHV.size(); }
+  //! Add a high-voltage DEE Strip hit
+  void AddDEEStripHitHV(MDEEStripHit DEEStripHit) { return m_DEEStripHitsHV.push_back(DEEStripHit); }
+  //! Get a reference to the list of strip hits for direct manipulation
+  list<MDEEStripHit>& GetDEEStripHitHVListReference() { return m_DEEStripHitsHV; }
+
+  //! Return the number of crystal hits
+  unsigned int GetNDEECrystalHits() const { return m_DEECrystalHits.size(); }
+  //! Add a crystal hit
+  void AddDEECrystalHit(MDEECrystalHit DEECrystalHit) { return m_DEECrystalHits.push_back(DEECrystalHit); }
+  //! Get a reference to the list of crystal hits for direct manipulation
+  list<MDEECrystalHit>& GetDEECrystalHitListReference() { return m_DEECrystalHits; }
+
 
   //! Return the number of read outs
   //unsigned int GetNReadOuts() const { return m_ReadOuts.size(); }
@@ -349,14 +392,28 @@ class MReadOutAssembly : public MReadOutSequence
   //! List of strip hits with timing only
   vector<MStripHit*> m_StripHitsTOnly;
 
+  //! List of crystal hits
+  vector<MCrystalHit*> m_CrystalHits;
+
   //! List of guardring hits
   vector<MGuardringHit*> m_GuardringHits;
 
   //! List of real hits
   vector<MHit*> m_Hits;
 
+  //! The simulated event (nullptr if there is none)
+  MSimEvent* m_SimEvent;
+
   //! List of simulation hits
+  //! TODO: Remove: Part of m_SimEvent
   vector<MHit*> m_HitsSim;
+
+  //! A list of low voltage DEE strips hit - i.e. normal strip hits in the making from the simulated hits sorted by side
+  list<MDEEStripHit> m_DEEStripHitsLV;
+  //! A list of high voltage DEE strips hit - i.e. normal strip hits in the making from the simulated hits sorted by side
+  list<MDEEStripHit> m_DEEStripHitsHV;
+  //! A list of crystal hit - i.e. normal crystal hits in the making from the simulated hits
+  list<MDEECrystalHit> m_DEECrystalHits;
 
   //! The physical event from event reconstruction
   MPhysicalEvent* m_PhysicalEvent; 

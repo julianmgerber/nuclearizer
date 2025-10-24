@@ -50,8 +50,9 @@ MReadOutAssembly::MReadOutAssembly() : MReadOutSequence(), m_EventTimeUTC(0)
 {
   // Construct an instance of MReadOutAssembly
 
-  m_PhysicalEvent = 0; // Set pointer to zero before delete
-  m_Aspect = 0;
+  m_PhysicalEvent = nullptr;
+  m_SimEvent = nullptr;
+  m_Aspect = nullptr;
  	m_HasSimAspectInfo = false;
  
   Clear();
@@ -75,6 +76,12 @@ MReadOutAssembly::~MReadOutAssembly()
   }
   m_StripHitsTOnly.clear();
 
+  // Delete all crystal hits
+  for (unsigned int h = 0; h < m_CrystalHits.size(); ++h) {
+    delete m_CrystalHits[h];
+  }
+  m_CrystalHits.clear();
+
   // Delete all hits
   for (unsigned int h = 0; h < m_Hits.size(); ++h) {
     delete m_Hits[h];
@@ -94,11 +101,13 @@ MReadOutAssembly::~MReadOutAssembly()
   }
   m_GuardringHits.clear();
 
-  // Delete this instance of MReadOutAssembly
+  m_DEEStripHitsLV.clear();
+  m_DEEStripHitsHV.clear();
+  m_DEECrystalHits.clear();
+
+  delete m_SimEvent;
   delete m_PhysicalEvent;
-  
   delete m_Aspect;
-//  mout<<"delete MReadOutAssembly!!\n" ;//debug
 }
 
 
@@ -138,6 +147,12 @@ void MReadOutAssembly::Clear()
   }
   m_StripHitsTOnly.clear();
 
+  for (unsigned int h = 0; h < m_CrystalHits.size(); ++h) {
+    delete m_CrystalHits[h];
+  }
+  m_CrystalHits.clear();
+
+
   // Delete all hits
   for (unsigned int h = 0; h < m_Hits.size(); ++h) {
     delete m_Hits[h];
@@ -175,14 +190,20 @@ void MReadOutAssembly::Clear()
   m_DepthCalibration_OutofRange = false;
   m_DepthCalibration_OutofRangeString = ""; 
 
-  
   m_FilteredOut = false;
 
   delete m_PhysicalEvent;
-  m_PhysicalEvent = 0;
-  
+  m_PhysicalEvent = nullptr;
+
+  m_DEEStripHitsLV.clear();
+  m_DEEStripHitsHV.clear();
+  m_DEECrystalHits.clear();
+
+  delete m_SimEvent;
+  m_SimEvent = nullptr;
+
   delete m_Aspect;
-  m_Aspect = 0;
+  m_Aspect = nullptr;
 }
 
 
@@ -319,6 +340,49 @@ void MReadOutAssembly::RemoveStripHitTOnly(unsigned int i)
 ////////////////////////////////////////////////////////////////////////////////
 
 
+MCrystalHit* MReadOutAssembly::GetCrystalHit(unsigned int i)
+{
+  //! Return strip hit i
+
+  if (i < m_CrystalHits.size()) {
+    return m_CrystalHits[i];
+  }
+
+  merr<<"Index out of bounds!"<<show;
+
+  return 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void MReadOutAssembly::AddCrystalHit(MCrystalHit* CrystalHit)
+{
+  //! Add a strip hit
+  int DetectorID = CrystalHit->GetDetectorID();
+  if ( (DetectorID>=0) && (DetectorID<=11) ) {
+    m_InDetector[DetectorID]=true;
+  }
+  m_CrystalHits.push_back(CrystalHit);
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+
+
+void MReadOutAssembly::RemoveCrystalHit(unsigned int i)
+{
+  //! Remove a strip hit
+  if (i < m_CrystalHits.size()) {
+    vector<MCrystalHit*>::iterator it;
+    it = m_CrystalHits.begin()+i;
+    m_CrystalHits.erase(it);
+  }
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+
+
 MHit* MReadOutAssembly::GetHit(unsigned int i) 
 { 
   //! Return hit i
@@ -329,7 +393,7 @@ MHit* MReadOutAssembly::GetHit(unsigned int i)
 
   merr<<"Index out of bounds!"<<show;
 
-  return 0;
+  return nullptr;
 }
 
 
@@ -665,8 +729,12 @@ void MReadOutAssembly::StreamRoa(ostream& S, bool WithADCs, bool WithTACs, bool 
     m_StripHits[h]->StreamRoa(S, WithADCs, WithTACs, WithEnergies, WithTimings, WithTemperatures, WithFlags);
     ++Counter;
   }
+  for (unsigned int h = 0; h < m_CrystalHits.size(); ++h) {
+    m_CrystalHits[h]->StreamRoa(S, WithADCs, WithEnergies, WithTemperatures, WithFlags);
+    ++Counter;
+  }
   if (Counter == 0) {
-    S<<"BD No strip hits"<<endl;;
+    S<<"BD No hits"<<endl;;
   }
   
   // Those are the only BD's relevant for the roa format
