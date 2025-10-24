@@ -86,7 +86,7 @@ void MGUIOptionsEnergyCalibrationUniversal::Create()
   TGLayoutHints* FileLabelLayout = new TGLayoutHints(kLHintsTop | kLHintsExpandX, m_FontScaler*65 + 21*m_FontScaler, m_FontScaler*65, 0, 2*m_FontScaler);
 
   m_ThresholdFile = new MGUIEFileSelector(m_OptionsFrame, "", dynamic_cast<MModuleEnergyCalibrationUniversal*>(m_Module)->GetThresholdFileName());
-  m_ThresholdFile->SetFileType("Threshold per strip file", "*.txt");
+  m_ThresholdFile->SetFileType("Threshold per strip file", "*.csv");
   m_OptionsFrame->AddFrame(m_ThresholdFile, FileLabelLayout);
 
   if (m_UseThresholdFile) {
@@ -120,6 +120,7 @@ bool MGUIOptionsEnergyCalibrationUniversal::ProcessMessage(long Message, long Pa
 {
   // Modify here if you have more buttons
 
+  // TODO :: only allow one check box option at a time, either value or file
   bool Status = true;
 
   switch (GET_MSG(Message)) {

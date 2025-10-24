@@ -140,16 +140,17 @@ bool MModuleEnergyCalibrationUniversal::Initialize()
       while (Parser_Threshold.ReadLine(Line)) {
         if (!Line.BeginsWith("#")) {
           std::vector<MString> Tokens = Line.Tokenize(","); // for each line, Create tokens seperated by commas
-          if ((Tokens.size() == 4) || (Tokens.size() == 5)) {
-            int IndexOffset = Tokens.size() % 4; //index counter
-            MString Side = Tokens[0+IndexOffset].ToString(); // side is a string, either 'l' or 'h'
-            int StripNum = Tokens[1+IndexOffset].ToInt(); // strip number is an int between 0-63 for each l and h side
-            int ThresholdADC = Tokens[2+IndexOffset].ToInt(); // energy threshold in ADC
-            double ThresholdKeVFile = Tokens[3+IndexOffset].ToDouble(); //energy threshold in keV
+          if (Tokens.size() == 6) {
+            int IndexOffset = Tokens.size() % 6; //index counter
+            int DetID = Tokens[1+IndexOffset].ToInt(); // Detector ID
+            MString Side = Tokens[2+IndexOffset].ToString(); // side is a string, either 'l' or 'h'
+            int StripID = Tokens[3+IndexOffset].ToInt(); // stripID
+            int ThresholdADC = Tokens[4+IndexOffset].ToInt(); // energy threshold in ADC
+            double ThresholdKeVFile = Tokens[5+IndexOffset].ToDouble(); //energy threshold in keV
             
             MReadOutElementDoubleStrip R;
-            R.SetDetectorID(0);  // TODO :: add detector ID to threshold file, Change here. will need to add token. needed or R to work
-            R.SetStripID(StripNum);
+            R.SetDetectorID(DetID);
+            R.SetStripID(StripID);
             R.IsLowVoltageStrip(Side == "l");
             
             // map detectorID, strip number, and voltage side to the threshold (keV)
@@ -187,7 +188,7 @@ bool MModuleEnergyCalibrationUniversal::Initialize()
           CR_ROEToLine[R] = i;
         }
       } else {
-        if (g_Verbosity >= c_Error) cout<<m_XmlTag<<": Line parser: Unknown read-out element ("<<Parser.GetTokenizerAt(i)->GetTokenAt(1)<<")"<<endl; //raise flag
+        if (g_Verbosity >= c_Error) cout<<m_XmlTag<<": Line parser: Unknown read-out element ("<<Parser.GetTokenizerAt(i)->GetTokenAt(1)<<")"<<endl;
         return false;
       }
     }
@@ -199,11 +200,11 @@ bool MModuleEnergyCalibrationUniversal::Initialize()
     if (CP_ROEToLine.find(CM.first) != CP_ROEToLine.end()) {
       unsigned int i = CP_ROEToLine[CM.first];
       if (Parser.GetTokenizerAt(i)->IsTokenAt(5, "pakw") == false) {
-        if (g_Verbosity >= c_Warning) cout<<m_XmlTag<<": Unknown calibration point descriptor found: "<<Parser.GetTokenizerAt(i)->GetTokenAt(5)<<endl; //raise flag
+        if (g_Verbosity >= c_Warning) cout<<m_XmlTag<<": Unknown calibration point descriptor found: "<<Parser.GetTokenizerAt(i)->GetTokenAt(5)<<endl;
         continue;
       }
     } else {
-      if (g_Verbosity >= c_Warning) cout<<m_XmlTag<<": No good calibration for the following strip found: "<<CM.first<<endl; //raise flag
+      if (g_Verbosity >= c_Warning) cout<<m_XmlTag<<": No good calibration for the following strip found: "<<CM.first<<endl;
       continue;
     }
     
@@ -353,13 +354,13 @@ bool MModuleEnergyCalibrationUniversal::AnalyzeEvent(MReadOutAssembly* Event)
 
       Energy = Fit->Eval(SH->GetADCUnits());
       double Threshold = 0; //declare threshold variable
-  
-      if (m_ThresholdValueEnabled == 1) { //check if user input threshold is enabled (one value applied to all strips)
+      
+      if (m_ThresholdValueEnabled == true) { //check if user input threshold is enabled (one value applied to all strips)
         Threshold = m_ThresholdValue;
-      } else if (m_ThresholdFileEnabled == 1) { //check if threshold file is enabled (unique value applied to each strip)
+      } else if (m_ThresholdFileEnabled == true) { //check if threshold file is enabled (unique value applied to each strip)
         double Threshold_map = m_ThresholdMap[R]; // if file enabled, declare value from map
         
-        if (Threshold_map == NULL) {
+        if (Threshold_map == 0) {
           if (g_Verbosity >= c_Error) cout<<m_XmlTag<<": Error: Threshold not found for read-out element "<<R<<endl;
           Threshold = 15;   // set default threshold if threshold not found
         } else {
@@ -383,7 +384,7 @@ bool MModuleEnergyCalibrationUniversal::AnalyzeEvent(MReadOutAssembly* Event)
         double EnergyResolution = FitRes->Eval(Energy);
         SH->SetEnergyResolution(EnergyResolution);
       }
-      if (R.IsLowVoltageStrip() == true) { // check volatge side
+      if (R.IsLowVoltageStrip() == true) { // check voltage side
         if (HasExpos() == true) {
           m_ExpoEnergyCalibration->AddEnergy(Energy);
         }
