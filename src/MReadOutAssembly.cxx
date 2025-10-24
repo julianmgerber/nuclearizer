@@ -127,6 +127,7 @@ void MReadOutAssembly::Clear()
   m_Time = 0;
   m_EventTimeUTC = 0;
   m_MJD = 0.0;
+  m_RedChiSquare = -1;
 
   m_ShieldVeto = false;
   m_GuardRingVeto = false;
@@ -188,7 +189,10 @@ void MReadOutAssembly::Clear()
   m_DepthCalibrationIncomplete = false;
   m_DepthCalibrationIncompleteString = "";
   m_DepthCalibration_OutofRange = false;
-  m_DepthCalibration_OutofRangeString = ""; 
+  m_DepthCalibration_OutofRangeString = "";
+    
+  m_MultipleHitsOnLVStrip = false;
+  m_MultipleHitsOnHVStrip = false;
 
   m_FilteredOut = false;
 
@@ -531,7 +535,8 @@ bool MReadOutAssembly::StreamDat(ostream& S, int Version)
   S<<"ID "<<m_ID<<endl;
   S<<"CL "<<m_Time<<endl;
   S<<"TI "<<m_EventTimeUTC<<endl;
-
+  S<<"Red Chi^2: "<<m_RedChiSquare<<endl;
+    
   for (MSimIA& IA: m_SimIAs) {
     S<<IA.ToSimString()<<endl; 
   }
@@ -606,7 +611,12 @@ bool MReadOutAssembly::StreamDat(ostream& S, int Version)
   if (m_ShieldVeto == true) {
     S<<"BD Shield Veto"<<endl;
   }
-
+  if (m_MultipleHitsOnLVStrip == true) {
+    S<<"Multiple Hits on LV Strip"<<endl;
+    }
+  if (m_MultipleHitsOnHVStrip == true) {
+    S<<"Multiple Hits on HV Strip"<<endl;
+    }
   
   return true;
 }

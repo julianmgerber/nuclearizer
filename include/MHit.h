@@ -57,6 +57,16 @@ class MHit
   void SetEnergy(double Energy) { m_Energy = Energy; }
   //! Return the energy
   double GetEnergy() const { return m_Energy; }
+    
+    //! Set the LVenergy
+    void SetLVEnergy(double LVEnergy) { m_LVEnergy = LVEnergy; }
+    //! Return the LVenergy
+    double GetLVEnergy() const { return m_LVEnergy; }
+
+    //! Set the HVenergy
+    void SetHVEnergy(double HVEnergy) { m_HVEnergy = HVEnergy; }
+    //! Return the HVenergy
+    double GetHVEnergy() const { return m_HVEnergy; }
 
   //! Set the energy resolution
   void SetEnergyResolution(double EnergyResolution) { m_EnergyResolution = EnergyResolution; }
@@ -97,7 +107,7 @@ class MHit
 	void SetStripHitMultipleTimesY(bool stripHitMultipleTimesY) {m_StripHitMultipleTimesY = stripHitMultipleTimesY;}
 	//! get m_StripHitMultipleTimesY
 	bool GetStripHitMultipleTimesY() const { return m_StripHitMultipleTimesY; }
-
+// the above is defined in multiple places. I should change this.
 
 	//! set charge sharing flag
 	void SetChargeSharing(bool chargeSharing) {m_ChargeSharing = chargeSharing; }
@@ -148,6 +158,13 @@ class MHit
 
   //! Energy of the hit
   double m_Energy;
+    
+  //! LV Energy of the hit
+  double m_LVEnergy;
+    
+  //! HV Energy of the hit
+  double m_HVEnergy;
+    
   //! Energy resolution of the hit
   double m_EnergyResolution;
 

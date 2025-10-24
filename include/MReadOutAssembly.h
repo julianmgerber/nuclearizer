@@ -322,6 +322,15 @@ class MReadOutAssembly : public MReadOutSequence
   //! Get the MTime corresponding to absolute UTC time
   MTime GetAbsoluteTime() const {return m_EventTimeUTC; }
 
+  //! Set the Red. Chi^2
+  void SetRedChiSquare(double RedChiSquare) { m_RedChiSquare = RedChiSquare; }
+  //! Return the Red. Chi^2
+  double GetRedChiSquare() const { return m_RedChiSquare; }
+    
+  //Set flags for multiple hits on a single strip
+  void SetMultipleHitsOnLVStrip(bool MultipleHitsOnLV) { m_MultipleHitsOnLVStrip = MultipleHitsOnLV; }
+  void SetMultipleHitsOnHVStrip(bool MultipleHitsOnHV) { m_MultipleHitsOnHVStrip = MultipleHitsOnHV; }
+
 
   // protected methods:
  protected:
@@ -416,7 +425,10 @@ class MReadOutAssembly : public MReadOutSequence
   list<MDEECrystalHit> m_DEECrystalHits;
 
   //! The physical event from event reconstruction
-  MPhysicalEvent* m_PhysicalEvent; 
+  MPhysicalEvent* m_PhysicalEvent;
+    
+  //! Reduced Chi^2 of the Strip Paired Event
+  double m_RedChiSquare;
 
   // Flags indicating the quality of the event
   bool m_AspectIncomplete;
@@ -436,7 +448,11 @@ class MReadOutAssembly : public MReadOutSequence
   bool m_DepthCalibrationIncomplete;
   MString m_DepthCalibrationIncompleteString;
   bool m_DepthCalibration_OutofRange;
-  MString m_DepthCalibration_OutofRangeString;  
+  MString m_DepthCalibration_OutofRangeString;
+  
+  // Flags for multiple hits on a single strip
+  bool m_MultipleHitsOnLVStrip;
+  bool m_MultipleHitsOnHVStrip;
 
 
 
