@@ -599,7 +599,7 @@ bool TrappingCorrectionAm241::Analyze()
           ofstream CTDFitFile(PixelDir +MString("/") + PixelID+MString("_CTDFitResult_")+IllumSide[s]+ MString("Illum.txt"));
           streambuf* coutbuf = cout.rdbuf();
           cout.rdbuf(CTDFitFile.rdbuf());
-          if (CTDFit.Get()) {
+          if (CTDFit >= 0) {
               CTDFit->Print();
           }
           cout.rdbuf(coutbuf);
@@ -613,7 +613,7 @@ bool TrappingCorrectionAm241::Analyze()
           ofstream HVFitFile(PixelDir +MString("/") + PixelID+MString("_HVEnergyFitResult_")+IllumSide[s]+ MString("Illum.txt"));
           coutbuf = cout.rdbuf();
           cout.rdbuf(HVFitFile.rdbuf());
-          if (HVFit.Get()) {
+          if (HVFit >= 0) {
               HVFit->Print();
           }
           cout.rdbuf(coutbuf);
@@ -627,7 +627,7 @@ bool TrappingCorrectionAm241::Analyze()
           ofstream LVFitFile(PixelDir +MString("/") + PixelID+MString("_LVEnergyFitResult_")+IllumSide[s]+ MString("Illum.txt"));
           coutbuf = cout.rdbuf();
           cout.rdbuf(LVFitFile.rdbuf());
-          if (LVFit.Get()) {
+          if (LVFit >= 0) {
               LVFit->Print();
           }
           cout.rdbuf(coutbuf);
@@ -635,10 +635,14 @@ bool TrappingCorrectionAm241::Analyze()
 
           // Save the resulting HV and LV photopeak centroids and CTD centroids to the Endpoints map.
           // Only save these values if the fits ran successfully and if their reduced chi-square is less than 5
-          if ((!(CTDFit->IsEmpty())) && (!(HVFit->IsEmpty())) && (!(LVFit->IsEmpty())) && ((CTDFit->Chi2()/CTDFit->Ndf()) < 5) && ((HVFit->Chi2()/HVFit->Ndf()) < 5) && ((LVFit->Chi2()/LVFit->Ndf()) < 5)) {
-            Endpoints[PixelID][s].push_back(CTDFit->Parameter(2));
-            Endpoints[PixelID][s].push_back(HVFit->Parameter(1));
-            Endpoints[PixelID][s].push_back(LVFit->Parameter(1));
+          if ((CTDFit >= 0) && (HVFit >= 0) && (LVFit >= 0)) { 
+            if (((CTDFit->Chi2()/CTDFit->Ndf()) < 25) && ((HVFit->Chi2()/HVFit->Ndf()) < 25) && ((LVFit->Chi2()/LVFit->Ndf()) < 25)) {
+              Endpoints[PixelID][s].push_back(CTDFit->Parameter(2));
+              Endpoints[PixelID][s].push_back(HVFit->Parameter(1));
+              Endpoints[PixelID][s].push_back(LVFit->Parameter(1));
+            } else {
+              cout<<"Fits for Pixel "<<PixelID<<" did not pass the chi2 cut"<<endl; 
+            }
           } else {
             cout<<"Fits failed for Pixel "<<PixelID<<endl;
           }
@@ -657,11 +661,14 @@ bool TrappingCorrectionAm241::Analyze()
         TFile LVHistFile(PixelDir+MString("/")+PixelID+MString("_LVEnergyHist_") + IllumSide[s]+ MString("Illum.root"),"recreate");
         LVEnergyHistograms[PixelID]->Write();
         LVHistFile.Close();
+
       }
     }
 
     // Do the same function fitting and recording as above, but for the full detectors rather than pixel-by-pixel
     for (auto H: FullDetCTDHistograms) {
+
+      cout<<"Analyzing Full Detector Histograms"<<endl;
 
       int DetID = H.first;
 
@@ -677,7 +684,7 @@ bool TrappingCorrectionAm241::Analyze()
         TF1* PhotopeakFunctionLV = GeneratePhotopeakFunction();
         TFitResultPtr LVFit = FullDetLVEnergyHistograms[DetID]->Fit(PhotopeakFunctionLV, "SQ", "", 55, 70);
 
-        if ((!(CTDFit->IsEmpty())) && (!(HVFit->IsEmpty())) && (!(LVFit->IsEmpty()))) {
+        if ((CTDFit >= 0) && (HVFit >= 0) && (LVFit >= 0)) {
           FullDetEndpoints[DetID][s].push_back(CTDFit->Parameter(2));
           FullDetEndpoints[DetID][s].push_back(HVFit->Parameter(1));
           FullDetEndpoints[DetID][s].push_back(LVFit->Parameter(1));
@@ -685,7 +692,7 @@ bool TrappingCorrectionAm241::Analyze()
           ofstream CTDFitFile(DetID+MString("_CTDFitResult_")+IllumSide[s]+ MString("Illum.txt"));
           streambuf* coutbuf = cout.rdbuf();
           cout.rdbuf(CTDFitFile.rdbuf());
-          if (CTDFit.Get()) {
+          if (CTDFit >= 0) {
               CTDFit->Print();
           }
           cout.rdbuf(coutbuf);
@@ -694,7 +701,7 @@ bool TrappingCorrectionAm241::Analyze()
           ofstream HVFitFile(DetID+MString("_HVEnergyFitResult_")+IllumSide[s]+ MString("Illum.txt"));
           coutbuf = cout.rdbuf();
           cout.rdbuf(HVFitFile.rdbuf());
-          if (HVFit.Get()) {
+          if (HVFit >= 0) {
               HVFit->Print();
           }
           cout.rdbuf(coutbuf);
@@ -703,7 +710,7 @@ bool TrappingCorrectionAm241::Analyze()
           ofstream LVFitFile(DetID+MString("_LVEnergyFitResult_")+IllumSide[s]+ MString("Illum.txt"));
           coutbuf = cout.rdbuf();
           cout.rdbuf(LVFitFile.rdbuf());
-          if (LVFit.Get()) {
+          if (LVFit >= 0) {
               LVFit->Print();
           }
           cout.rdbuf(coutbuf);
