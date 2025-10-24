@@ -378,20 +378,8 @@ tuple<vector<vector<unsigned int>>, vector<vector<unsigned int>>, double> MModul
                 double LVEnergy = 0;
                 double LVResolution = 0;
                 
-                // unsigned int dominantLV;
-                // double MaxEnergy = -numeric_limits<double>::max();
-                
                 // Add up LV energy and energy resolution for grouping of strips
-                for (unsigned int entry = 0; entry < Combinations[d][0][lv][en].size(); ++entry) { // entry is on the strip level
-                    /* Currently I don't believe the dominant strip is used in strip pairing, so let's comment it out
-                     
-                    double tempEnergy = StripHits[d][0][Combinations[d][0][lv][en][entry]]->GetEnergy();
-                    if (tempEnergy > MaxEnergy){
-                        dominantLV = entry;
-                        MaxEnergy = tempEnergy; //keeps track of max energy on a single strip
-                    }
-                    */
-                     
+                for (unsigned int entry = 0; entry < Combinations[d][0][lv][en].size(); ++entry) { // Entry is on the strip level
                     LVEnergy += StripHits[d][0][Combinations[d][0][lv][en][entry]]->GetEnergy();
                     LVResolution += pow(StripHits[d][0][Combinations[d][0][lv][en][entry]]->GetEnergyResolution(), 2);
                     
@@ -531,10 +519,6 @@ bool MModuleStripPairingChiSquareUpdated::CreateHits(unsigned int d, MReadOutAss
             // !!! TODO: Fill ChargeTrappingCorrection function with actual trapping parameters
             // Is it sufficient to only correct one side's energy or should a correction be applied to LV as well?
             HVEnergy += ChargeTrappingCorrection(d, CurrentHitPairing);
-            
-            // LVTau = StripHits[d][0][BestLVSideCombo[h][dominantLV]]->GetTiming();
-            // HVTau = StripHits[d][1][BestHVSideCombo[h][dominantHV]]->GetTiming();
-            
             
             HVEnergyResTotal += HVEnergyRes;
             HVEnergyTotal += HVEnergy;
