@@ -217,9 +217,9 @@ float MModuleStripPairingChiSquareUpdated::ChargeTrappingCorrection(unsigned int
     // I'm going to make another function "FindDominantStrip" to just get out the strip on LV or HV side that has the highest energy
     // Return a corrected energy after applying charge trapping correction. Does there need to be two values or is correcting one side enough?
     
-    float CorrectedEnergy = 0;
+    float EnergyCorrection = 0;
 
-    return CorrectedEnergy;
+    return EnergyCorrection;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -407,14 +407,6 @@ vector<vector<vector<vector<vector<unsigned int>>>>> MModuleStripPairingChiSquar
     return Combinations;
 }
 
-////////////////////////////////////////////////////////////////////////////////
-//! Find the "dominant" strip in a grouping of strips
-// unsigned int MModuleStripPairingChiSquareUpdated::FindDominantStrip(vector<unsigned int> StripGroup) {
-//
-//}
-
-////////////////////////////////////////////////////////////////////////////////
-
 //! Evaluate the reduced chi square for all possible strip pairings
 tuple<vector<vector<unsigned int>>, vector<vector<unsigned int>>, double> MModuleStripPairingChiSquareUpdated::EvaluateAllCombinations(unsigned int d, vector<vector<vector<vector<vector<unsigned int>>>>> Combinations, vector<vector<vector<MStripHit*>>> StripHits) {
     
@@ -464,6 +456,11 @@ tuple<vector<vector<unsigned int>>, vector<vector<unsigned int>>, double> MModul
             for (unsigned int en = 0; en < MinSize; ++en) { // en and ep are on the strip grouping level (ie if there's charge sharing)
                 unsigned int ep = en;
                 
+                // Collect LV and HV strips for current hit pairing
+                vector<vector<MStripHit*>> CurrentHitPairing;
+                CurrentHitPairing.push_back(vector<MStripHit*>());
+                CurrentHitPairing.push_back(vector<MStripHit*>());
+                
                 double LVEnergy = 0;
                 double LVResolution = 0;
                 
@@ -483,6 +480,9 @@ tuple<vector<vector<unsigned int>>, vector<vector<unsigned int>>, double> MModul
                      
                     LVEnergy += StripHits[d][0][Combinations[d][0][lv][en][entry]]->GetEnergy();
                     LVResolution += pow(StripHits[d][0][Combinations[d][0][lv][en][entry]]->GetEnergyResolution(), 2);
+                    
+                    // Add strip to current hit pairing
+                    CurrentHitPairing[0].push_back(StripHits[d][0][Combinations[d][0][lv][en][entry]]);
                 }
                 
                 // Repeats for HV side
@@ -502,7 +502,15 @@ tuple<vector<vector<unsigned int>>, vector<vector<unsigned int>>, double> MModul
                     
                     HVEnergy += StripHits[d][1][Combinations[d][1][hv][ep][entry]]->GetEnergy();
                     HVResolution += pow(StripHits[d][1][Combinations[d][1][hv][ep][entry]]->GetEnergyResolution(), 2);
+                    
+                    // Add strip to current hit pairing
+                    CurrentHitPairing[1].push_back(StripHits[d][1][Combinations[d][1][hv][ep][entry]]);
                 }
+                
+                // Apply charge trapping correction for each LV/HV pairing
+                // !!! TODO: Fill ChargeTrappingCorrection function with actual trapping parameters
+                // Is it sufficient to only correct one side's energy or should a correction be applied to LV as well?
+                HVEnergy += ChargeTrappingCorrection(d, CurrentHitPairing);
                 
                 // Sum chi square over entire LV/HV combination
                 ChiSquare += (LVEnergy - HVEnergy)*(LVEnergy - HVEnergy) / (LVResolution + HVResolution);
@@ -670,6 +678,11 @@ bool MModuleStripPairingChiSquareUpdated::CreateHits(unsigned int d, MReadOutAss
         LVEnergyRes = 0;
         HVEnergyRes = 0;
         
+        // Collect LV and HV strips for current hit pairing
+        vector<vector<MStripHit*>> CurrentHitPairing;
+        CurrentHitPairing.push_back(vector<MStripHit*>());
+        CurrentHitPairing.push_back(vector<MStripHit*>());
+        
         // Check if there are any non-adjacent groupings of strips
         bool AllAdjacentLV = true;
         bool AllAdjacentHV = true;
@@ -699,6 +712,9 @@ bool MModuleStripPairingChiSquareUpdated::CreateHits(unsigned int d, MReadOutAss
                 //cout<<"x-pos: "<<StripHits[d][0][BestXSideCombo[h][sh]]->GetNonStripPosition()<<endl;
                 LVEnergy += StripHits[d][0][BestLVSideCombo[h][sh]]->GetEnergy();
                 LVEnergyRes += StripHits[d][0][BestLVSideCombo[h][sh]]->GetEnergyResolution()*StripHits[d][0][BestLVSideCombo[h][sh]]->GetEnergyResolution();
+                
+                // Add strip to current hit pairing
+                CurrentHitPairing[0].push_back(StripHits[d][0][BestLVSideCombo[h][sh]]);
             }
             
             LVEnergyResTotal += LVEnergyRes;
@@ -709,7 +725,15 @@ bool MModuleStripPairingChiSquareUpdated::CreateHits(unsigned int d, MReadOutAss
             for (unsigned int sh = 0; sh < BestHVSideCombo[h].size(); ++sh) {
                 HVEnergy += StripHits[d][1][BestHVSideCombo[h][sh]]->GetEnergy();
                 HVEnergyRes += StripHits[d][1][BestHVSideCombo[h][sh]]->GetEnergyResolution()*StripHits[d][1][BestHVSideCombo[h][sh]]->GetEnergyResolution();
+                
+                // Add strip to current hit pairing
+                CurrentHitPairing[1].push_back(StripHits[d][1][BestHVSideCombo[h][sh]]);
             }
+            
+            // Apply charge trapping correction for each LV/HV pairing
+            // !!! TODO: Fill ChargeTrappingCorrection function with actual trapping parameters
+            // Is it sufficient to only correct one side's energy or should a correction be applied to LV as well?
+            HVEnergy += ChargeTrappingCorrection(d, CurrentHitPairing);
             
             // LVTau = StripHits[d][0][BestLVSideCombo[h][dominantLV]]->GetTiming();
             // HVTau = StripHits[d][1][BestHVSideCombo[h][dominantHV]]->GetTiming();
@@ -762,6 +786,8 @@ bool MModuleStripPairingChiSquareUpdated::CreateHits(unsigned int d, MReadOutAss
         
         // If there are non-adjacent strip groupings, then have to separate them out again to form multiple (physical) hits
         // Multiple hits on LV side
+        
+        // !!! TODO: Figure out how to apply charge trapping correction to events with multiple hits on a single strip
         if (AllAdjacentHV == false && AllAdjacentLV == true ) {
             //cout<<"Multiple hits on single LV strip"<<endl;
             bool MultipleHitsOnLV = true;
