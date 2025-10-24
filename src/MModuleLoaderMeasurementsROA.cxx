@@ -39,6 +39,7 @@
 #include "MReadOutElementDoubleStrip.h"
 #include "MReadOutDataADCValue.h"
 #include "MReadOutDataTiming.h"
+#include "MReadOutDataTAC.h"
 #include "MReadOutDataOrigins.h"
 
 
@@ -152,9 +153,14 @@ bool MModuleLoaderMeasurementsROA::Open(MString FileName, unsigned int Way)
 {
   // Open the file
   
-  m_ROAFile.Open(FileName);
+  if (m_ROAFile.Open(FileName) == false) {
+    if (g_Verbosity >= c_Error) {
+      cout<<m_XmlTag<<": An error occured opening the file "<<FileName<<endl;
+    }
+    return false;
+  }
   
-  return m_ROAFile.IsOpen();
+  return true;
 }
 
 
@@ -185,9 +191,11 @@ bool MModuleLoaderMeasurementsROA::ReadNextEvent(MReadOutAssembly* Event)
       
     const MReadOutDataADCValue* ADC = 
       dynamic_cast<const MReadOutDataADCValue*>(RO.GetReadOutData().Get(MReadOutDataADCValue::m_TypeID));
-    const MReadOutDataTiming* Timing = 
+    const MReadOutDataTiming* Timing =
       dynamic_cast<const MReadOutDataTiming*>(RO.GetReadOutData().Get(MReadOutDataTiming::m_TypeID));
-    const MReadOutDataOrigins* Origins = 
+    const MReadOutDataTAC* TAC =
+      dynamic_cast<const MReadOutDataTAC*>(RO.GetReadOutData().Get(MReadOutDataTAC::m_TypeID));
+    const MReadOutDataOrigins* Origins =
       dynamic_cast<const MReadOutDataOrigins*>(RO.GetReadOutData().Get(MReadOutDataOrigins::m_TypeID));
     
     
@@ -198,13 +206,12 @@ bool MModuleLoaderMeasurementsROA::ReadNextEvent(MReadOutAssembly* Event)
     
     if (Timing != nullptr) {
       SH->SetTAC(Timing->GetTiming());
-    } else {
-      cout<<m_Name<<": Warning: Event without timing found"<<endl;
+    }
+    if (TAC != nullptr) {
+      SH->SetTAC(TAC->GetTAC());
     }
     if (ADC != nullptr) {
       SH->SetADCUnits(ADC->GetADCValue());
-    } else {
-      cout<<m_Name<<": Warning: Event without ADC's found"<<endl;
     }
     if (Origins != nullptr) {
       SH->AddOrigins(Origins->GetOrigins());

@@ -52,6 +52,8 @@ using namespace std;
 #include "MFile.h"
 
 // Nuclearizer libs:
+#include "MFretalonRegistry.h"
+#include "MReadOutDataTAC.h"
 #include "MReadOutAssembly.h"
 #include "MModule.h"
 #include "MGUIExpoCombinedViewer.h"
@@ -99,6 +101,11 @@ MAssembly::MAssembly()
   
   g_Verbosity = c_Error;
   
+  //! Register new read out data:
+  MReadOutDataTAC TAC;
+  MFretalonRegistry::Instance().Register(TAC);
+
+  // Create the supervisor
   m_Supervisor = MSupervisor::GetSupervisor();
   
   // Fixed seed to reproduce DEE results
