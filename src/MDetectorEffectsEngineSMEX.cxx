@@ -317,9 +317,9 @@ double MDetectorEffectsEngineSMEX::dTimeGeDs(vector<int> channels) {
     // Only called if one channel is activated.
 
     double GeD_deadtime = 0;
-    int temp = 0;
-    int channelNext = 0;
-    int highestCountNear = 0;
+    //int temp = 0;
+    //int channelNext = 0;
+    //int highestCountNear = 0;
     double waitTime = 400e-9;
     double asic_deadtime = 1e-6;
     int channels_activated_count = 1;

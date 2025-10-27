@@ -2088,7 +2088,7 @@ double MDetectorEffectsEngineSingleDet::NoiseShieldEnergyCentroid(double energy,
     hit_V.SetVoxelYID(voxely_id);
     hit_V.SetVoxelZID(voxelz_id);
     
-    double corrected_centroid;
+    double corrected_centroid = 0.0;
     
     auto it = m_Centroid.find(hit_V);
     if (it != m_Centroid.end()) {
@@ -2112,7 +2112,7 @@ double MDetectorEffectsEngineSingleDet::NoiseShieldEnergyFWHM(double energy, MSt
     hit_V.SetVoxelYID(voxely_id);
     hit_V.SetVoxelZID(voxelz_id);
 
-    double FWHM_value;
+    double FWHM_value = 0.0;
 
     auto it_fwhm = m_FWHM.find(hit_V);
 
