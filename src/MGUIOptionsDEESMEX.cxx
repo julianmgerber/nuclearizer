@@ -125,14 +125,16 @@ void MGUIOptionsDEESMEX::Create()
     dynamic_cast<MModuleLoaderSimulationsSingleDet*>(m_Module)->GetDepthCalibrationSplinesFileName());
   m_DepthCalibrationSplinesFileSelector->SetFileType("Splines file", "*.ctd");
   m_OptionsFrame->AddFrame(m_DepthCalibrationSplinesFileSelector, LabelLayout);
- */
+  */
+
   // shield energy correction file
-  m_ShieldEnergyCorrectionFileSelector = new MGUIEFileSelector(m_OptionsFrame, "Please select an energy correction file for the Shield DEE:",
+  m_ShieldEnergyCorrectionFileSelector = new MGUIEFileSelector(m_OptionsFrame,
+                                                               "Please select an energy correction file for the Shield DEE:",
                                                                dynamic_cast<MModuleDEESMEX*>(m_Module)->GetShieldEnergyCorrectionFileName());
   m_ShieldEnergyCorrectionFileSelector->SetFileType("Shield DEE energy correction file", "*.txt");
   m_OptionsFrame->AddFrame(m_ShieldEnergyCorrectionFileSelector, LabelLayout);
-  /*
 
+  /*
   m_ApplyFudgeFactorSelector = new TGCheckButton(m_OptionsFrame, "Apply fudge factor to better match fluxes", 1);
   m_ApplyFudgeFactorSelector->SetOn(dynamic_cast<MModuleLoaderSimulationsSingleDet*>(m_Module)->GetApplyFudgeFactor());
   m_OptionsFrame->AddFrame(m_ApplyFudgeFactorSelector, LabelLayout);
@@ -182,6 +184,10 @@ bool MGUIOptionsDEESMEX::OnApply()
 {
   // Modify this to store the data in the module!
 
+  // Shield options:
+  dynamic_cast<MModuleDEESMEX*>(m_Module)->SetShieldEnergyCorrectionFileName(m_ShieldEnergyCorrectionFileSelector->GetFileName());
+
+  // GeD options:
   dynamic_cast<MModuleDEESMEX*>(m_Module)->SetEnergyCalibrationFileName(m_EnergyCalibrationFileSelector->GetFileName());
 
   //dynamic_cast<MModuleLoaderSimulationsSingleDet*>(m_Module)->SetDeadtimeFileName(m_DeadtimeFileSelector->GetFileName());

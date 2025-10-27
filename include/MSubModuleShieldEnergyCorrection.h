@@ -76,18 +76,25 @@ class MSubModuleShieldEnergyCorrection : public MSubModule
   virtual bool ReadXmlConfiguration(MXmlNode* Node);
   //! Create an XML node tree from the configuration
   virtual MXmlNode* CreateXmlConfiguration(MXmlNode* Node);
-  //! ACS energy correction file name
-  MString m_ShieldEnergyCorrectionFileName;
 
 
   // protected methods:
  protected:
+
+
   // private methods:
  private:
+
+
   // protected members:
  protected:
+  //! ACS energy correction file name
+  MString m_ShieldEnergyCorrectionFileName;
+
   // private members:
  private:
+
+
 #ifdef ___CLING___
  public:
   ClassDef(MSubModuleShieldEnergyCorrection, 0) // no description
