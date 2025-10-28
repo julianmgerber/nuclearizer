@@ -1,7 +1,7 @@
 /*
- * MModuleStripPairingChiSquareUpdated.h
+ * MModuleStripPairingMultiRoundChiSquare.h
  *
- * Copyright (C) by Andreas Zoglauer.
+ * Copyright (C) by Julian Gerber & Andreas Zoglauer.
  * All rights reserved.
  *
  * Please see the source-file for the copyright-notice.
@@ -9,8 +9,8 @@
  */
 
 
-#ifndef __MModuleStripPairingChiSquareUpdated__
-#define __MModuleStripPairingChiSquareUpdated__
+#ifndef __MModuleStripPairingMultiRoundChiSquare__
+#define __MModuleStripPairingMultiRoundChiSquare__
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -41,17 +41,17 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-class MModuleStripPairingChiSquareUpdated : public MModule
+class MModuleStripPairingMultiRoundChiSquare : public MModule
 {
   // public interface:
  public:
   //! Default constructor
-  MModuleStripPairingChiSquareUpdated();
+    MModuleStripPairingMultiRoundChiSquare();
   //! Default destructor
-  virtual ~MModuleStripPairingChiSquareUpdated();
+  virtual ~MModuleStripPairingMultiRoundChiSquare();
   
   //! Create a new object of this class 
-  virtual MModuleStripPairingChiSquareUpdated* Clone() { return new MModuleStripPairingChiSquareUpdated(); }
+  virtual MModuleStripPairingMultiRoundChiSquare* Clone() { return new MModuleStripPairingMultiRoundChiSquare(); }
 
   //! Create the expos
   virtual void CreateExpos();
@@ -119,7 +119,7 @@ class MModuleStripPairingChiSquareUpdated : public MModule
 
 #ifdef ___CLING___
  public:
-  ClassDef(MModuleStripPairingChiSquareUpdated, 0) // no description
+  ClassDef(MModuleStripPairingMultiRoundChiSquare, 0) // no description
 #endif
 
 };

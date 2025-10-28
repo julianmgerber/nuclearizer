@@ -1,13 +1,13 @@
 /*
- * MModuleStripPairingChiSquareUpdated.cxx
- * Chi Square Version (Updated 2025)
+ * MModuleStripPairingMultiRoundChiSquare.cxx
+ * Multi Round Chi Square Version
  *
- * Copyright (C) by Andreas Zoglauer.
+ * Copyright (C) by Julian Gerber & Andreas Zoglauer.
  * All rights reserved.
  *
  *
  * This code implementation is the intellectual property of
- * Andreas Zoglauer.
+ * Julian Gerber & Andreas Zoglauer.
  *
  * By copying, distributing or modifying the Program (or any work
  * based on the Program) you indicate your acceptance of this statement,
@@ -18,13 +18,13 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// MModuleStripPairingChiSquareUpdated
+// MModuleStripPairingMultiRoundChiSquare
 //
 ////////////////////////////////////////////////////////////////////////////////
 
 
 // Include the header:
-#include "MModuleStripPairingChiSquareUpdated.h"
+#include "MModuleStripPairingMultiRoundChiSquare.h"
 
 // Standard libs:
 #include <fstream>
@@ -42,7 +42,7 @@
 
 
 #ifdef ___CLING___
-ClassImp(MModuleStripPairingChiSquareUpdated)
+ClassImp(MModuleStripPairingMultiRoundChiSquare)
 #endif
 
 
@@ -57,17 +57,17 @@ const unsigned int ChiSquareThreshold = 100; // If strip pairing does not reach 
 ////////////////////////////////////////////////////////////////////////////////
 
 
-MModuleStripPairingChiSquareUpdated::MModuleStripPairingChiSquareUpdated() : MModule()
+MModuleStripPairingMultiRoundChiSquare::MModuleStripPairingMultiRoundChiSquare() : MModule()
 {
-  // Construct an instance of MModuleStripPairingChiSquareUpdated
+  // Construct an instance of MModuleStripPairingMultiRoundChiSquare
 
   // Set all module relevant information
 
   // Set the module name --- has to be unique
-  m_Name = "Strip pairing - chi square (updated - 2025)";
+  m_Name = "Strip pairing - Multi Round Chi Square";
 
   // Set the XML tag --- has to be unique --- no spaces allowed
-  m_XmlTag = "XmlTagStripPairingChiSquareUpdated";
+  m_XmlTag = "XmlTagStripPairingMultiRoundChiSquare";
 
   // Set all modules, which have to be done before this module
   AddPreceedingModuleType(MAssembly::c_EventLoader);
@@ -97,16 +97,16 @@ MModuleStripPairingChiSquareUpdated::MModuleStripPairingChiSquareUpdated() : MMo
 ////////////////////////////////////////////////////////////////////////////////
 
 
-MModuleStripPairingChiSquareUpdated::~MModuleStripPairingChiSquareUpdated()
+MModuleStripPairingMultiRoundChiSquare::~MModuleStripPairingMultiRoundChiSquare()
 {
-  // Delete this instance of MModuleStripPairingChiSquareUpdated
+  // Delete this instance of MModuleStripPairingMultiRoundChiSquare
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////
 
 
-void MModuleStripPairingChiSquareUpdated::CreateExpos()
+void MModuleStripPairingMultiRoundChiSquare::CreateExpos()
 {
   // Create all expos
 
@@ -132,7 +132,7 @@ void MModuleStripPairingChiSquareUpdated::CreateExpos()
 ////////////////////////////////////////////////////////////////////////////////
 
 
-bool MModuleStripPairingChiSquareUpdated::Initialize()
+bool MModuleStripPairingMultiRoundChiSquare::Initialize()
 {
   // Initialize the module
 
@@ -140,9 +140,8 @@ bool MModuleStripPairingChiSquareUpdated::Initialize()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-
 //! Function returns new combinations of strips based on seed combinations
-vector<vector<vector<unsigned int>>> MModuleStripPairingChiSquareUpdated::FindNewCombinations(vector<vector<vector<unsigned int>>> OldOnes, vector<MStripHit*> StripHits, bool RoundTwo)
+vector<vector<vector<unsigned int>>> MModuleStripPairingMultiRoundChiSquare::FindNewCombinations(vector<vector<vector<unsigned int>>> OldOnes, vector<MStripHit*> StripHits, bool RoundTwo)
 {
   // Define new vector of ints NewOnes
   vector<vector<vector<unsigned int>>> NewOnes; // <list> of <combinations> of <combined strips>
@@ -208,7 +207,7 @@ vector<vector<vector<unsigned int>>> MModuleStripPairingChiSquareUpdated::FindNe
 ////////////////////////////////////////////////////////////////////////////////
 
 //! Apply a charge trapping correction to each potential pair of LV/HV strips
-float MModuleStripPairingChiSquareUpdated::ChargeTrappingCorrection(unsigned int d, vector<vector<MStripHit*>> StripHits)
+float MModuleStripPairingMultiRoundChiSquare::ChargeTrappingCorrection(unsigned int d, vector<vector<MStripHit*>> StripHits)
 {
 
   // Dummy Function
@@ -227,7 +226,7 @@ float MModuleStripPairingChiSquareUpdated::ChargeTrappingCorrection(unsigned int
 ////////////////////////////////////////////////////////////////////////////////
 
 //! Divide an event's strip hits by detector and LV/HV side
-vector<vector<vector<MStripHit*>>> MModuleStripPairingChiSquareUpdated::CollectStripHits(MReadOutAssembly* Event)
+vector<vector<vector<MStripHit*>>> MModuleStripPairingMultiRoundChiSquare::CollectStripHits(MReadOutAssembly* Event)
 {
 
   // Split hits by detector ID
@@ -266,7 +265,7 @@ vector<vector<vector<MStripHit*>>> MModuleStripPairingChiSquareUpdated::CollectS
 ////////////////////////////////////////////////////////////////////////////////
 
 //! Read in strip hits on each side for each detector and perform quality selections
-bool MModuleStripPairingChiSquareUpdated::EventSelection(MReadOutAssembly* Event, vector<vector<vector<MStripHit*>>> StripHits)
+bool MModuleStripPairingMultiRoundChiSquare::EventSelection(MReadOutAssembly* Event, vector<vector<vector<MStripHit*>>> StripHits)
 {
 
   // Limit the number of strip hits on each side
@@ -293,7 +292,7 @@ bool MModuleStripPairingChiSquareUpdated::EventSelection(MReadOutAssembly* Event
 ////////////////////////////////////////////////////////////////////////////////
 
 //! Find all strip combinations for each detector on LV and HV sides given seed combinations
-vector<vector<vector<vector<vector<unsigned int>>>>> MModuleStripPairingChiSquareUpdated::FindAllCombinations(unsigned int d, vector<vector<vector<vector<vector<unsigned int>>>>> Combinations, vector<vector<vector<MStripHit*>>> StripHits, bool RoundTwo)
+vector<vector<vector<vector<vector<unsigned int>>>>> MModuleStripPairingMultiRoundChiSquare::FindAllCombinations(unsigned int d, vector<vector<vector<vector<vector<unsigned int>>>>> Combinations, vector<vector<vector<MStripHit*>>> StripHits, bool RoundTwo)
 {
 
   for (unsigned int side = 0; side <= 1; ++side) { // Side loop (LV and HV)
@@ -344,7 +343,7 @@ vector<vector<vector<vector<vector<unsigned int>>>>> MModuleStripPairingChiSquar
 }
 
 //! Evaluate the reduced chi square for all possible strip pairings
-tuple<vector<vector<unsigned int>>, vector<vector<unsigned int>>, double> MModuleStripPairingChiSquareUpdated::EvaluateAllCombinations(unsigned int d, vector<vector<vector<vector<vector<unsigned int>>>>> Combinations, vector<vector<vector<MStripHit*>>> StripHits)
+tuple<vector<vector<unsigned int>>, vector<vector<unsigned int>>, double> MModuleStripPairingMultiRoundChiSquare::EvaluateAllCombinations(unsigned int d, vector<vector<vector<vector<vector<unsigned int>>>>> Combinations, vector<vector<vector<MStripHit*>>> StripHits)
 {
 
   double BestChiSquare = numeric_limits<double>::max();
@@ -435,7 +434,7 @@ tuple<vector<vector<unsigned int>>, vector<vector<unsigned int>>, double> MModul
 ////////////////////////////////////////////////////////////////////////////////
 
 //! Create hits
-bool MModuleStripPairingChiSquareUpdated::CreateHits(unsigned int d, MReadOutAssembly* Event, vector<vector<vector<MStripHit*>>> StripHits, vector<vector<unsigned int>> BestLVSideCombo, vector<vector<unsigned int>> BestHVSideCombo)
+bool MModuleStripPairingMultiRoundChiSquare::CreateHits(unsigned int d, MReadOutAssembly* Event, vector<vector<vector<MStripHit*>>> StripHits, vector<vector<unsigned int>> BestLVSideCombo, vector<vector<unsigned int>> BestHVSideCombo)
 {
 
 
@@ -692,7 +691,7 @@ bool MModuleStripPairingChiSquareUpdated::CreateHits(unsigned int d, MReadOutAss
 ////////////////////////////////////////////////////////////////////////////////
 
 //! Main data analysis routine, which updates the event to a new level
-bool MModuleStripPairingChiSquareUpdated::AnalyzeEvent(MReadOutAssembly* Event)
+bool MModuleStripPairingMultiRoundChiSquare::AnalyzeEvent(MReadOutAssembly* Event)
 {
 
   // Check if there are actually any strip hits
@@ -793,7 +792,7 @@ bool MModuleStripPairingChiSquareUpdated::AnalyzeEvent(MReadOutAssembly* Event)
 ////////////////////////////////////////////////////////////////////////////////
 
 
-vector<size_t> MModuleStripPairingChiSquareUpdated::Argsort(vector<double>& list)
+vector<size_t> MModuleStripPairingMultiRoundChiSquare::Argsort(vector<double>& list)
 {
   // Return the order of indices resulting from list sorting
   // initialize original index locations
@@ -814,7 +813,7 @@ vector<size_t> MModuleStripPairingChiSquareUpdated::Argsort(vector<double>& list
 ////////////////////////////////////////////////////////////////////////////////
 
 
-void MModuleStripPairingChiSquareUpdated::Finalize()
+void MModuleStripPairingMultiRoundChiSquare::Finalize()
 {
   // Finalize the analysis - do all cleanup, i.e., undo Initialize()
 
@@ -825,7 +824,7 @@ void MModuleStripPairingChiSquareUpdated::Finalize()
 ////////////////////////////////////////////////////////////////////////////////
 
 
-void MModuleStripPairingChiSquareUpdated::ShowOptionsGUI()
+void MModuleStripPairingMultiRoundChiSquare::ShowOptionsGUI()
 {
   //! Show the options GUI --- has to be overwritten!
 
@@ -838,7 +837,7 @@ void MModuleStripPairingChiSquareUpdated::ShowOptionsGUI()
 ////////////////////////////////////////////////////////////////////////////////
 
 
-bool MModuleStripPairingChiSquareUpdated::ReadXmlConfiguration(MXmlNode* Node)
+bool MModuleStripPairingMultiRoundChiSquare::ReadXmlConfiguration(MXmlNode* Node)
 {
   //! Read the configuration data from an XML node
 
@@ -856,7 +855,7 @@ bool MModuleStripPairingChiSquareUpdated::ReadXmlConfiguration(MXmlNode* Node)
 ////////////////////////////////////////////////////////////////////////////////
 
 
-MXmlNode* MModuleStripPairingChiSquareUpdated::CreateXmlConfiguration()
+MXmlNode* MModuleStripPairingMultiRoundChiSquare::CreateXmlConfiguration()
 {
   //! Create an XML node tree from the configuration
 
@@ -870,5 +869,5 @@ MXmlNode* MModuleStripPairingChiSquareUpdated::CreateXmlConfiguration()
 }
 
 
-// MModuleStripPairingChiSquareUpdated.cxx: the end...
+// MModuleStripPairingMultiRoundChiSquare.cxx: the end...
 ////////////////////////////////////////////////////////////////////////////////
