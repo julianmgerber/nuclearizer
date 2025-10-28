@@ -30,7 +30,7 @@ HT = $(TOPLEVEL)/doc/html
 include $(MEGALIB)/config/Makefile.options
 include $(MEGALIB)/config/Makefile.config
 
-MAKEFLAGS += --no-builtin-rules
+MAKEFLAGS += --no-builtin-rules --no-print-directory
 
 .SUFFIXES:
 #.SUFFIXES: .cxx .h .o .so
