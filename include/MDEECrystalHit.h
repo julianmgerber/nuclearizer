@@ -60,8 +60,6 @@ struct MDEECrystalHit
   double m_SimulatedEnergy; // original: m_EnergyOrig
   //! The list of origin IDs form the simulation
   list<int> m_SimulatedOrigins; // original: m_Origins
-  //! True if this is a guard ring
-  bool m_SimulatedIsGuardRing; // original: m_IsGuardRing
   //! SimHT index that the strip hit came from to check if hit was completely absorbed
   unsigned int m_SimulatedHitIndex; // original: m_HitIndex;
 
@@ -70,7 +68,7 @@ struct MDEECrystalHit
   //! The read-out element
   MReadOutElement m_ROE;
 
-  //! A unique lookup ID of the strup hit
+  //! A unique lookup ID of the crystal hit
   unsigned int m_ID;
   //! The measured energy
   double m_Energy;

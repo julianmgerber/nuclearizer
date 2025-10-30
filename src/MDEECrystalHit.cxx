@@ -44,7 +44,7 @@ ClassImp(MDEECrystalHit)
 ////////////////////////////////////////////////////////////////////////////////
 
 
-MDEECrystalHit::MDEECrystalHit() : m_SimulatedEventID(0), m_SimulatedPosition(0,0,0), m_SimulatedPositionInDetector(0,0,0), m_SimulatedEnergy(0), m_SimulatedIsGuardRing(false), m_SimulatedHitIndex(0), m_Energy(0), m_ADC(0), m_HasTriggered(false), m_HasVetoed(false), m_Temperature(0)
+MDEECrystalHit::MDEECrystalHit() : m_SimulatedEventID(0), m_SimulatedPosition(0,0,0), m_SimulatedPositionInDetector(0,0,0), m_SimulatedEnergy(0), m_SimulatedHitIndex(0), m_Energy(0), m_ADC(0), m_HasTriggered(false), m_HasVetoed(false), m_Temperature(0)
 {
   // Construct an instance of MDEECrystalHit
 }
