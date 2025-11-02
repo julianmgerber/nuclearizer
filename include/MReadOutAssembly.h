@@ -327,8 +327,9 @@ class MReadOutAssembly : public MReadOutSequence
   //! Return the Red. Chi^2
   double GetRedChiSquare() const { return m_RedChiSquare; }
     
-  //Set flags for multiple hits on a single strip
+  //! Set flag for multiple hits on a single strip on LV side
   void SetMultipleHitsOnLVStrip(bool MultipleHitsOnLV) { m_MultipleHitsOnLVStrip = MultipleHitsOnLV; }
+  //! Set flag for multiple hits on a single strip on HV side
   void SetMultipleHitsOnHVStrip(bool MultipleHitsOnHV) { m_MultipleHitsOnHVStrip = MultipleHitsOnHV; }
 
 

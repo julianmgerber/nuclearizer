@@ -155,8 +155,10 @@ class MModuleEventFilter : public MModule
   //! The maximum number of hits
   unsigned int m_MaximumHits;
     
-  //! Minimum and maximum reduced chi square (as calculated in strip pairing code)
+  //! Minimum reduced chi square (as calculated in strip pairing code)
   double m_MinimumRedChiSquare;
+    
+  //! Maximum reduced chi square (as calculated in strip pairing code)
   double m_MaximumRedChiSquare;
 
   

@@ -179,8 +179,9 @@ class MHit
 	//! Flag: possible charge loss
 	bool m_PossibleChargeLoss;
 
-	//! true if hit contains strip that was hit multiple times
+	//! true if hit contains strip that was hit multiple times on X
 	bool m_StripHitMultipleTimesX;
+    //! true if hit contains strip that was hit multiple times on Y
 	bool m_StripHitMultipleTimesY;
 
 	//! true if hit contains charge sharing
