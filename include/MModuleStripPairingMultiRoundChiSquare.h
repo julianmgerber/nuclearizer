@@ -75,24 +75,24 @@ class MModuleStripPairingMultiRoundChiSquare : public MModule
 
   // protected methods:
  protected:
-  // Find a new set of combinations giving the existing gone
+  //! Find a new set of combinations giving the existing gone
     vector<vector<vector<unsigned int>>> FindNewCombinations(vector<vector<vector<unsigned int>>> OldOnes, vector<MStripHit*> StripHits, bool RoundTwo);
     
-  // Function to apply charge trapping correction
+  //! Function to apply charge trapping correction
     float ChargeTrappingCorrection(unsigned int d, vector<vector<MStripHit*>> StripHits);
     
-  // Divide an event's strip hits by detector and LV/HV side
+  //! Divide an event's strip hits by detector and LV/HV side
     vector<vector<vector<MStripHit*>>> CollectStripHits(MReadOutAssembly* Event);
 
-  // Read in strip hits on each side for each detector and perform quality selections
+  //! Read in strip hits on each side for each detector and perform quality selections
     bool EventSelection(MReadOutAssembly* Event, vector<vector<vector<MStripHit*>>> StripHits);
     
-  // Find all strip combinations for each detector on LV and HV sides given seed combinations
+  //! Find all strip combinations for each detector on LV and HV sides given seed combinations
     vector<vector<vector<vector<vector<unsigned int>>>>> FindAllCombinations(unsigned int d, vector<vector<vector<vector<vector<unsigned int>>>>> Combinations, vector<vector<vector<MStripHit*>>> StripHits, bool RoundTwo);
 
-  // Evaluate the reduced chi square for all possible strip pairings
+  //! Evaluate the reduced chi square for all possible strip pairings
     tuple<vector<vector<unsigned int>>, vector<vector<unsigned int>>, double> EvaluateAllCombinations(unsigned int d, vector<vector<vector<vector<vector<unsigned int>>>>> Combinations, vector<vector<vector<MStripHit*>>> StripHits);
-  // Create hits
+  //! Create hits
     bool CreateHits(unsigned int d, MReadOutAssembly* Event, vector<vector<vector<MStripHit*>>> StripHits, vector<vector<unsigned int>> BestLVSideCombo, vector<vector<unsigned int>> BestHVSideCombo);
     
     //! Return the order of indices resulting from sorting a vector
