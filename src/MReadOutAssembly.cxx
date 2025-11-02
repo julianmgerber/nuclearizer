@@ -535,7 +535,7 @@ bool MReadOutAssembly::StreamDat(ostream& S, int Version)
   S<<"ID "<<m_ID<<endl;
   S<<"CL "<<m_Time<<endl;
   S<<"TI "<<m_EventTimeUTC<<endl;
-  S<<"Red Chi^2: "<<m_RedChiSquare<<endl;
+  S<<"QP "<<m_RedChiSquare<<endl; // Read out strip pairing qualiy factor
     
   for (MSimIA& IA: m_SimIAs) {
     S<<IA.ToSimString()<<endl; 
