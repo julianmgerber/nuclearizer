@@ -173,7 +173,7 @@ vector<vector<vector<unsigned int>>> MModuleStripPairingMultiRoundChiSquare::Fin
           } // Checks if the new combo is of adjacent strips
 
           if (AllAdjacent == true) {
-            vector<vector<unsigned int>> NewCombo;
+            vector<vector<unsigned int>> NewCombo; // List of newly combined strips
             for (unsigned int news = 0; news < OldOnes[listspot].size(); ++news) {
               if (news != combi1 && news != combi2) {
                 NewCombo.push_back(OldOnes[listspot][news]);
@@ -230,8 +230,8 @@ vector<vector<vector<MStripHit*>>> MModuleStripPairingMultiRoundChiSquare::Colle
 {
 
   // Split hits by detector ID
-  vector<unsigned int> DetectorIDs;
-  vector<vector<vector<MStripHit*>>> StripHits; // list of detector IDs, list of sides (LV and HV), list of hits
+  vector<unsigned int> DetectorIDs; // List of detector IDs
+  vector<vector<vector<MStripHit*>>> StripHits; // list of detector IDs, list of sides (LV and HV), list of strip hits
 
   for (unsigned int sh = 0; sh < Event->GetNStripHits(); ++sh) { // Populate StripHits with this event's strip hits
     MStripHit* SH = Event->GetStripHit(sh);
@@ -297,7 +297,7 @@ vector<vector<vector<vector<vector<unsigned int>>>>> MModuleStripPairingMultiRou
 
   for (unsigned int side = 0; side <= 1; ++side) { // Side loop (LV and HV)
 
-    vector<vector<vector<unsigned int>>> NewCombinations;
+    vector<vector<vector<unsigned int>>> NewCombinations; // List of combinations of combined strips
 
     bool CombinationsAdded = true;
     while (CombinationsAdded == true) {
@@ -347,8 +347,8 @@ tuple<vector<vector<unsigned int>>, vector<vector<unsigned int>>, double> MModul
 {
 
   double BestChiSquare = numeric_limits<double>::max();
-  vector<vector<unsigned int>> BestLVSideCombo;
-  vector<vector<unsigned int>> BestHVSideCombo;
+  vector<vector<unsigned int>> BestLVSideCombo; // List of combined strips that comprise the best LV side combination
+  vector<vector<unsigned int>> BestHVSideCombo; // List of combined strips that comprise the best HV side combination
 
   for (unsigned int lv = 0; lv < Combinations[d][0].size(); ++lv) { // Loop over combinations of lv-strips (lv represents a list of sets of strips,  and each set is a proposed Hit)
     for (unsigned int hv = 0; hv < Combinations[d][1].size(); ++hv) {
@@ -373,7 +373,7 @@ tuple<vector<vector<unsigned int>>, vector<vector<unsigned int>>, double> MModul
           unsigned int ep = en;
 
           // Collect LV and HV strips for current hit pairing
-          vector<vector<MStripHit*>> CurrentHitPairing;
+          vector<vector<MStripHit*>> CurrentHitPairing; // List of combined strips that are being analyzed currently
           CurrentHitPairing.push_back(vector<MStripHit*>());
           CurrentHitPairing.push_back(vector<MStripHit*>());
 
@@ -466,7 +466,7 @@ bool MModuleStripPairingMultiRoundChiSquare::CreateHits(unsigned int d, MReadOut
     HVEnergyRes = 0;
 
     // Collect LV and HV strips for current hit pairing
-    vector<vector<MStripHit*>> CurrentHitPairing;
+    vector<vector<MStripHit*>> CurrentHitPairing; // List of combined strips that are being analyzed currently
     CurrentHitPairing.push_back(vector<MStripHit*>());
     CurrentHitPairing.push_back(vector<MStripHit*>());
 
@@ -702,7 +702,7 @@ bool MModuleStripPairingMultiRoundChiSquare::AnalyzeEvent(MReadOutAssembly* Even
   }
 
   // Collect strip hits from input event
-  vector<vector<vector<MStripHit*>>> StripHits = CollectStripHits(Event);
+  vector<vector<vector<MStripHit*>>> StripHits = CollectStripHits(Event); // List of detectors, list of sides, list of strip hits
 
   // Perform some event selections
   bool CheckStripHits = EventSelection(Event, StripHits);
