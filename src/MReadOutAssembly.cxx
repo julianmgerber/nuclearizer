@@ -557,6 +557,10 @@ bool MReadOutAssembly::StreamDat(ostream& S, int Version)
     for (auto H : m_Hits) {
       H->StreamDat(S, 2);
     }
+  } else if (Version == 3) {
+     for (auto H : m_Hits) {
+       H->StreamDat(S, 3);
+    }
   }
 
   if (m_AspectIncomplete == true) {
