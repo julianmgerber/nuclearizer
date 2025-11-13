@@ -179,9 +179,9 @@ class MHit
 	bool m_PossibleChargeLoss;
 
 	//! true if hit contains strip that was hit multiple times on X
-	bool m_StripHitMultipleTimesX;
+	bool m_StripHitMultipleTimesX = false;
     //! true if hit contains strip that was hit multiple times on Y
-	bool m_StripHitMultipleTimesY;
+	bool m_StripHitMultipleTimesY = false;
 
 	//! true if hit contains charge sharing
 	bool m_ChargeSharing;
