@@ -322,10 +322,10 @@ class MReadOutAssembly : public MReadOutSequence
   //! Get the MTime corresponding to absolute UTC time
   MTime GetAbsoluteTime() const {return m_EventTimeUTC; }
 
-  //! Set the Red. Chi^2
-  void SetRedChiSquare(double RedChiSquare) { m_RedChiSquare = RedChiSquare; }
-  //! Return the Red. Chi^2
-  double GetRedChiSquare() const { return m_RedChiSquare; }
+  //! Set the Reduced Chi^2
+  void SetReducedChiSquare(double ReducedChiSquare) { m_ReducedChiSquare = ReducedChiSquare; }
+  //! Return the Reduced Chi^2
+  double GetReducedChiSquare() const { return m_ReducedChiSquare; }
     
   //! Set flag for multiple hits on a single strip on LV side
   void SetMultipleHitsOnLVStrip(bool MultipleHitsOnLV) { m_MultipleHitsOnLVStrip = MultipleHitsOnLV; }
@@ -429,7 +429,7 @@ class MReadOutAssembly : public MReadOutSequence
   MPhysicalEvent* m_PhysicalEvent;
     
   //! Reduced Chi^2 of the Strip Paired Event
-  double m_RedChiSquare;
+  double m_ReducedChiSquare;
 
   // Flags indicating the quality of the event
   bool m_AspectIncomplete;
