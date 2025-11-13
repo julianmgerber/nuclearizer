@@ -326,12 +326,6 @@ class MReadOutAssembly : public MReadOutSequence
   void SetReducedChiSquare(double ReducedChiSquare) { m_ReducedChiSquare = ReducedChiSquare; }
   //! Return the Reduced Chi^2
   double GetReducedChiSquare() const { return m_ReducedChiSquare; }
-    
-  //! Set flag for multiple hits on a single strip on LV side
-  void SetMultipleHitsOnLVStrip(bool MultipleHitsOnLV) { m_MultipleHitsOnLVStrip = MultipleHitsOnLV; }
-  //! Set flag for multiple hits on a single strip on HV side
-  void SetMultipleHitsOnHVStrip(bool MultipleHitsOnHV) { m_MultipleHitsOnHVStrip = MultipleHitsOnHV; }
-
 
   // protected methods:
  protected:
@@ -451,10 +445,6 @@ class MReadOutAssembly : public MReadOutSequence
   bool m_DepthCalibration_OutofRange;
   MString m_DepthCalibration_OutofRangeString;
   
-  // Flags for multiple hits on a single strip
-  bool m_MultipleHitsOnLVStrip;
-  bool m_MultipleHitsOnHVStrip;
-
 
 
   //! True if event has been filtered out
