@@ -190,9 +190,6 @@ void MReadOutAssembly::Clear()
   m_DepthCalibrationIncompleteString = "";
   m_DepthCalibration_OutofRange = false;
   m_DepthCalibration_OutofRangeString = "";
-    
-  m_MultipleHitsOnLVStrip = false;
-  m_MultipleHitsOnHVStrip = false;
 
   m_FilteredOut = false;
 
@@ -615,12 +612,18 @@ bool MReadOutAssembly::StreamDat(ostream& S, int Version)
   if (m_ShieldVeto == true) {
     S<<"BD Shield Veto"<<endl;
   }
-  if (m_MultipleHitsOnLVStrip == true) {
-    S<<"Multiple Hits on LV Strip"<<endl;
+  for (auto H : m_Hits) {
+    if (H->GetStripHitMultipleTimesX()) {
+      S<<"BD Multiple Hits on LV Strip"<<endl;
+      break;
     }
-  if (m_MultipleHitsOnHVStrip == true) {
-    S<<"Multiple Hits on HV Strip"<<endl;
+  }
+  for (auto H : m_Hits) {
+    if (H->GetStripHitMultipleTimesY()) {
+      S<<"BD Multiple Hits on HV Strip"<<endl;
+      break;
     }
+  }
   
   return true;
 }
@@ -709,7 +712,18 @@ void MReadOutAssembly::StreamEvta(ostream& S)
   if (m_ShieldVeto == true) {
     S<<"BD Shield Veto"<<endl;
   }
-
+  for (auto H : m_Hits) {
+    if (H->GetStripHitMultipleTimesX()) {
+      S<<"BD Multiple Hits on LV Strip"<<endl;
+      break;
+    }
+  }
+  for (auto H : m_Hits) {
+    if (H->GetStripHitMultipleTimesY()) {
+      S<<"BD Multiple Hits on HV Strip"<<endl;
+      break;
+    }
+  }
 
 
 }

@@ -107,7 +107,6 @@ class MHit
 	void SetStripHitMultipleTimesY(bool stripHitMultipleTimesY) {m_StripHitMultipleTimesY = stripHitMultipleTimesY;}
 	//! get m_StripHitMultipleTimesY
 	bool GetStripHitMultipleTimesY() const { return m_StripHitMultipleTimesY; }
-// the above is defined in multiple places. I should change this.
 
 	//! set charge sharing flag
 	void SetChargeSharing(bool chargeSharing) {m_ChargeSharing = chargeSharing; }
