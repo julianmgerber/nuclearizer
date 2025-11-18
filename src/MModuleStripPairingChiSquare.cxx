@@ -556,7 +556,7 @@ bool MModuleStripPairingChiSquare::AnalyzeEvent(MReadOutAssembly* Event)
       return false;
     }
       
-    Event->SetRedChiSquare(BestChiSquare);
+    Event->SetReducedChiSquare(BestChiSquare);
 
     // Create the hits
     double XPos = 0;
