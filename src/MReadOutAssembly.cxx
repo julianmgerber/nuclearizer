@@ -127,6 +127,7 @@ void MReadOutAssembly::Clear()
   m_Time = 0;
   m_EventTimeUTC = 0;
   m_MJD = 0.0;
+  m_ReducedChiSquare = -1;
 
   m_ShieldVeto = false;
   m_GuardRingVeto = false;
@@ -188,7 +189,7 @@ void MReadOutAssembly::Clear()
   m_DepthCalibrationIncomplete = false;
   m_DepthCalibrationIncompleteString = "";
   m_DepthCalibration_OutofRange = false;
-  m_DepthCalibration_OutofRangeString = ""; 
+  m_DepthCalibration_OutofRangeString = "";
 
   m_FilteredOut = false;
 
@@ -531,7 +532,8 @@ bool MReadOutAssembly::StreamDat(ostream& S, int Version)
   S<<"ID "<<m_ID<<endl;
   S<<"CL "<<m_Time<<endl;
   S<<"TI "<<m_EventTimeUTC<<endl;
-
+  S<<"QP "<<m_ReducedChiSquare<<endl; // Read out strip pairing qualiy factor
+    
   for (MSimIA& IA: m_SimIAs) {
     S<<IA.ToSimString()<<endl; 
   }
@@ -551,6 +553,10 @@ bool MReadOutAssembly::StreamDat(ostream& S, int Version)
   } else if (Version == 2) {
     for (auto H : m_Hits) {
       H->StreamDat(S, 2);
+    }
+  } else if (Version == 3) {
+     for (auto H : m_Hits) {
+       H->StreamDat(S, 3);
     }
   }
 
@@ -606,7 +612,18 @@ bool MReadOutAssembly::StreamDat(ostream& S, int Version)
   if (m_ShieldVeto == true) {
     S<<"BD Shield Veto"<<endl;
   }
-
+  for (auto H : m_Hits) {
+    if (H->GetStripHitMultipleTimesX()) {
+      S<<"BD Multiple Hits on LV Strip"<<endl;
+      break;
+    }
+  }
+  for (auto H : m_Hits) {
+    if (H->GetStripHitMultipleTimesY()) {
+      S<<"BD Multiple Hits on HV Strip"<<endl;
+      break;
+    }
+  }
   
   return true;
 }
@@ -695,7 +712,18 @@ void MReadOutAssembly::StreamEvta(ostream& S)
   if (m_ShieldVeto == true) {
     S<<"BD Shield Veto"<<endl;
   }
-
+  for (auto H : m_Hits) {
+    if (H->GetStripHitMultipleTimesX()) {
+      S<<"BD Multiple Hits on LV Strip"<<endl;
+      break;
+    }
+  }
+  for (auto H : m_Hits) {
+    if (H->GetStripHitMultipleTimesY()) {
+      S<<"BD Multiple Hits on HV Strip"<<endl;
+      break;
+    }
+  }
 
 
 }

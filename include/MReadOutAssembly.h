@@ -322,6 +322,10 @@ class MReadOutAssembly : public MReadOutSequence
   //! Get the MTime corresponding to absolute UTC time
   MTime GetAbsoluteTime() const {return m_EventTimeUTC; }
 
+  //! Set the Reduced Chi^2
+  void SetReducedChiSquare(double ReducedChiSquare) { m_ReducedChiSquare = ReducedChiSquare; }
+  //! Return the Reduced Chi^2
+  double GetReducedChiSquare() const { return m_ReducedChiSquare; }
 
   // protected methods:
  protected:
@@ -416,7 +420,10 @@ class MReadOutAssembly : public MReadOutSequence
   list<MDEECrystalHit> m_DEECrystalHits;
 
   //! The physical event from event reconstruction
-  MPhysicalEvent* m_PhysicalEvent; 
+  MPhysicalEvent* m_PhysicalEvent;
+    
+  //! Reduced Chi^2 of the Strip Paired Event
+  double m_ReducedChiSquare;
 
   // Flags indicating the quality of the event
   bool m_AspectIncomplete;
@@ -436,8 +443,8 @@ class MReadOutAssembly : public MReadOutSequence
   bool m_DepthCalibrationIncomplete;
   MString m_DepthCalibrationIncompleteString;
   bool m_DepthCalibration_OutofRange;
-  MString m_DepthCalibration_OutofRangeString;  
-
+  MString m_DepthCalibration_OutofRangeString;
+  
 
 
   //! True if event has been filtered out
