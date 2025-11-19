@@ -72,7 +72,7 @@ struct MDEEStripHit
   //! The read-out element
   MReadOutElementDoubleStrip m_ROE;
 
-  //! A unique lookup ID of the strup hit
+  //! A unique lookup ID of the strip hit
   unsigned int m_ID;
   //! The ID of the strip on the opposite side
   unsigned int m_OppositeSideID;

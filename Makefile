@@ -30,7 +30,7 @@ HT = $(TOPLEVEL)/doc/html
 include $(MEGALIB)/config/Makefile.options
 include $(MEGALIB)/config/Makefile.config
 
-MAKEFLAGS += --no-builtin-rules
+MAKEFLAGS += --no-builtin-rules --no-print-directory
 
 .SUFFIXES:
 #.SUFFIXES: .cxx .h .o .so
@@ -156,7 +156,7 @@ $(NUCLEARIZER_DEP_FILES): $(LB)/%.d: src/%.cxx
 
 $(NUCLEARIZER_LIBS): $(LB)/%.o: src/%.cxx include/%.h $(LB)/%.d
 	@echo "Compiling $(subst src/,,$<) ..."
-	@$(CXX) $(CXXFLAGS) -Wno-vla-cxx-extension -c $< -o $@
+	@$(CXX) $(CXXFLAGS) -c $< -o $@
 
 $(NUCLEARIZER_DICT): $(FRETALON_H_FILES) $(NUCLEARIZER_H_FILES)
 	@echo "Generating LinkDef ..."
