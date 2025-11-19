@@ -261,6 +261,13 @@ class MReadOutAssembly : public MReadOutSequence
   void SetEnergyResolutionCalibrationIncomplete(bool Flag = true, MString Text = "") { m_EnergyResolutionCalibrationIncomplete = Flag; m_EnergyResolutionCalibrationIncompleteString = Text;}
   //! Get the energy resolution calibration incomplete flag
   bool IsEnergyResolutionCalibrationIncomplete() const { return m_EnergyResolutionCalibrationIncomplete; }
+  
+  //! set the Strip Hit Below Threshold flag
+  void SetStripHitBelowThreshold(bool Flag = true, MString Text = ""){
+    m_StripHitBelowThreshold = Flag; m_StripHitBelowThreshold = Text;}
+  //! get the Strip Hit Below Threshold flag
+  bool IsStripHitBelowThreshold() const { return m_StripHitBelowThreshold; }
+  
 
  //! Set the strip-pairing-incomplete flag
   void SetStripPairingIncomplete(bool Flag = true, MString Text = "") { m_StripPairingIncomplete = Flag;  m_StripPairingIncompleteString = Text; }
@@ -444,7 +451,9 @@ class MReadOutAssembly : public MReadOutSequence
   MString m_DepthCalibrationIncompleteString;
   bool m_DepthCalibration_OutofRange;
   MString m_DepthCalibration_OutofRangeString;
-  
+  bool m_StripHitBelowThreshold;
+  MString m_StripHitBelowThresholdString;
+
 
 
   //! True if event has been filtered out

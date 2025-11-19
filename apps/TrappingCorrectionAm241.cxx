@@ -373,7 +373,7 @@ bool TrappingCorrectionAm241::Analyze()
       cout<<"Creating energy calibrator"<<endl;
       EnergyCalibrator = new MModuleEnergyCalibrationUniversal();
       EnergyCalibrator->SetFileName(m_EcalFile);
-      EnergyCalibrator->EnablePreampTempCorrection(false);
+      //EnergyCalibrator->EnablePreampTempCorrection(false);
       S->SetModule(EnergyCalibrator, MNumber);
       ++MNumber;
 
