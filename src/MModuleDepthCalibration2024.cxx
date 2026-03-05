@@ -63,7 +63,7 @@ MModuleDepthCalibration2024::MModuleDepthCalibration2024() : MModule()
   // Set all modules, which have to be done before this module
   AddPreceedingModuleType(MAssembly::c_EnergyCalibration, true);
   AddPreceedingModuleType(MAssembly::c_StripPairing, true);
-  AddPreceedingModuleType(MAssembly::c_TACcut, true);
+  //AddPreceedingModuleType(MAssembly::c_TACcut, true);
 //  AddPreceedingModuleType(MAssembly::c_CrosstalkCorrection, false); // Soft requirement
 
   // Set all types this modules handles
