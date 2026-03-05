@@ -26,6 +26,7 @@
 #include <fstream>
 #include <iostream>
 #include <map>
+#include <random>
 using namespace std;
 
 // Include the header:
@@ -364,6 +365,12 @@ bool MModuleEnergyCalibrationUniversal::AnalyzeEvent(MReadOutAssembly* Event)
 {
   // Main data analysis routine, which updates the event to a new level, i.e. takes the raw ADC value from the .roa file loaded through nuclearizer and converts it into energy units.
 
+    
+    // Random number generators for energy resolution
+    random_device rd;
+
+    mt19937 gen(rd());
+
   for (unsigned int i = 0; i < Event->GetNStripHits();) {
 
     MStripHit* SH = Event->GetStripHit(i);
@@ -441,7 +448,7 @@ bool MModuleEnergyCalibrationUniversal::AnalyzeEvent(MReadOutAssembly* Event)
 
         // if the energy isn't filtered out with the threshold, then assign the energy to the SH
         ++i; // iterate to next SH
-        SH->SetEnergy(Energy);
+        //SH->SetEnergy(Energy);
 
         if (FitRes == nullptr) {
           if (g_Verbosity >= c_Error) {
@@ -449,7 +456,15 @@ bool MModuleEnergyCalibrationUniversal::AnalyzeEvent(MReadOutAssembly* Event)
           }
 	  // There is not expected to be a time in which the energy resolution calibration is not defined when the energy calibration itself is. Therefore, don't need a seperate BD flag for this.
         } else {
-          double EnergyResolution = FitRes->Eval(Energy);
+          double EnergyResolution = sqrt(pow(1.5, 2) + (0.13 * Energy * 0.003) );
+
+          normal_distribution<double> d(0, EnergyResolution);
+            
+          double random_value = d(gen);
+          Energy += random_value;
+          //double EnergyResolution = FitRes->Eval(Energy);
+            
+          SH->SetEnergy(Energy);
           SH->SetEnergyResolution(EnergyResolution);
         }
         if (HasExpos() == true) {
