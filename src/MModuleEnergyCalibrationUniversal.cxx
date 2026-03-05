@@ -448,6 +448,7 @@ bool MModuleEnergyCalibrationUniversal::AnalyzeEvent(MReadOutAssembly* Event)
 
         // if the energy isn't filtered out with the threshold, then assign the energy to the SH
         ++i; // iterate to next SH
+        // Need to adjust energy to put in some uncertainity (because DEE doesn't)
         //SH->SetEnergy(Energy);
 
         if (FitRes == nullptr) {
@@ -456,11 +457,15 @@ bool MModuleEnergyCalibrationUniversal::AnalyzeEvent(MReadOutAssembly* Event)
           }
 	  // There is not expected to be a time in which the energy resolution calibration is not defined when the energy calibration itself is. Therefore, don't need a seperate BD flag for this.
         } else {
+          // fano factor for Ge = 0.13
+          // 0.003 keV per charge carrier (from Field's depth cal paper that 340 e/h pairs generated per keV)
           double EnergyResolution = sqrt(pow(1.5, 2) + (0.13 * Energy * 0.003) );
-
+          
+          // Draw random value from Gaussian to smear out energy
           normal_distribution<double> d(0, EnergyResolution);
             
           double random_value = d(gen);
+          
           Energy += random_value;
           //double EnergyResolution = FitRes->Eval(Energy);
             
