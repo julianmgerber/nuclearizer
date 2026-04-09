@@ -459,7 +459,15 @@ bool MModuleEnergyCalibrationUniversal::AnalyzeEvent(MReadOutAssembly* Event)
         } else {
           // fano factor for Ge = 0.13
           // 0.003 keV per charge carrier (from Field's depth cal paper that 340 e/h pairs generated per keV)
-          double EnergyResolution = sqrt(pow(1.5, 2) + (0.13 * Energy * 0.003) );
+          
+          // double EnergyResolution = sqrt(pow(1.5, 2) + (0.13 * Energy * 0.003) );
+          
+          if (SH->IsLowVoltageStrip()) {
+            double EnergyResolution = 0.000126 * Energy + 1.3358;
+          }
+          else {
+            double EnergyResolution = 0.000397 * Energy + 1.2891;
+          }
           
           // Draw random value from Gaussian to smear out energy
           normal_distribution<double> d(0, EnergyResolution);
