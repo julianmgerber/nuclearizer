@@ -464,10 +464,10 @@ bool MModuleEnergyCalibrationUniversal::AnalyzeEvent(MReadOutAssembly* Event)
           double EnergyResolution;
           
           if (SH->IsLowVoltageStrip()) {
-            EnergyResolution = 0.000126 * Energy + 1.3358;
+            EnergyResolution = 0.00013227 * Energy + 1.40151982;
           }
           else {
-            EnergyResolution = 0.000397 * Energy + 1.2891;
+            EnergyResolution = 0.00040306 * Energy + 1.30951255;
           }
           
           // Draw random value from Gaussian to smear out energy
