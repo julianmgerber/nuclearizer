@@ -73,6 +73,9 @@ MModuleDEESMEX::MModuleDEESMEX() : MModule()
   AddSucceedingModuleType(MAssembly::c_NoRestriction);
   
   m_HasOptionsGUI = true;
+  
+  // Default to adding noise to the sim data
+  m_AddNoise = true;
 }
 
 
@@ -102,6 +105,7 @@ bool MModuleDEESMEX::Initialize()
   if (m_ShieldReadout.Initialize() == false) return false;
   if (m_ShieldTrigger.Initialize() == false) return false;
   if (m_ChargeTransport.Initialize() == false) return false;
+  if (m_StripReadoutNoise.Initialize() == false) return false;
   if (m_StripReadout.Initialize() == false) return false;
   if (m_StripTrigger.Initialize() == false) return false;
   if (m_DepthReadout.Initialize() == false) return false;
@@ -175,15 +179,17 @@ bool MModuleDEESMEX::AnalyzeEvent(MReadOutAssembly* Event)
   // Step (7): Handle GeD charge transport to grid and voxelation into strips
   m_ChargeTransport.Clear();
   m_ChargeTransport.AnalyzeEvent(Event);
+  
+  // Step (8)): Simulate micro-phonics random noise for triggered strips & next neighbors
+  // Do this before energy -> ADCs because the FWHMs from the ecal are in keV
+  if (m_AddNoise == true) {
+    m_StripReadoutNoise.Clear();
+    m_StripReadoutNoise.AnalyzeEvent(Event);
+  }
 
-  // Step (8): Handle the strip readout: energy -> ADCs
+  // Step (9): Handle the strip readout: energy -> ADCs
   m_StripReadout.Clear();
   m_StripReadout.AnalyzeEvent(Event);
-
-
-  // Step (9)): Simulate micro-phonics random noise for triggered strips & next neighbors
-  m_StripReadoutNoise.Clear();
-  m_StripReadoutNoise.AnalyzeEvent(Event);
 
   // Step (10): Handles triggers and guard ring vetoes, pre-scalers, calculate dead-time, add nearest neighbor noise, calculate random coincidence time
   m_StripTrigger.Clear();
@@ -235,6 +241,7 @@ void MModuleDEESMEX::Finalize()
   m_ShieldReadout.Finalize();
   m_ShieldTrigger.Finalize();
   m_ChargeTransport.Finalize();
+  m_StripReadoutNoise.Finalize();
   m_StripReadout.Finalize();
   m_StripTrigger.Finalize();
   m_DepthReadout.Finalize();
@@ -275,6 +282,12 @@ bool MModuleDEESMEX::ReadXmlConfiguration(MXmlNode* Node)
   m_StripTrigger.ReadXmlConfiguration(Node);
   m_DepthReadout.ReadXmlConfiguration(Node);
   m_Output.ReadXmlConfiguration(Node);
+  
+  // Add noise button
+  MXmlNode* AddNoiseNode = Node->GetNode("AddNoise");
+  if (AddNoiseNode != nullptr) {
+    m_AddNoise = AddNoiseNode->GetValueAsBoolean();
+  }
 
   return true;
 }
@@ -299,6 +312,9 @@ MXmlNode* MModuleDEESMEX::CreateXmlConfiguration()
   m_StripTrigger.CreateXmlConfiguration(Node);
   m_DepthReadout.CreateXmlConfiguration(Node);
   m_Output.CreateXmlConfiguration(Node);
+  
+  // Add noise button
+  new MXmlNode(Node, "AddNoise", m_AddNoise);
 
   return Node;
 }
