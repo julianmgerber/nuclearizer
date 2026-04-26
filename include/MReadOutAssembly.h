@@ -17,6 +17,7 @@
 
 
 // Standard libs:
+#include <atomic>
 
 // ROOT libs:
 
@@ -286,6 +287,8 @@ class MReadOutAssembly : public MReadOutSequence
   void SetFilteredOut(bool Flag = true) { m_FilteredOut = Flag; }
   //! Get the filgtered-out flag
   bool IsFilteredOut() const { return m_FilteredOut; }
+  //! Return the unique assembly identifier
+  unsigned long GetAssemblyID() const { return m_AssemblyID; }
 
   //! Returns true if any of the "veto" flags have been set
   bool IsVeto() const;
@@ -348,6 +351,12 @@ class MReadOutAssembly : public MReadOutSequence
 
   //! Frame Counter of this event
   unsigned int m_FC;
+
+  //! Unique assembly identifier counter
+  static atomic<unsigned long> s_NextAssemblyID;
+
+  //! Unique assembly identifier
+  unsigned long m_AssemblyID;
 
   //! Clock tick (Unix and UHF)
   unsigned long long m_TI;
