@@ -87,6 +87,8 @@ class MGUIOptionsDEESMEX : public MGUIOptions
   MGUIEFileSelector* m_DepthCalibrationCoeffsFileSelector;
   //! Depth calibration splines file name
   MGUIEFileSelector* m_DepthCalibrationSplinesFileSelector;
+  //! Depth calibration splines file name
+  MGUIEFileSelector* m_TACCalFileSelector;
   //! Apply fudge factor
   TGCheckButton* m_ApplyFudgeFactorSelector;
   //! Use stop after a maximum number of events
@@ -97,6 +99,12 @@ class MGUIOptionsDEESMEX : public MGUIOptions
   MGUIEFileSelector* m_ShieldEnergyCorrectionFileSelector;
   //! Select deadtime constants file
   MGUIEFileSelector* m_DeadtimeFileSelector;
+  
+  //! Button to toggle noise addition to strip energies
+  TGCheckButton* m_ResolutionCalibrationButton;
+
+  //! Button to toggle noise addition to strip timings
+  TGCheckButton* m_TimingResolutionCalibrationButton;
 
 
 #ifdef ___CLING___
