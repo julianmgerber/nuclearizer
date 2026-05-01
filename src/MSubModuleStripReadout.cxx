@@ -253,10 +253,10 @@ bool MSubModuleStripReadout::AnalyzeEvent(MReadOutAssembly* Event)
         if (m_ResolutionCalibration.count(SH.m_ROE) == 1) {
           
           // Calculate FWHM (keV) at this energy
-          double fwhm = m_ResolutionCalibration[SH.m_ROE]->Eval(SH.m_Energy);
+          //double fwhm = m_ResolutionCalibration[SH.m_ROE]->Eval(SH.m_Energy);
           
           // Convert FWHM to Sigma (FWHM = 2.355 * Sigma)
-          double sigma = fwhm / FWHMtoSigma;
+          double sigma = (1.5*1.5 + 0.13*0.003*SH.m_Energy);
           
           // Smear the hit energy using a Gaussian distribution
           SH.m_Energy = gRandom->Gaus(SH.m_Energy, sigma);
