@@ -185,6 +185,13 @@ bool MModuleDEESMEX::AnalyzeEvent(MReadOutAssembly* Event)
   // Step (7): Handle GeD charge transport to grid and voxelation into strips
   m_ChargeTransport.Clear();
   m_ChargeTransport.AnalyzeEvent(Event);
+  
+  // Step (8)): Simulate micro-phonics random noise for triggered strips & next neighbors
+  // Do this before energy -> ADCs because the FWHMs from the ecal are in keV
+  if (m_AddNoise == true) {
+    m_StripReadoutNoise.Clear();
+    m_StripReadoutNoise.AnalyzeEvent(Event);
+  }
 
   // Step (8): Handle the strip readout: energy -> ADCs
   // Also includes user selected energy resolution with the FWHM values from the ecal 
@@ -245,6 +252,7 @@ void MModuleDEESMEX::Finalize()
   m_ShieldReadout.Finalize();
   m_ShieldTrigger.Finalize();
   m_ChargeTransport.Finalize();
+  m_StripReadoutNoise.Finalize();
   m_StripReadout.Finalize();
   m_StripReadoutNoise.Finalize();
   m_StripTrigger.Finalize();
