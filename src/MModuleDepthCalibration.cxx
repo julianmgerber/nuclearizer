@@ -289,7 +289,7 @@ bool MModuleDepthCalibration::AnalyzeEvent(MReadOutAssembly* Event)
        //Define the X/Y positions based on the detector pitch and number of strip hits
         // LV strip 0 is in -ve X direction, HV strip 0 is in -ve Y direction.
         // Confusingly, the strips parallel to the Y axis determines the X position, and the "X strips" determine the Y position
-        double Xpos = m_YPitches[DetID]*((double)LVStripID - ((m_NYStrips[DetID]-1)/2.0));
+        double Xpos = -1*m_YPitches[DetID]*((double)LVStripID - ((m_NYStrips[DetID]-1)/2.0));
         double Ypos = m_XPitches[DetID]*((double)HVStripID - ((m_NXStrips[DetID]-1)/2.0));
         double Zpos = 0.0;
 
