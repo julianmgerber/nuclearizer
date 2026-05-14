@@ -101,8 +101,12 @@ bool MModuleLoaderMeasurementsHDF::Initialize()
   m_FileType = "Unknown";
   m_Detector = "Unknown";
   m_Version = -1;
-  /*
+  
+  // Start time of the file taken from the file name
+  // to be used to find absolute time for Spacewire brick
+  //TODO: Get more accurate start time from data files?
   m_StartObservationTime = MTime(0);
+  /*
   m_EndObservationTime = MTime(0);
   m_StartClock = numeric_limits<long>::max();
   m_EndClock = numeric_limits<long>::max();
@@ -171,6 +175,23 @@ bool MModuleLoaderMeasurementsHDF::OpenHDF5File(MString FileName)
   try { // HDF5 throws exceptions, thus need to encapsulate everything in try..catch
 
     MFile::ExpandFileName(FileName);
+    
+    // Get the observation start time from the file name 
+    if (FileName.EndsWith(".hdf5") == true && FileName.Contains("gse_") == true)  {
+      MString FileDateTime = FileName.Extract("gse_",".hdf5");
+      unsigned int Year = FileDateTime.GetSubString(0,4).ToInt();
+      unsigned int Month = FileDateTime.GetSubString(4,2).ToInt();
+      unsigned int Day = FileDateTime.GetSubString(6,2).ToInt();
+      unsigned int Hour = FileDateTime.GetSubString(9,2).ToInt();
+      unsigned int Min = FileDateTime.GetSubString(11,2).ToInt();
+      unsigned int Sec = FileDateTime.GetSubString(13,2).ToInt();
+      m_StartObservationTime = MTime(Year, Month, Day, Hour, Min, Sec, 0);
+      if (g_Verbosity >= c_Info) cout<<m_XmlTag<<": Found start time from file name (UTC): "<<m_StartObservationTime<<endl;
+    } else {
+      if (g_Verbosity >= c_Error) cout<<m_XmlTag<<": Unable to determine start time from file name: "<<FileName<<endl;
+      return false;
+    }
+    
     m_HDFFile = H5File(FileName, H5F_ACC_RDONLY);
 
     // JSON config string containing the information on the ASIC polarities
@@ -321,14 +342,17 @@ bool MModuleLoaderMeasurementsHDF::OpenHDF5File(MString FileName)
     if (PropertyList.getLayout() == H5D_CHUNKED) {
       hsize_t ChunkDims[H5S_MAX_RANK];
       PropertyList.getChunk(Rank, ChunkDims);
-
-      cout<<"Chunk dimensions: ";
-      for (int i = 0; i < Rank; ++i) {
-        cout<<ChunkDims[i]<<" ";
+      if (g_Verbosity > c_Info) {
+        cout<<"Chunk dimensions: ";
+        for (int i = 0; i < Rank; ++i) {
+          cout<<ChunkDims[i]<<" ";
+        }
+        cout<<endl;
       }
-      cout<<endl;
     } else {
-      cout<<"Dataset is not chunked (layout is not H5D_CHUNKED)."<<endl;
+      if (g_Verbosity > c_Info) {
+        cout<<"Dataset is not chunked (layout is not H5D_CHUNKED)."<<endl;
+      }
     }
 
     if (m_HDFStripHitVersion == MHDFStripHitVersion::V1_0) {
@@ -389,7 +413,7 @@ bool MModuleLoaderMeasurementsHDF::OpenHDF5File(MString FileName)
         m_EventCompoundDataType = CompType(sizeof(MHDFEvent_V2_0));
         m_EventCompoundDataType.insertMember("event_id",          HOFFSET(MHDFEvent_V2_0, m_EventID),                PredType::STD_U16LE);
         m_EventCompoundDataType.insertMember("timecode",          HOFFSET(MHDFEvent_V2_0, m_TimeCode),               PredType::STD_U64LE);
-        m_EventCompoundDataType.insertMember("gse_timecode",      HOFFSET(MHDFEvent_V2_0, m_GSETimeCode),            PredType::IEEE_F64LE);
+        m_EventCompoundDataType.insertMember("gse_timecode",      HOFFSET(MHDFEvent_V2_0, m_GSETimeCode),            PredType::STD_U64LE);
         m_EventCompoundDataType.insertMember("hits",              HOFFSET(MHDFEvent_V2_0, m_Hits),                   PredType::STD_U8LE);
         m_EventCompoundDataType.insertMember("bytes",             HOFFSET(MHDFEvent_V2_0, m_Bytes),                  PredType::STD_U16LE);
         m_EventCompoundDataType.insertMember("event_type",        HOFFSET(MHDFEvent_V2_0, m_EventType),              PredType::STD_U8LE);
@@ -398,8 +422,8 @@ bool MModuleLoaderMeasurementsHDF::OpenHDF5File(MString FileName)
         m_EventCompoundDataType = CompType(sizeof(MHDFEvent_V2_2));
         m_EventCompoundDataType.insertMember("event_id",          HOFFSET(MHDFEvent_V2_2, m_EventID),                PredType::STD_U16LE);
         m_EventCompoundDataType.insertMember("timecode",          HOFFSET(MHDFEvent_V2_2, m_TimeCode),               PredType::STD_U64LE);
-        m_EventCompoundDataType.insertMember("gse_timecode",      HOFFSET(MHDFEvent_V2_2, m_GSETimeCode),            PredType::IEEE_F64LE);
-        m_EventCompoundDataType.insertMember("spw_timecode",      HOFFSET(MHDFEvent_V2_2, m_SPWTimeCode),            PredType::IEEE_F64LE);
+        m_EventCompoundDataType.insertMember("gse_timecode",      HOFFSET(MHDFEvent_V2_2, m_GSETimeCode),            PredType::STD_U64LE);
+        m_EventCompoundDataType.insertMember("spw_timecode",      HOFFSET(MHDFEvent_V2_2, m_SPWTimeCode),            PredType::STD_U64LE);
         m_EventCompoundDataType.insertMember("hits",              HOFFSET(MHDFEvent_V2_2, m_Hits),                   PredType::STD_U8LE);
         m_EventCompoundDataType.insertMember("bytes",             HOFFSET(MHDFEvent_V2_2, m_Bytes),                  PredType::STD_U16LE);
         m_EventCompoundDataType.insertMember("event_type",        HOFFSET(MHDFEvent_V2_2, m_EventType),              PredType::STD_U8LE);
@@ -606,8 +630,9 @@ bool MModuleLoaderMeasurementsHDF::AnalyzeEvent(MReadOutAssembly* Event)
 
     // Extract the data we need
     uint16_t EventID;
-    uint64_t TimeCode;
+    double TimeCode; // Sometimes TimeCode is int, but here we'll define double to not lose precision for HDF v1.2
     uint8_t NumberOfHits;
+    MTime TimeUTC;
 
     // Setting SPWTimeCode default to 0, as it is defined only iin HDF version >= 2.2
     uint64_t SPWTimeCode = 0;
@@ -641,7 +666,7 @@ bool MModuleLoaderMeasurementsHDF::AnalyzeEvent(MReadOutAssembly* Event)
         ++m_CurrentHit;
 
         EventID = Hit.m_EventID;
-        TimeCode = Hit.m_TimeCode;
+        TimeCode = Hit.m_GSETimeCode;
         StripID = Hit.m_StripID;
         ADCs = Hit.m_EnergyData;
         TACs = Hit.m_TimingData;
@@ -704,17 +729,28 @@ bool MModuleLoaderMeasurementsHDF::AnalyzeEvent(MReadOutAssembly* Event)
         // NOTE: at some point we will want to remove this code and always include nearest neighbor data
         if (m_IncludeNearestNeighbor == false && HitType == 1) {
           delete H; // Clean up the memory we just allocated
-          // Increase counters
-          NStripHits = static_cast<unsigned int>(NumberOfHits);
-          StripHitIndex++;
-          continue;
+        } else {
+          Event->AddStripHit(H);
         }
-          
-        Event->AddStripHit(H);
       } else {
         if (g_Verbosity >= c_Error) cout<<m_XmlTag<<": Read-out ID "<<StripID<<" not found in strip map"<<endl;
         return false;
       }
+
+      // Remove incomplete events (fewer strip hits than what is listed in HITS)
+      if (StripHitIndex > 0 && NumberOfHits != NStripHits) {
+        if (g_Verbosity >= c_Error) {
+          cout<<m_XmlTag<<": Event "<<Event->GetID()<<" had fewer strip hits ("<<StripHitIndex<<") than expected ("<<NStripHits<<"). Ignoring event."<<endl;
+        }
+        // Reduce the batch index and current hit counter to still process the hit from the next event
+        m_CurrentBatchIndex--;
+        m_CurrentHit--;
+        return false;
+      }
+
+      // Increase counters
+      NStripHits = static_cast<unsigned int>(NumberOfHits);
+      StripHitIndex++;
       
     } else if (m_HDFStripHitVersion <= MHDFStripHitVersion::V2_2) {
 
@@ -723,10 +759,11 @@ bool MModuleLoaderMeasurementsHDF::AnalyzeEvent(MReadOutAssembly* Event)
         EventID = HitEvent.m_EventID;
         TimeCode = HitEvent.m_GSETimeCode;
         NumberOfHits = HitEvent.m_Hits;
-      } else if (m_HDFStripHitVersion <= MHDFStripHitVersion::V2_2) {
+      } else if (m_HDFStripHitVersion == MHDFStripHitVersion::V2_2) {
         MHDFEvent_V2_2& HitEvent = m_EventData_2_2[m_CurrentBatchIndex];
         EventID = HitEvent.m_EventID;
         TimeCode = HitEvent.m_GSETimeCode;
+        SPWTimeCode = HitEvent.m_SPWTimeCode;
         NumberOfHits = HitEvent.m_Hits;
       } else {
         if (g_Verbosity >= c_Error) cout<<m_XmlTag<<": Unhandled HDF hit version found: "<<m_HDFStripHitVersion<<endl<<"Please update this module."<<endl;
@@ -745,11 +782,12 @@ bool MModuleLoaderMeasurementsHDF::AnalyzeEvent(MReadOutAssembly* Event)
       // Create objects for all hits that belong to that event
       for (uint32_t i = EventIndices.m_FEEHits[0]; i < EventIndices.m_FEEHits[1]; i++) {
 
-        uint32_t IndexInBatch = i - m_MinHitIndex;
         if (i < m_MinHitIndex || i >= (m_MinHitIndex + m_Buffer_2.size())) {
           if (g_Verbosity >= c_Error) cout << m_XmlTag << ": Entry " << i << " is NOT in the current FEEHits buffer!" << endl;
           return false;
         } 
+
+        uint32_t IndexInBatch = i - m_MinHitIndex;
         
         MHDFStripHit_V2& Hit = m_Buffer_2[IndexInBatch];
         if (m_StripMap.HasReadOutID(Hit.m_StripID) == true) {
@@ -773,17 +811,16 @@ bool MModuleLoaderMeasurementsHDF::AnalyzeEvent(MReadOutAssembly* Event)
           // NOTE: at some point we will want to remove this code and always include nearest neighbor data
           if (m_IncludeNearestNeighbor == false && Hit.m_HitType == 1) {
             delete H; // Clean up the memory we just allocated
-            // Increase counters
-            NStripHits = static_cast<unsigned int>(NumberOfHits);
-            StripHitIndex++;
-            continue;
+          } else {
+            Event->AddStripHit(H);
           }
-            
-          Event->AddStripHit(H);
         } else {
           if (g_Verbosity >= c_Error) cout<<m_XmlTag<<": Read-out ID "<<Hit.m_StripID<<" not found in strip map"<<endl;
           return false;
         }
+
+        // Use StripIndex here (without updating NStripHits) to exit the while-loop after finalizing the Event
+        StripHitIndex++;
       }
     } else {
       if (g_Verbosity >= c_Error) cout<<m_XmlTag<<": Unhandled HDF hit version found: "<<m_HDFStripHitVersion<<endl<<"Please update this module."<<endl;
@@ -798,18 +835,26 @@ bool MModuleLoaderMeasurementsHDF::AnalyzeEvent(MReadOutAssembly* Event)
     unsigned long LongEventID = EventID + m_NumberOfEventIDRollOvers*(numeric_limits<uint16_t>::max() + 1);
 
     Event->SetID(LongEventID);
-    if (m_HDFStripHitVersion == MHDFStripHitVersion::V1_0) {
-      Event->SetCL(TimeCode);
-    } else if (m_HDFStripHitVersion >= MHDFStripHitVersion::V2_0)  {
-      Event->SetTI(TimeCode);
-      if (m_HDFStripHitVersion >= MHDFStripHitVersion::V2_2) {
-        Event->SetCL(SPWTimeCode);
-      }
+
+    // Define event time based on the timecode within the HDF versions
+    if (m_HDFStripHitVersion <= MHDFStripHitVersion::V2_0) {
+      TimeUTC.Set(TimeCode); // Timecode in early versions is GSE computer time in s since Epoch
+      Event->SetTimeUTC(TimeUTC);
+    } else if (m_HDFStripHitVersion >= MHDFStripHitVersion::V2_2) {
+      MTime SPWTimeforEvent(m_StartObservationTime.GetAsSystemSeconds(),SPWTimeCode); // Spacewire Timecode is ns since start of aquisition
+      Event->SetTimeUTC(SPWTimeforEvent);
     } else {
-      Event->SetTI(TimeCode);
+      TimeUTC.Set(TimeCode);
+      Event->SetTimeUTC(TimeUTC);
     }
-    NStripHits = static_cast<unsigned int>(NumberOfHits);
-    StripHitIndex++;
+  }
+
+  // Remove all Events with no (valid) strip hits
+  if (Event->GetNStripHits() == 0){
+    if (g_Verbosity >= c_Error) {
+      cout<<m_XmlTag<<": Event had no (valid) strip hits"<< endl;
+    }
+    return false;
   }
 
   Event->SetAnalysisProgress(MAssembly::c_EventLoader | MAssembly::c_EventLoaderMeasurement);
@@ -900,4 +945,3 @@ void MModuleLoaderMeasurementsHDF::ShowOptionsGUI()
 
 
 // MModuleLoaderMeasurementsHDF.cxx: the end...
-////////////////////////////////////////////////////////////////////////////////

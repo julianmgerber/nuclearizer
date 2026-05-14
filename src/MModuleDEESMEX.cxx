@@ -73,6 +73,9 @@ MModuleDEESMEX::MModuleDEESMEX() : MModule()
   AddSucceedingModuleType(MAssembly::c_NoRestriction);
   
   m_HasOptionsGUI = true;
+  
+  // Default to adding noise to the sim data
+  m_ApplyResolutionCalibration = true;
 }
 
 
@@ -92,6 +95,7 @@ bool MModuleDEESMEX::Initialize()
 {
   // Set the geometry to the SubModules using it
   m_ChargeTransport.SetGeometry(m_Geometry);
+  m_StripReadout.SetApplyResolutionCalibration(m_ApplyResolutionCalibration);
 
   // Initialize the module 
 
@@ -102,6 +106,7 @@ bool MModuleDEESMEX::Initialize()
   if (m_ShieldReadout.Initialize() == false) return false;
   if (m_ShieldTrigger.Initialize() == false) return false;
   if (m_ChargeTransport.Initialize() == false) return false;
+  if (m_StripReadoutNoise.Initialize() == false) return false;
   if (m_StripReadout.Initialize() == false) return false;
   if (m_StripTrigger.Initialize() == false) return false;
   if (m_DepthReadout.Initialize() == false) return false;
@@ -155,13 +160,14 @@ bool MModuleDEESMEX::AnalyzeEvent(MReadOutAssembly* Event)
   // Step (6): the shield veto / trigger, handle pre-scalers, calculate dead-time, calculate random coincidence time
   m_ShieldTrigger.Clear();
   m_ShieldTrigger.AnalyzeEvent(Event);
-  if (m_ShieldTrigger.HasVeto() == true) {
+  if (m_ShieldTrigger.HasShieldVeto() == true) {
+    Event->SetShieldVeto(true);
     if (m_ShieldTrigger.GetDeadTimeEnd() > m_DeadTimeEnd) {
       m_DeadTimeEnd = m_ShieldTrigger.GetDeadTimeEnd();
     }
 
     // Clean up
-
+    
     Event->SetAnalysisProgress(MAssembly::c_DetectorEffectsEngine);
     return true;
   } else if (m_ShieldTrigger.HasTrigger() == true) { // = energy read out
@@ -177,23 +183,22 @@ bool MModuleDEESMEX::AnalyzeEvent(MReadOutAssembly* Event)
   m_ChargeTransport.AnalyzeEvent(Event);
 
   // Step (8): Handle the strip readout: energy -> ADCs
+  // Also includes user selected energy resolution with the FWHM values from the ecal 
   m_StripReadout.Clear();
   m_StripReadout.AnalyzeEvent(Event);
-
-
-  // Step (9)): Simulate micro-phonics random noise for triggered strips & next neighbors
+  
+  // Step (9): Simulate micro-phonics random noise
   m_StripReadoutNoise.Clear();
   m_StripReadoutNoise.AnalyzeEvent(Event);
 
   // Step (10): Handles triggers and guard ring vetoes, pre-scalers, calculate dead-time, add nearest neighbor noise, calculate random coincidence time
   m_StripTrigger.Clear();
   m_StripTrigger.AnalyzeEvent(Event);
-  if (m_StripTrigger.HasVeto() == true) {
+  if (m_StripTrigger.HasGRVeto() == true) {
     if (m_StripTrigger.GetDeadTimeEnd() > m_DeadTimeEnd) {
       m_DeadTimeEnd = m_StripTrigger.GetDeadTimeEnd();
     }
-    // Clean up
-
+    Event->SetGuardRingVeto(true);   // <-- mark the event so EventSaver can filter it
     Event->SetAnalysisProgress(MAssembly::c_DetectorEffectsEngine);
     return true;
   }
@@ -236,6 +241,7 @@ void MModuleDEESMEX::Finalize()
   m_ShieldTrigger.Finalize();
   m_ChargeTransport.Finalize();
   m_StripReadout.Finalize();
+  m_StripReadoutNoise.Finalize();
   m_StripTrigger.Finalize();
   m_DepthReadout.Finalize();
   m_Output.Finalize();
@@ -275,6 +281,12 @@ bool MModuleDEESMEX::ReadXmlConfiguration(MXmlNode* Node)
   m_StripTrigger.ReadXmlConfiguration(Node);
   m_DepthReadout.ReadXmlConfiguration(Node);
   m_Output.ReadXmlConfiguration(Node);
+  
+  // Add noise button
+  MXmlNode* ResolutionCalibrationNode = Node->GetNode("ApplyResolutionCalibration");
+  if (ResolutionCalibrationNode != nullptr) {
+    m_ApplyResolutionCalibration  = ResolutionCalibrationNode->GetValueAsBoolean();
+  }
 
   return true;
 }
@@ -299,6 +311,9 @@ MXmlNode* MModuleDEESMEX::CreateXmlConfiguration()
   m_StripTrigger.CreateXmlConfiguration(Node);
   m_DepthReadout.CreateXmlConfiguration(Node);
   m_Output.CreateXmlConfiguration(Node);
+  
+  // Add noise button
+  new MXmlNode(Node, "ApplyResolutionCalibration", m_ApplyResolutionCalibration);
 
   return Node;
 }

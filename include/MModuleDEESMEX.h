@@ -123,6 +123,12 @@ class MModuleDEESMEX : public MModule
   {
     return m_StripTrigger.GetDeadtimeFileName();
   }
+  
+  //! Button to apply the FWHM energy resolution to the enegries 
+  bool GetApplyResolutionCalibration() const { return m_ApplyResolutionCalibration; }
+  void SetApplyResolutionCalibration(bool ApplyResolutionCalibration) {
+    m_ApplyResolutionCalibration = ApplyResolutionCalibration;
+  }
 
   // protected methods:
  protected:
@@ -147,7 +153,7 @@ class MModuleDEESMEX : public MModule
   //! The sub module handling the shield readout
   MSubModuleShieldReadout m_ShieldReadout;
 
-  //! The sub module handling the shield veto
+  //! The sub module handling the shield deadtime and veto
   MSubModuleShieldTrigger m_ShieldTrigger;
 
   //! The sub module handling charge transport to grid and voxelation into strips
@@ -167,6 +173,9 @@ class MModuleDEESMEX : public MModule
 
   //! The sub module handling the output of the DEE in to the standard nuclearizer classes
   MSubModuleDEEOutput m_Output;
+  
+  //! Option to add noise
+  bool m_ApplyResolutionCalibration; 
 
 
 #ifdef ___CLING___
