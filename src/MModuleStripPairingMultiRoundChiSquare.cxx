@@ -541,8 +541,10 @@ bool MModuleStripPairingMultiRoundChiSquare::CreateHits(unsigned int d, MReadOut
         Energy = HVEnergy;
         EnergyResolution = HVEnergyRes;
       } else { // Take weighted average of LV and HV energies if one is not significantly higher than the other
-        Energy = (LVEnergy / (LVEnergyRes * LVEnergyRes) + HVEnergy / (HVEnergyRes * HVEnergyRes)) / (1.0 / (LVEnergyRes * LVEnergyRes) + 1.0 / (HVEnergyRes * HVEnergyRes));
-        EnergyResolution = sqrt(1.0 / (1.0 / (LVEnergyRes * LVEnergyRes) + 1.0 / (HVEnergyRes * HVEnergyRes)));
+        //Energy = (LVEnergy / (LVEnergyRes * LVEnergyRes) + HVEnergy / (HVEnergyRes * HVEnergyRes)) / (1.0 / (LVEnergyRes * LVEnergyRes) + 1.0 / (HVEnergyRes * HVEnergyRes));
+        //EnergyResolution = sqrt(1.0 / (1.0 / (LVEnergyRes * LVEnergyRes) + 1.0 / (HVEnergyRes * HVEnergyRes)));
+        Energy = 0.5 * (LVEnergy + HVEnergy);
+        EnergyResolution = 0.5 * (LVEnergyRes + HVEnergyRes);
       }
 
       EnergyTotal += Energy;
