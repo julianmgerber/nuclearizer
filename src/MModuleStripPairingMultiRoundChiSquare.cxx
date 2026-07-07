@@ -533,6 +533,7 @@ bool MModuleStripPairingMultiRoundChiSquare::CreateHits(unsigned int d, MReadOut
       HVEnergyRes = sqrt(HVEnergyRes);
 
       // Assign hit energy based on HV and LV energies
+      /*
       Energy = 0.0;
       if (LVEnergyRes < HVEnergyRes) {
         Energy = LVEnergy;
@@ -542,7 +543,8 @@ bool MModuleStripPairingMultiRoundChiSquare::CreateHits(unsigned int d, MReadOut
         Energy = HVEnergy;
         EnergyResolution = HVEnergyRes;
       }
-      /*
+      */
+      
       if (LVEnergy > HVEnergy + 3 * HVEnergyRes) {
         Energy = LVEnergy;
         EnergyResolution = LVEnergyRes;
@@ -555,7 +557,7 @@ bool MModuleStripPairingMultiRoundChiSquare::CreateHits(unsigned int d, MReadOut
         Energy = 0.5 * (LVEnergy + HVEnergy);
         EnergyResolution = 0.5 * (LVEnergyRes + HVEnergyRes);
       }
-      */
+      
       EnergyTotal += Energy;
 
       LVEnergies.push_back(LVEnergy);
