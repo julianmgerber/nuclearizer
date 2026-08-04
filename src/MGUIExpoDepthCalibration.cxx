@@ -2,12 +2,12 @@
  * MGUIExpoDepthCalibration.cxx
  *
  *
- * Copyright (C) by Andreas Zoglauer, Alex Lowell, Sean Pike.
+ * Copyright (C) by Andreas Zoglauer.
  * All rights reserved.
  *
  *
  * This code implementation is the intellectual property of
- * Andreas Zoglauer, Alex Lowell, Sean Pike.
+ * Andreas Zoglauer.
  *
  * By copying, distributing or modifying the Program (or any work
  * based on the Program) you indicate your acceptance of this statement,
@@ -50,9 +50,13 @@ MGUIExpoDepthCalibration::MGUIExpoDepthCalibration(MModule* Module) : MGUIExpo(M
 
   // Set the new title of the tab here:
   m_TabTitle = "Depth Calibration";
+
+  m_NBins = 30;
+  m_Min = -0.75;
+  m_Max = +0.75;
   
   // Set the histogram arrangment
-  // SetDepthHistogramArrangement(1, 1);
+  SetDepthHistogramArrangement(1, 1);
 
   // use hierarchical cleaning
   SetCleanup(kDeepCleanup);
@@ -77,7 +81,7 @@ void MGUIExpoDepthCalibration::Reset()
 
   m_Mutex.Lock();
   for (auto H: m_DepthHistograms) {  
-    (H.second)->Reset();
+    H->Reset();
   }
   m_Mutex.UnLock();
 }
@@ -86,52 +90,31 @@ void MGUIExpoDepthCalibration::Reset()
 ////////////////////////////////////////////////////////////////////////////////
 
 
-void MGUIExpoDepthCalibration::SetDepthHistogramArrangement(vector<unsigned int>* DetIDs)
+void MGUIExpoDepthCalibration::SetDepthHistogramArrangement(unsigned int NDetectorsX, unsigned int NDetectorsY)
 {
-  // Take in the list of detector IDs and determine the number in X and number in Y
-  // Update the variable m_DetectorMap.
   m_Mutex.Lock();
 
-  unsigned int column = 0;
-  unsigned int row = 0;
-
-  unsigned int max_columns = 4;
-
-  unsigned int NDetectors = DetIDs->size();
-  cout<<"MGUIExpoDepthCalibration::SetDepthHistogramArrangement: Number of detectors:" << NDetectors<<endl;
-
-  for ( unsigned int i=0; i< NDetectors; ++i ){
-    // iterate over detector IDs, make the map from ID to plot position, and initialize the histograms
-    if ( (i % max_columns) == 0 ){
-      ++row;
-      vector<unsigned int> new_row;
-      m_DetectorMap.push_back(new_row);
-      column = 1;
-    }
-
-    unsigned int DetID = DetIDs->at(i);
-    m_DetectorMap[row-1].push_back(DetID);
-
-    TH1D* Depth = new TH1D("", "Depth", m_NBins[DetID], m_Min[DetID], m_Max[DetID]);
-    Depth->SetXTitle("Depth [cm]");
-    Depth->SetYTitle("counts");
-    Depth->SetFillColor(kAzure+7);
-    
-    m_DepthHistograms[DetID] = Depth;
-    // m_DepthCanvases[DetID] = 0;
-
-    ++column;
-  }
-
-  if ( NDetectors < max_columns ){
-    m_NColumns = NDetectors; 
-  }
-  else{
-    m_NColumns=max_columns;
-  }
-
-  m_NRows = (NDetectors/max_columns) + 1; 
+  m_NDetectorsX = NDetectorsX; 
+  m_NDetectorsY = NDetectorsY; 
   
+  
+  unsigned int Counter = 0;
+  for (unsigned int x = 0; x < m_NDetectorsX; ++x) {
+    for (unsigned int y = 0; y < m_NDetectorsY; ++y) {
+      if (Counter < m_DepthHistograms.size()) {
+        // Nothing yet
+      } else {
+        TH1D* Depth = new TH1D("", "Depth", m_NBins, m_Min, m_Max);
+        Depth->SetXTitle("Depth [cm]");
+        Depth->SetYTitle("counts");
+        Depth->SetFillColor(kAzure+7);
+        
+        m_DepthHistograms.push_back(Depth);
+        m_DepthCanvases.push_back(0);
+      }
+      ++Counter;
+    }
+  }
   m_Mutex.UnLock();
 }
 
@@ -139,33 +122,17 @@ void MGUIExpoDepthCalibration::SetDepthHistogramArrangement(vector<unsigned int>
 ////////////////////////////////////////////////////////////////////////////////
 
 
-void MGUIExpoDepthCalibration::SetDepthHistogramParameters(unsigned int DetID, unsigned int NBins, double DepthMin, double DepthMax)
+void MGUIExpoDepthCalibration::SetDepthHistogramParameters(unsigned int NBins, double Min, double Max)
 {
   // Set the energy histogram parameters 
 
   m_Mutex.Lock();
 
-  m_NBins[DetID] = NBins;
-  m_Min[DetID] = DepthMin;
-  m_Max[DetID] = DepthMax;
-  TH1D* H = m_DepthHistograms[DetID];
-  H->SetBins(NBins, DepthMin, DepthMax);
-
-  m_Mutex.UnLock();
-}
-
-
-////////////////////////////////////////////////////////////////////////////////
-
-
-void MGUIExpoDepthCalibration::SetDepthHistogramName(unsigned int DetID, MString Name) 
-{
-  // Set the title of the histogram
-  
-  m_Mutex.Lock();
-
-  if (m_DepthHistograms.find(DetID) != m_DepthHistograms.end()) {
-    m_DepthHistograms[DetID]->SetTitle(Name);
+  for (auto H: m_DepthHistograms) {
+    m_NBins = NBins;
+    m_Min = Min;
+    m_Max = Max;
+    H->SetBins(m_NBins, m_Min, m_Max);
   }
 
   m_Mutex.UnLock();
@@ -175,14 +142,31 @@ void MGUIExpoDepthCalibration::SetDepthHistogramName(unsigned int DetID, MString
 ////////////////////////////////////////////////////////////////////////////////
 
 
-void MGUIExpoDepthCalibration::AddDepth(unsigned int DetID, double Depth)
+void MGUIExpoDepthCalibration::SetDepthHistogramName(unsigned int DetectorID, MString Name) 
+{
+  // Set the title of the histogram
+  
+  m_Mutex.Lock();
+
+  if (DetectorID < m_DepthHistograms.size()) {
+    m_DepthHistograms[DetectorID]->SetTitle(Name);
+  }
+
+  m_Mutex.UnLock();
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+
+
+void MGUIExpoDepthCalibration::AddDepth(unsigned int DetectorID, double Depth)
 {
   // Add data to the energy histogram
 
   m_Mutex.Lock();
 
-  if (m_DepthHistograms.find(DetID) != m_DepthHistograms.end()) {
-    m_DepthHistograms[DetID]->Fill(Depth);
+  if (DetectorID < m_DepthHistograms.size()) {
+    m_DepthHistograms[DetectorID]->Fill(Depth);
   }
 
   m_Mutex.UnLock();
@@ -201,21 +185,22 @@ void MGUIExpoDepthCalibration::Create()
   
   m_Mutex.Lock();
   
-  TGLayoutHints* CanvasLayout = new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY, 2, 2, 2, 2);
+  TGLayoutHints* CanvasLayout = new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY,                                                   2, 2, 2, 2);
 
-  for (unsigned int y = 0; y < m_DetectorMap.size(); ++y) {
+  unsigned int Counter = 0;
+  for (unsigned int y = 0; y < m_NDetectorsY; ++y) {
     TGHorizontalFrame* HFrame = new TGHorizontalFrame(this);
     AddFrame(HFrame, CanvasLayout);
 
-    for (unsigned int x = 0; x < m_DetectorMap[y].size(); ++x) {
-      unsigned int DetID = m_DetectorMap[y][x];
+    for (unsigned int x = 0; x < m_NDetectorsX; ++x) {
       TRootEmbeddedCanvas* DepthCanvas = new TRootEmbeddedCanvas("Depth", HFrame, 100, 100);
       HFrame->AddFrame(DepthCanvas, CanvasLayout);
-      m_DepthCanvases[DetID] = DepthCanvas;
+      m_DepthCanvases[Counter] = DepthCanvas;
 
       DepthCanvas->GetCanvas()->cd();
-      m_DepthHistograms[DetID]->Draw("colz");
+      m_DepthHistograms[Counter]->Draw("colz");
       DepthCanvas->GetCanvas()->Update();
+      ++Counter;
     }
   }
   
@@ -235,9 +220,7 @@ void MGUIExpoDepthCalibration::Update()
   m_Mutex.Lock();
 
   double Max = 0;
-  // for (auto H : m_DepthHistograms) {
-  for ( const auto dethistpair : m_DepthHistograms ){
-    TH1D* H = dethistpair.second;
+  for (auto H : m_DepthHistograms) {
     for (int bx = 2; bx < H->GetNbinsX(); ++bx) { // Skip first and last
       if (Max < H->GetBinContent(bx)) {
         Max = H->GetBinContent(bx);
@@ -245,15 +228,15 @@ void MGUIExpoDepthCalibration::Update()
     }
   }
   Max *= 1.1;
-  for ( const auto dethistpair : m_DepthHistograms ){
-    TH1D* H = dethistpair.second;
+  for (auto H : m_DepthHistograms) {
     H->SetMaximum(Max);
   }
   
   for (auto C : m_DepthCanvases) {
-
-    (C.second)->GetCanvas()->Modified();
-    (C.second)->GetCanvas()->Update();
+    if (C != 0) {
+      C->GetCanvas()->Modified();
+      C->GetCanvas()->Update();
+    }
   }
 
   m_Mutex.UnLock();
@@ -270,12 +253,11 @@ void MGUIExpoDepthCalibration::Export(const MString& FileName)
   m_Mutex.Lock();
 
   TCanvas* P = new TCanvas();
-  P->Divide(m_NColumns, m_NRows);
-  for (unsigned int y = 0; y < m_DetectorMap.size(); ++y) {
-    for (unsigned int x = 0; x < m_DetectorMap[y].size(); ++x) {
-      unsigned int DetID = m_DetectorMap[y][x];
-      P->cd((x+1) + m_NColumns*y);
-      m_DepthHistograms[DetID]->DrawCopy("colz");
+  P->Divide(m_NDetectorsX, m_NDetectorsY);
+  for (unsigned int y = 0; y < m_NDetectorsY; ++y) {
+    for (unsigned int x = 0; x < m_NDetectorsX; ++x) {
+      P->cd((x+1) + m_NDetectorsX*y);
+      m_DepthHistograms[x + m_NDetectorsX*y]->DrawCopy("colz");
     }
   }
   P->SaveAs(FileName);

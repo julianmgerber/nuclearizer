@@ -17,15 +17,12 @@
 
 
 // Standard libs:
-#include <map>
 
 // ROOT libs:
-#include "TF1.h"
 
 // MEGAlib libs:
 #include "MGlobal.h"
 #include "MSubModule.h"
-#include "MReadOutElementDoubleStrip.h"
 
 // Forward declarations:
 
@@ -52,14 +49,9 @@ class MSubModuleStripReadout : public MSubModule
   //! Default destructor
   virtual ~MSubModuleStripReadout();
 
-  //! Set if energies should be smeared based on FWHM
-  void SetApplyResolutionCalibration(bool ApplyResolutionCalibration) { m_ApplyResolutionCalibration = ApplyResolutionCalibration; }
-  //! Get if energies should be smeared based on FWHM
-  bool GetApplyResolutionCalibration() { return m_ApplyResolutionCalibration; }
-
   //! Set energy calibration file name
   void SetEnergyCalibrationFileName(const MString& FileName) { m_EnergyCalibrationFileName = FileName; }
-  //! Get energy calibration file name
+  //! Set energy calibration file name
   MString GetEnergyCalibrationFileName() const { return m_EnergyCalibrationFileName; }
 
   //! Initialize the module
@@ -95,18 +87,6 @@ class MSubModuleStripReadout : public MSubModule
  private:
   //! Energy calibration file name
   MString m_EnergyCalibrationFileName;
-  
-  //! Name of the strip map
-  std::map<MReadOutElementDoubleStrip, TF1*> m_Calibration;
-  
-  //! Flag to determine if resolution calibration should be applied
-  bool m_ApplyResolutionCalibration;
-  
-  //! Map storing the FWHM fits for each strip
-  std::map<MReadOutElementDoubleStrip, TF1*> m_ResolutionCalibration;
-  
-  //! Max value of the ADC units
-  static constexpr double m_MaxADCRange = 16383;
 
 
 

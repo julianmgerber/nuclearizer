@@ -95,19 +95,10 @@ bool MSubModuleDEEIntake::AnalyzeEvent(MReadOutAssembly* Event)
   // Main data analysis routine, which updates the event to a new level
 
   Event->SetID(Event->GetSimulatedEvent()->GetID());
-  Event->SetTimeUTC(Event->GetSimulatedEvent()->GetTime());
-
-  // TODO: Check if all instances in the DEE of Get/SetTime are replaced by Get/SetTimeUTC
   Event->SetTime(Event->GetSimulatedEvent()->GetTime());
 
   for (unsigned int h = 0; h < Event->GetSimulatedEvent()->GetNHTs(); ++h) {
     MSimHT* HT = Event->GetSimulatedEvent()->GetHTAt(h);
-    if (HT->GetEnergy() <= 0) {
-      if (g_Verbosity >= c_Warning) {
-        cout << m_Name << ": Skipping simulated hit with non-positive energy." << endl;
-      }
-      continue;
-    }
 
     MDVolumeSequence* VS = HT->GetVolumeSequence();
     MDDetector* Detector = VS->GetDetector();
@@ -141,8 +132,7 @@ bool MSubModuleDEEIntake::AnalyzeEvent(MReadOutAssembly* Event)
     double DetectorDepth = Shape->GetSizeZ();
 
     MString DetectorName = Detector->GetName();
-    if (DetectorName.BeginsWith("GeD") == true || DetectorName.BeginsWith("GuardRing") == true) {
-      DetectorName.RemoveAllInPlace("GuardRingDetector_GeD_"); // Remove prefix GuardRing if existent
+    if (DetectorName.BeginsWith("GeD") == true) {
       DetectorName.RemoveAllInPlace("GeD_"); // The number after GeD is the COSI detector ID
       int DetectorID = DetectorName.ToInt();
 
@@ -201,14 +191,13 @@ bool MSubModuleDEEIntake::AnalyzeEvent(MReadOutAssembly* Event)
 
     } else if (DetectorName.BeginsWith("ACS_") == true) {
       vector<MString> Tokens = DetectorName.Tokenize("_");
-
+        
       if (Tokens.size() != 3) {
-        if (g_Verbosity >= c_Error)
-          cout << "ERROR: Unexpected detector name format for the Shield"
-               << DetectorName << endl;
+        if (g_Verbosity >= c_Error) cout << "ERROR: Unexpected detector name format for the Shield"
+             << DetectorName << endl;
         return false;
       }
-
+      
       MString DetectorID = Tokens[1];
       int CrystalID = Tokens[2].ToInt();
 

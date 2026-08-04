@@ -82,13 +82,11 @@ class MSubModuleShieldTrigger : public MSubModule
   //! Return true if we have a trigger - filled after AnalyzeEvent
   bool HasTrigger() const { return m_HasTrigger; }
 
-  //! Return true if we have a shield veto - filled after AnalyzeEvent
-  bool HasShieldVeto() const { return m_HasShieldVeto; }
+  //! Return true if we have a veto - filled after AnalyzeEvent
+  bool HasVeto() const { return m_HasVeto; }
 
   //! Return the time when the dead time ends - filled after AnalyzeEvent
-  MTime GetShieldDeadTimeEnd() const { return m_DeadTimeEnd; }
-  //! Return the shield hit time that caused the current veto
-  MTime GetShieldVetoTime() const { return MTime(m_ShieldVetoTime); }
+  MTime GetDeadTimeEnd() const { return m_DeadTimeEnd; }
 
   //! Get total shield deadtime for a panel
   double GetTotalShieldDeadtime(int panel) const { 
@@ -98,6 +96,9 @@ class MSubModuleShieldTrigger : public MSubModule
 
   //! Get shield hit counts
   int GetShieldHitCounts() const { return m_NumShieldHitCounts; }
+
+  //! Get shield veto counter
+  int GetShieldVetoCounter() const { return m_NumShieldVetoCounts; }
 
   //! Get BGO hits erased
   int GetBGOHitsErased() const { return m_NumBGOHitsErased; }
@@ -121,7 +122,7 @@ class MSubModuleShieldTrigger : public MSubModule
   //! Calculate ASIC deadtime for shield
   double CalculateASICDeadtime(vector<int> CrystalIDs);
 
-  //! Process shield hits and update shield deadtime state
+  //! Process shield hits and determine veto status
   bool ProcessShieldHits(MReadOutAssembly* Event);
 
   // private members:
@@ -134,12 +135,10 @@ class MSubModuleShieldTrigger : public MSubModule
 
   //! Flag indicating that a trigger has been raised
   bool m_HasTrigger;
-  //! Flag indicating that a shield veto has been raised
-  bool m_HasShieldVeto;
+  //! Flag indicating that a veto has been raised
+  bool m_HasVeto;
   //! Time when the shield dead time ends
   MTime m_DeadTimeEnd;
-  //! Shield hit time that caused the current veto
-  double m_ShieldVetoTime;
 
   //! Shield threshold in keV
   double m_ShieldThreshold;
@@ -149,17 +148,21 @@ class MSubModuleShieldTrigger : public MSubModule
   double m_ShieldDelayBefore;
   //! Shield delay 2 before trigger in seconds
   double m_ShieldDelayAfter;
-  //! Adjustment to shield veto window in seconds
-  double m_ShieldVetoWindowDelta;
+  //! Shield veto window size in seconds
+  double m_ShieldVetoWindowSize;
   //! Shield deadtime per channel read out in seconds
   double m_ASICDeadTimePerChannel;
   
   //! Number of shield hits before deadtime
   unsigned long m_NumShieldHitCounts;
+  //! Number of shield veto counts
+  unsigned long m_NumShieldVetoCounts;
   //! Number of BGO hits erased due to deadtime
   unsigned long m_NumBGOHitsErased;
   //! Bool to store if corresponding shield ASIC is dead or not
   bool m_IsShieldDead;
+  //! Time of last shield veto hit (used for veto window calculation)
+  double m_ShieldVetoTime;
 
   //! First event time in seconds
   double m_FirstTime;

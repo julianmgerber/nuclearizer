@@ -31,6 +31,7 @@
 // ROOT libs:
 
 // MEGAlib libs:
+#include "MSubModule.h"
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -48,7 +49,7 @@ MSubModuleStripReadoutNoise::MSubModuleStripReadoutNoise() : MSubModule()
 {
   // Construct an instance of MSubModuleStripReadoutNoise
 
-  m_Name = "DEE strip readout noise module";
+  m_Name = "DEE strip readout module";
 }
 
 
@@ -88,9 +89,8 @@ void MSubModuleStripReadoutNoise::Clear()
 
 bool MSubModuleStripReadoutNoise::AnalyzeEvent(MReadOutAssembly* Event)
 {
-  // Main data analysis routine, which updates the event to a new level
+  // Main data analysis routine, which updates the event to a new level 
 
-  /*
   // Dummy code:
   list<MDEEStripHit>& LVHits = Event->GetDEEStripHitLVListReference();
   for (MDEEStripHit& SH: LVHits) {
@@ -102,7 +102,6 @@ bool MSubModuleStripReadoutNoise::AnalyzeEvent(MReadOutAssembly* Event)
     SH.m_ADC = 2000 + 4*SH.m_Energy;
     if (SH.m_ADC > 16383) SH.m_ADC = 16383;
   }
-  */
 
   return true;
 }

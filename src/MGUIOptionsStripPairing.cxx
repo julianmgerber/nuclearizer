@@ -29,6 +29,7 @@
 
 // MEGAlib libs:
 #include "MStreams.h"
+#include "MModuleStripPairingGreedy.h"
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -70,6 +71,8 @@ void MGUIOptionsStripPairing::Create()
   m_Mode = new MGUIERBList(m_OptionsFrame, "Please select a strip pairing mode:");
   m_Mode->Add("Andreas's algorithm");
   m_Mode->Add("Multi Round Chi Square - Julian");
+  m_Mode->Add("Daniel's 'greedy' algorithm");
+  m_Mode->SetSelected(dynamic_cast<MModuleStripPairingGreedy*>(m_Module)->GetMode());
   m_Mode->Create();
   m_OptionsFrame->AddFrame(m_Mode, LabelLayout);
 
@@ -115,7 +118,7 @@ bool MGUIOptionsStripPairing::OnApply()
 {
   // Modify this to store the data in the module!
 
-//  dynamic_cast<MModuleStripPairingGreedy*>(m_Module)->SetMode(m_Mode->GetSelected());
+  dynamic_cast<MModuleStripPairingGreedy*>(m_Module)->SetMode(m_Mode->GetSelected());
   
   return true;
 }
