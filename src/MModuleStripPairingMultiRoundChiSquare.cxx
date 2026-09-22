@@ -830,6 +830,126 @@ void MModuleStripPairingMultiRoundChiSquare::AssignNearestNeighbors(MReadOutAsse
 
 ////////////////////////////////////////////////////////////////////////////////
 
+//! Retrieve or build the charge sharing correction matrices for a given cluster size
+const pair<TMatrixD, TVectorD>& MModuleStripPairingMultiRoundChiSquare::GetChargeSharingMatrices(unsigned int ClusterSize) {
+  
+  // If the relevant matrices are already in the cache, then return them. Otherwise, create them
+  auto Iter = m_ChargeSharingMatrixCache.find(ClusterSize);
+    if (Iter != m_ChargeSharingMatrixCache.end()) {
+      return Iter->second;
+    }
+  
+  // Initialize the alpha and beta curve fit parameters
+  // alpha is the intercept in the offset vs photopeak cross-talk plot
+  // beta is the slope in the offset vs photopeak cross-talk plot
+  // ideally these will be read in from a calibration file
+  // really these are the linear fit params for the absolute value of alpha, so alpha will always be positive
+  double m_alpha = 0.6335;
+  double b_alpha = 0.14283333333333337;
+  
+  double m_beta = 0.0024999999999999467;
+  double b_beta = -0.000833333333333463;
+
+  // n defines the dimensions of the matrices as well as the exact calibration parameters
+  unsigned int n = ClusterSize;
+  
+  // Get alpha and beta
+  double Alpha = m_alpha * n + b_alpha;
+  double Beta = m_beta * n + b_beta;
+  
+  // Define the identity matrix I
+  TMatrixD I(n, n);
+  I.UnitMatrix();
+  
+  // Define the matrix of all 1s
+  TMatrixD Ones(n, n);
+  Ones = 1.0;
+  
+  // Define adjacency matrix
+  TMatrixD M(n,n);
+  M = I + (Beta / (n-1)) * (Ones - I);
+  
+  // Define constants matrix (only non-zero at the edges)
+  TVectorD C(n);
+  C.Zero();
+  C[0] = 1.0;
+  C[n-1] = 1.0;
+  C *= 0.5 * Alpha;
+  
+  // Take inverse of adjacency matrix M
+  TMatrixD MInv = M.Invert();
+  
+  // Add these matrices to the cache so they don't have to be re-created millions of times
+  auto Result = m_ChargeSharingMatrixCache.emplace(ClusterSize, make_pair(MInv, C));
+  // Return the matrices!
+  return Result.first->second;
+  
+  
+}
+////////////////////////////////////////////////////////////////////////////////
+
+//! Apply a charge sharing correction to the HV strips
+void MModuleStripPairingMultiRoundChiSquare::ChargeSharingCorrection(vector<vector<vector<MStripHit*>>> TriggeredStripHits) {
+
+  // Loop over detectors
+  for (unsigned int d = 0; d < TriggeredStripHits.size(); ++d) {
+    // Collect just the HV strips
+    vector<MStripHit*> HVStrips = TriggeredStripHits[d][1];
+    
+    // Make sure there are actually HV strips to correct
+    if (HVStrips.size() == 0) {
+      continue;
+    }
+    
+    // Sort the HV strips by Strip ID
+    sort(HVStrips.begin(), HVStrips.end(), [](MStripHit* StripA, MStripHit* StripB) {
+      return StripA->GetStripID() < StripB->GetStripID();
+    });
+    
+    // Walk through the sorted strips one cluster at a time
+    unsigned int Start = 0;
+    while (Start < HVStrips.size()) { // Walk through all strips
+      
+      unsigned int End = Start;
+      // Find index ('End') where the strips are no longer adjacent
+      while ((End + 1 < HVStrips.size()) && (HVStrips[End + 1]->GetStripID() == HVStrips[End]->GetStripID() + 1)) {
+        ++End;
+      }
+      unsigned int ClusterSize = End - Start + 1;
+      
+      // A single, isolated strip has no charge sharing to correct for
+      if (ClusterSize == 1) {
+        Start = End + 1;
+        continue;
+      }
+      
+      // Retrieve (or build) the correction matrices for this cluster size
+      const pair<TMatrixD, TVectorD>& Matrices = GetChargeSharingMatrices(ClusterSize);
+      const TMatrixD& MInv = Matrices.first;
+      const TVectorD& C = Matrices.second;
+      
+      // Initialize vector of HV strip Energies
+      TVectorD Energy(ClusterSize);
+      for (unsigned int sh = 0; sh < ClusterSize; ++sh) {
+        Energy[sh] = HVStrips[Start + sh]->GetEnergy();
+      }
+      
+      // Correct the energies using the correction matrices
+      TVectorD CorrectedEnergy = MInv * (Energy + C);
+      
+      // Write the corrected energies to the MStripHit object
+      for (unsigned int sh = 0; sh < ClusterSize; ++sh) {
+        HVStrips[Start + sh]->SetEnergy(CorrectedEnergy[sh]);
+      }
+      
+      // Walk to the next strip cluster
+      Start = End + 1;
+      
+    }
+  }
+}
+////////////////////////////////////////////////////////////////////////////////
+
 //! Main data analysis routine, which updates the event to a new level
 bool MModuleStripPairingMultiRoundChiSquare::AnalyzeEvent(MReadOutAssembly* Event)
 {
@@ -852,6 +972,9 @@ bool MModuleStripPairingMultiRoundChiSquare::AnalyzeEvent(MReadOutAssembly* Even
   }
   // Collect triggered strip hits from input event
   vector<vector<vector<MStripHit*>>> TriggeredStripHits = CollectTriggeredStripHits(Event); // List of detectors, list of sides, list of triggered strip hits
+  
+  // Apply the charge sharing correction to the HV strip hits
+  ChargeSharingCorrection(TriggeredStripHits);
 
   // Perform some event selections
   bool CheckTriggeredStripHits = EventSelection(Event, TriggeredStripHits);

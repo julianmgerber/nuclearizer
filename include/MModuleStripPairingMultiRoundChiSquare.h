@@ -24,8 +24,11 @@
 #include<map>
 #include<limits>
 #include <numeric>
+#include <utility>
 
 // ROOT libs:
+#include <TMatrixD.h>
+#include <TVectorD.h>
 
 // MEGAlib libs:
 #include "MGlobal.h"
@@ -85,6 +88,12 @@ class MModuleStripPairingMultiRoundChiSquare : public MModule
     
   //! Function to apply charge trapping correction
     float ChargeTrappingCorrection(unsigned int d, const vector<vector<MStripHit*>>& StripHits);
+  
+  //! Apply a charge sharing correction to the HV strips
+    void ChargeSharingCorrection(vector<vector<vector<MStripHit*>>> TriggeredStripHits);
+  
+  //! Retrieve or build the charge sharing correction matrices for a given cluster size
+    const pair<TMatrixD, TVectorD>& GetChargeSharingMatrices(unsigned int ClusterSize);
     
   //! Divide an event's triggered strip hits by detector and LV/HV side
     vector<vector<vector<MStripHit*>>> CollectTriggeredStripHits(MReadOutAssembly* Event);
@@ -126,6 +135,9 @@ class MModuleStripPairingMultiRoundChiSquare : public MModule
  private:
   //! The maximum number of strips to pair
   unsigned int m_MaximumStrips;
+  
+  //! Cache of charge sharing correction matrices (Minv, C)
+  map<unsigned int, pair<TMatrixD, TVectorD>> m_ChargeSharingMatrixCache;
 
 
 
